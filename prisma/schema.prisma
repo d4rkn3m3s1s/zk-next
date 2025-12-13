@@ -1,0 +1,137 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+}
+
+model User {
+  id        Int      @id @default(autoincrement())
+  username  String   @unique
+  email     String   @unique
+  password  String
+  role      String   @default("user")
+  isActive  Boolean  @default(true)
+  phone     String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  orders    Order[]
+}
+
+model Product {
+  id           Int         @id @default(autoincrement())
+  name         String
+  description  String?
+  price        Decimal
+  comparePrice Decimal?
+  cost         Decimal?
+  stock        Int         @default(0)
+  images       String? // JSON string of image URLs
+  category     String?
+  brand        String?
+  status       String      @default("active")
+  isFeatured   Boolean     @default(false)
+  isNew        Boolean     @default(false)
+  createdAt    DateTime    @default(now())
+  updatedAt    DateTime    @updatedAt
+  orderItems   OrderItem[]
+}
+
+model Order {
+  id            Int         @id @default(autoincrement())
+  orderNumber   String      @unique
+  customerName  String?
+  userId        Int?
+  user          User?       @relation(fields: [userId], references: [id])
+  totalAmount   Decimal
+  status        String      @default("Processing")
+  paymentStatus String      @default("Pending")
+  items         OrderItem[]
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+}
+
+model OrderItem {
+  id        Int     @id @default(autoincrement())
+  orderId   Int
+  order     Order   @relation(fields: [orderId], references: [id])
+  productId Int
+  product   Product @relation(fields: [productId], references: [id])
+  quantity  Int
+  price     Decimal
+}
+
+model Appointment {
+  id          Int      @id @default(autoincrement())
+  name        String
+  phone       String
+  date        DateTime
+  time        String
+  description String?
+  status      String   @default("pending")
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Repair {
+  id             Int      @id @default(autoincrement())
+  customer_name  String
+  phone          String
+  device_model   String
+  issue          String
+  tracking_code  String   @unique
+  status         String   @default("received")
+  estimated_cost Decimal?
+  lockPassword   String?  // For numeric/text passwords
+  lockPattern    String?  // For pattern locks (e.g. "1-2-3-6-9")
+  images         String?  // JSON string of image URLs
+  privateNotes   String?  // Internal technician notes
+  receivedBy     String?  // Staff who received the device
+  requestedDate  DateTime? // Customer requested delivery date
+  estimatedDate  DateTime? // Shop estimated completion date
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+}
+
+model Message {
+  id        Int      @id @default(autoincrement())
+  name      String
+  email     String
+  subject   String?
+  message   String
+  is_read   Boolean  @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Post {
+  id          Int       @id @default(autoincrement())
+  title       String
+  slug        String    @unique
+  excerpt     String?
+  content     String
+  coverImage  String?
+  status      String    @default("draft")
+  author      String?
+  publishedAt DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+}
+
+model SiteSettings {
+  id            Int      @id @default(autoincrement())
+  site_name     String   @default("Zk İletişim")
+  site_url      String   @default("https://zkiletisim.com")
+  description   String?
+  email         String?
+  phone         String?
+  whatsapp      String?
+  instagram     String?
+  address       String?
+  maps_embed    String?
+  meta_title    String?
+  meta_keywords String?
+  robots_txt    String?
+  updatedAt     DateTime @updatedAt
+}

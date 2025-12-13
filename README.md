@@ -1,36 +1,83 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Zk İletişim - Next.js Migration
+
+Professional web application for Zk İletişim, a phone repair and accessory shop in Kadıköy. This project has been migrated from a legacy Express/EJS app to a modern Next.js 14 application.
+
+## Features
+
+### Public Facing
+-   **Home Page**: Featured products and latest blog posts.
+-   **Shop**: Product listing with filtering (Brand, Price, Category) and sorting.
+-   **Product Details**: Dynamic product pages with images and stock status.
+-   **Blog**: Tech news and guides with search functionality.
+-   **Services**: Appointment booking for repairs and support.
+-   **Repair Tracking**: Real-time status tracking for customer devices.
+-   **Contact**: Integrated contact form.
+-   **Chatbot**: AI-powered customer support assistant.
+
+### Admin Dashboard
+-   **Secure Authentication**: Protected admin routes.
+-   **Product Management**: CRUD operations for products.
+-   **Order Management**: View and update order status.
+-   **Appointment Management**: Manage service appointments.
+-   **Repair Tracking**: Update repair status for customers.
+-   **Blog Management**: Write and publish blog posts.
+-   **User Management**: Manage system users.
+-   **Message Center**: View and respond to contact form messages.
+
+## Tech Stack
+
+-   **Framework**: [Next.js 14](https://nextjs.org/) (App Router)
+-   **Language**: [TypeScript](https://www.typescriptlang.org/)
+-   **Styling**: [Tailwind CSS](https://tailwindcss.com/)
+-   **UI Components**: [Shadcn UI](https://ui.shadcn.com/)
+-   **Database**: [SQLite](https://www.sqlite.org/) (via [Better-SQLite3](https://github.com/WiseLibs/better-sqlite3))
+-   **ORM**: [Prisma](https://www.prisma.io/)
+-   **Authentication**: [NextAuth.js](https://next-auth.js.org/)
+-   **Icons**: [Lucide React](https://lucide.dev/)
 
 ## Getting Started
 
-First, run the development server:
+1.  **Install Dependencies**
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+    ```bash
+    npm install
+    ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+2.  **Database Setup**
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+    The project uses SQLite. The database file is located at `prisma/dev.db`.
+    To reset or update the database schema:
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+    ```bash
+    npx prisma migrate dev
+    # or
+    npx prisma db push
+    ```
 
-## Learn More
+    To seed the database (optional):
+    ```bash
+    npx prisma db seed
+    ```
 
-To learn more about Next.js, take a look at the following resources:
+3.  **Run Development Server**
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+    ```bash
+    npm run dev
+    ```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+    Open [http://localhost:3000](http://localhost:3000) with your browser.
 
-## Deploy on Vercel
+4.  **Admin Access**
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+    Navigate to `/admin` to access the dashboard.
+    (Default admin credentials should be configured in seed script or database)
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## Deployment
+
+This application is ready to be deployed on [Vercel](https://vercel.com).
+
+Note: Since this uses SQLite, for a serverless environment like Vercel, you might need to switch to a cloud database like PostgreSQL (Supabase, Neon) or use a volume if deploying to a VPS/Container.
+
+## License
+
+[MIT](LICENSE)

@@ -1,0 +1,152 @@
+'use server'
+
+import { prisma } from "@/lib/prisma"
+import { revalidatePath } from "next/cache"
+import { Repair } from "@prisma/client"
+
+export async function getPublicRepairStatus(trackingCode: string) {
+    if (!trackingCode) return null
+
+    const repair = await prisma.repair.findUnique({
+        where: { tracking_code: trackingCode },
+        select: {
+            id: true,
+            tracking_code: true,
+            device_model: true,
+            issue: true,
+            status: true,
+            estimated_cost: true,
+            receivedBy: true,
+            requestedDate: true,
+            estimatedDate: true,
+            createdAt: true,
+            updatedAt: true,
+            // Explicitly excluding privateNotes, lockPassword, lockPattern, images etc if not needed
+        }
+    })
+
+    if (!repair) return null
+
+    return {
+        ...repair,
+        estimated_cost: repair.estimated_cost ? Number(repair.estimated_cost) : null
+    }
+}
+
+export async function getRepairs(query?: string) {
+    const repairs = await prisma.repair.findMany({
+        where: query ? {
+            OR: [
+                { customer_name: { contains: query } },
+                { tracking_code: { contains: query } },
+                { device_model: { contains: query } }
+            ]
+        } : undefined,
+        orderBy: { createdAt: 'desc' }
+    })
+    return repairs.map(repair => ({
+        ...repair,
+        estimated_cost: repair.estimated_cost ? Number(repair.estimated_cost) : null
+    }))
+}
+
+export async function getRepair(id: number) {
+    const repair = await prisma.repair.findUnique({
+        where: { id }
+    })
+    if (!repair) return null
+    return {
+        ...repair,
+        estimated_cost: repair.estimated_cost ? Number(repair.estimated_cost) : null
+    }
+}
+
+export async function updateRepairStatus(id: number, status: string) {
+    await prisma.repair.update({
+        where: { id },
+        data: { status }
+    })
+    revalidatePath("/admin/repairs")
+    revalidatePath(`/admin/repairs/${id}`)
+}
+
+export async function getRepairByTrackingCode(trackingCode: string) {
+    const repair = await prisma.repair.findUnique({
+        where: { tracking_code: trackingCode }
+    })
+    if (!repair) return null
+    return {
+        ...repair,
+        estimated_cost: repair.estimated_cost ? Number(repair.estimated_cost) : null
+    }
+}
+
+export async function createRepair(formData: FormData) {
+    const customer_name = formData.get("customer_name") as string
+    const phone = formData.get("phone") as string
+    const device_model = formData.get("device_model") as string
+    const issue = formData.get("issue") as string
+    const estimated_cost = formData.get("estimated_cost") ? Number(formData.get("estimated_cost")) : null
+    const lockPassword = formData.get("lockPassword") as string || null
+    const lockPattern = formData.get("lockPattern") as string || null
+    const images = formData.get("images") as string || null
+    const privateNotes = formData.get("privateNotes") as string || null
+    const receivedBy = formData.get("receivedBy") as string || null
+    const requestedDate = formData.get("requestedDate") ? new Date(formData.get("requestedDate") as string) : null
+    const estimatedDate = formData.get("estimatedDate") ? new Date(formData.get("estimatedDate") as string) : null
+
+    // Generate simple tracking code: ZK-XXXX
+    const code = `ZK-${Math.floor(1000 + Math.random() * 9000)}`
+
+    await prisma.repair.create({
+        data: {
+            customer_name,
+            phone,
+            device_model,
+            issue,
+            estimated_cost,
+            tracking_code: code,
+            status: "received",
+            lockPassword,
+            lockPattern,
+            images,
+            privateNotes,
+            receivedBy,
+            requestedDate,
+            estimatedDate
+        } as any
+    })
+    revalidatePath("/admin/repairs")
+}
+
+export async function updateRepair(id: number, formData: FormData) {
+    const status = formData.get("status") as string
+    const estimated_cost = formData.get("estimated_cost") ? Number(formData.get("estimated_cost")) : undefined
+    const lockPassword = formData.get("lockPassword") as string
+    const lockPattern = formData.get("lockPattern") as string
+    const privateNotes = formData.get("privateNotes") as string
+    const receivedBy = formData.get("receivedBy") as string
+    const requestedDate = formData.get("requestedDate") ? new Date(formData.get("requestedDate") as string) : undefined
+    const estimatedDate = formData.get("estimatedDate") ? new Date(formData.get("estimatedDate") as string) : undefined
+
+    await prisma.repair.update({
+        where: { id },
+        data: {
+            status,
+            estimated_cost,
+            lockPassword,
+            lockPattern,
+            privateNotes,
+            receivedBy,
+            requestedDate,
+            estimatedDate
+        } as any
+    })
+    revalidatePath("/admin/repairs")
+    revalidatePath(`/admin/repairs/${id}`)
+}
+
+export async function deleteRepair(id: number) {
+    await prisma.repair.delete({ where: { id } })
+    revalidatePath("/admin/repairs")
+}
