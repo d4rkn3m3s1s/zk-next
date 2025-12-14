@@ -120,13 +120,13 @@ function HeroScene() {
 
                     <div className="flex flex-col sm:flex-row gap-6 items-center justify-center">
                         <Button asChild className="pointer-events-auto bg-white hover:bg-slate-200 text-black font-mono rounded-full h-14 px-10 tracking-tight text-lg shadow-[0_0_20px_rgba(255,255,255,0.3)] hover:shadow-[0_0_35px_rgba(255,255,255,0.5)] transition-all">
-                            <Link href="/products">
-                                TRY DEMO
+                            <Link href="/shop">
+                                MAĞAZAYI KEŞFET
                             </Link>
                         </Button>
                         <Button asChild variant="ghost" className="pointer-events-auto text-slate-400 hover:text-white font-mono rounded-full h-14 px-8 hover:bg-white/5 border border-white/5 backdrop-blur-sm transition-all">
-                            <Link href="#contact">
-                                CONTACT_SALES
+                            <Link href="/contact">
+                                İLETİŞİME GEÇ
                             </Link>
                         </Button>
                     </div>

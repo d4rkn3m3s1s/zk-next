@@ -3,112 +3,104 @@
 import { prisma } from "@/lib/prisma"
 
 export async function getDashboardStats() {
-    // 1. Order Revenue
-    const orderRevenueAggregation = await prisma.order.aggregate({
-        _sum: {
-            totalAmount: true
-        },
-        where: {
-            status: {
-                not: 'Cancelled'
-            }
-        }
-    })
-    const orderRevenue = Number(orderRevenueAggregation._sum.totalAmount || 0)
-
-    // 1b. Sales Ledger Revenue (New)
-    let salesRevenue = 0;
     try {
-        if ((prisma as any).sale) {
-            const saleAggregation = await prisma.sale.aggregate({
-                _sum: {
-                    soldPrice: true
-                }
+        // 0. Date Bounds for "Today"
+        const today = new Date()
+        today.setHours(0, 0, 0, 0)
+        const tomorrow = new Date(today)
+        tomorrow.setDate(tomorrow.getDate() + 1)
+
+        // Parallelize all queries for performance
+        const [
+            orderRevAgg,
+            activeOrdersCount,
+            pendingRepairsCount,
+            todayAppointmentsCount,
+            activeUsersCount,
+            totalStockAgg,
+            lowStockProducts,
+            recentRepairs,
+            todayAppointments,
+            unreadMessages
+        ] = await Promise.all([
+            // 1. Order Revenue
+            prisma.order.aggregate({ _sum: { totalAmount: true }, where: { status: { not: 'Cancelled' } } }),
+
+            // 2. Active Orders
+            prisma.order.count({ where: { status: { in: ['Processing', 'Shipped'] } } }),
+            // 3. Pending Repairs
+            prisma.repair.count({ where: { status: { not: 'completed' } } }),
+            // 4. Today Apt Count
+            prisma.appointment.count({ where: { date: { gte: today, lt: tomorrow } } }),
+            // 6. Active Users
+            prisma.user.count({ where: { isActive: true } }),
+            // 5. Total Stock
+            prisma.product.aggregate({ _sum: { stock: true } }),
+
+            // 9. NEW: Low Stock Products (<3)
+            prisma.product.findMany({
+                where: { stock: { lt: 3 } },
+                take: 5,
+                orderBy: { stock: 'asc' },
+                select: { id: true, name: true, stock: true, images: true }
+            }),
+            // 10. NEW: Recent Repairs (Last 5)
+            prisma.repair.findMany({
+                take: 5,
+                orderBy: { createdAt: 'desc' },
+                select: { id: true, device_model: true, issue: true, status: true, customer_name: true }
+            }),
+            // 11. NEW: Today's Appointments Details
+            prisma.appointment.findMany({
+                where: { date: { gte: today, lt: tomorrow } },
+                orderBy: { time: 'asc' }
+            }),
+            // 12. NEW: Unread Messages
+            prisma.message.findMany({
+                where: { is_read: false },
+                take: 5,
+                orderBy: { createdAt: 'desc' }
             })
-            salesRevenue = Number(saleAggregation._sum.soldPrice || 0)
-        }
-    } catch (e) {
-        console.error("Failed to aggregate sales:", e);
-    }
+        ])
 
-    const totalRevenue = orderRevenue + salesRevenue
+        // Process aggregated numbers
+        const totalRevenue = Number(orderRevAgg._sum.totalAmount) || 0
+        const totalStock = totalStockAgg._sum.stock || 0
 
-    // 2. Active Orders (Processing or Shipped)
-    const activeOrdersCount = await prisma.order.count({
-        where: {
-            status: {
-                in: ['Processing', 'Shipped']
-            }
-        }
-    })
+        // Process Chart Data (Using Orders instead of possibly missing Sales model)
+        const sevenDaysAgo = new Date();
+        sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
 
-    // 3. Pending Repairs (received or diagnosing)
-    // Looking at Repair model status default is 'received'.
-    const pendingRepairsCount = await prisma.repair.count({
-        where: {
-            status: {
-                not: 'completed' // Assuming 'completed' is the done state. 
-                // Previous code check: status is String. 
-            }
-        }
-    })
-
-    // 4. Today's Appointments
-    const today = new Date()
-    today.setHours(0, 0, 0, 0)
-    const tomorrow = new Date(today)
-    tomorrow.setDate(tomorrow.getDate() + 1)
-
-    const todayAppointmentsCount = await prisma.appointment.count({
-        where: {
-            date: {
-                gte: today,
-                lt: tomorrow
-            }
-        }
-    })
-
-    // 5. Total Stock
-    const totalStockAggregation = await prisma.product.aggregate({
-        _sum: {
-            stock: true
-        }
-    })
-    const totalStock = totalStockAggregation._sum.stock || 0
-
-    // 6. Active Users
-    const activeUsersCount = await prisma.user.count({
-        where: {
-            isActive: true
-        }
-    })
-
-    // 7. Recent Orders (Last 5)
-    try {
-        const recentOrders = await prisma.order.findMany({
-            take: 5,
-            orderBy: {
-                createdAt: 'desc'
+        const last7DaysOrders = await prisma.order.findMany({
+            where: {
+                createdAt: { gte: sevenDaysAgo },
+                status: 'Completed'
             },
-            include: {
-                user: {
-                    select: {
-                        username: true,
-                        email: true
-                    }
-                }
-            }
-        })
+            orderBy: { createdAt: 'asc' }
+        });
+
+        const last7DaysSalesMap = last7DaysOrders.reduce((acc: Record<string, number>, curr) => {
+            const date = curr.createdAt.toISOString().split('T')[0];
+            acc[date] = (acc[date] || 0) + Number(curr.totalAmount);
+            return acc;
+        }, {});
+
+        const last7DaysSales = Object.entries(last7DaysSalesMap).map(([date, amount]) => ({ date, amount }));
 
         return {
-            totalRevenue: Number(totalRevenue),
+            totalRevenue,
             activeOrdersCount,
             pendingRepairsCount,
             todayAppointmentsCount,
             totalStock,
             activeUsersCount,
-            recentOrders,
-            dbStatus: true
+            last7DaysSales,
+            dbStatus: true,
+            // New Data
+            lowStockProducts,
+            recentRepairs,
+            todayAppointments,
+            unreadMessages
         }
     } catch (error) {
         console.error("Dashboard Stats Error:", error)
@@ -119,8 +111,12 @@ export async function getDashboardStats() {
             todayAppointmentsCount: 0,
             totalStock: 0,
             activeUsersCount: 0,
-            recentOrders: [],
-            dbStatus: false
+            last7DaysSales: [],
+            dbStatus: false,
+            lowStockProducts: [],
+            recentRepairs: [],
+            todayAppointments: [],
+            unreadMessages: []
         }
     }
 }

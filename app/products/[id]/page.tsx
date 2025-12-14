@@ -7,12 +7,14 @@ import {
     Truck,
     ShieldCheck,
     ArrowRight,
-    Check
+    Check,
+    BatteryCharging
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { getProduct } from "@/app/actions/product"
 import { notFound } from "next/navigation"
+import { ProductDescription } from "@/components/product/ProductDescription"
 
 export default async function ProductDetailPage({ params }: { params: Promise<{ id: string }> }) {
     const { id } = await params
@@ -155,89 +157,70 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                             <div>
                                 <h4 className="text-lg font-bold mb-4">Özellikler</h4>
-                                <ul className="space-y-2">
-                                    <li className="flex items-center gap-2">
-                                        <Check className="h-4 w-4 text-primary" />
-                                        <span className="text-muted-foreground">Marka: {product.brand || "Belirtilmemiş"}</span>
+                                <ul className="space-y-3">
+                                    <li className="flex items-center gap-3 p-3 rounded-xl bg-background/50 border border-border/50">
+                                        <div className="h-8 w-8 rounded-lg bg-primary/20 flex items-center justify-center text-primary">
+                                            <Check className="h-4 w-4" />
+                                        </div>
+                                        <div>
+                                            <p className="text-xs text-muted-foreground uppercase tracking-wider font-bold">Marka</p>
+                                            <p className="font-medium text-foreground">{product.brand || "Belirtilmemiş"}</p>
+                                        </div>
                                     </li>
-                                    <li className="flex items-center gap-2">
-                                        <Check className="h-4 w-4 text-primary" />
-                                        <span className="text-muted-foreground">Kategori: {product.category || "Belirtilmemiş"}</span>
+                                    <li className="flex items-center gap-3 p-3 rounded-xl bg-background/50 border border-border/50">
+                                        <div className="h-8 w-8 rounded-lg bg-primary/20 flex items-center justify-center text-primary">
+                                            <Check className="h-4 w-4" />
+                                        </div>
+                                        <div>
+                                            <p className="text-xs text-muted-foreground uppercase tracking-wider font-bold">Kategori</p>
+                                            <p className="font-medium text-foreground">{product.category || "Belirtilmemiş"}</p>
+                                        </div>
                                     </li>
-                                    <li className="flex items-center gap-2">
-                                        <Check className="h-4 w-4 text-primary" />
-                                        <span className="text-muted-foreground">Durum: {product.status === 'active' ? 'Satışta' : 'Pasif'}</span>
-                                    </li>
+
+                                    {/* NEW SECOND HAND FIELDS */}
+                                    {product.condition && (
+                                        <li className="flex items-center gap-3 p-3 rounded-xl bg-background/50 border border-border/50">
+                                            <div className="h-8 w-8 rounded-lg bg-yellow-500/20 flex items-center justify-center text-yellow-500">
+                                                <Star className="h-4 w-4" />
+                                            </div>
+                                            <div>
+                                                <p className="text-xs text-muted-foreground uppercase tracking-wider font-bold">Kozmetik Durum</p>
+                                                <p className="font-medium text-foreground capitalize">{product.condition}</p>
+                                            </div>
+                                        </li>
+                                    )}
+                                    {product.batteryHealth && (
+                                        <li className="flex items-center gap-3 p-3 rounded-xl bg-background/50 border border-border/50">
+                                            <div className={`h-8 w-8 rounded-lg flex items-center justify-center ${product.batteryHealth > 85 ? 'bg-green-500/20 text-green-500' : 'bg-yellow-500/20 text-yellow-500'}`}>
+                                                <BatteryCharging className="h-4 w-4" />
+                                            </div>
+                                            <div>
+                                                <p className="text-xs text-muted-foreground uppercase tracking-wider font-bold">Pil Sağlığı</p>
+                                                <p className="font-medium text-foreground">%{product.batteryHealth}</p>
+                                            </div>
+                                        </li>
+                                    )}
+                                    {product.warranty && (
+                                        <li className="flex items-center gap-3 p-3 rounded-xl bg-background/50 border border-border/50">
+                                            <div className="h-8 w-8 rounded-lg bg-purple-500/20 flex items-center justify-center text-purple-500">
+                                                <ShieldCheck className="h-4 w-4" />
+                                            </div>
+                                            <div>
+                                                <p className="text-xs text-muted-foreground uppercase tracking-wider font-bold">Garanti Durumu</p>
+                                                <p className="font-medium text-foreground">{product.warranty}</p>
+                                            </div>
+                                        </li>
+                                    )}
                                 </ul>
                             </div>
-                            <div className="md:col-span-2">
+                            <div className="md:col-span-2 mt-8">
                                 <h4 className="text-lg font-bold mb-6 flex items-center gap-2">
                                     <span className="w-1 h-6 bg-primary rounded-full"></span>
                                     Teknik Özellikler ve Detaylar
                                 </h4>
 
-                                {product.description && product.description.includes("-") ? (
-                                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                                        {(() => {
-                                            const sections: { title: string, items: string[] }[] = [];
-                                            let currentSection = { title: "Diğer Özellikler", items: [] as string[] };
-
-                                            // Handle the initial "Marka/Model" part which might be at the top
-                                            const lines = product.description.split('\n').map(l => l.trim()).filter(l => l);
-
-                                            lines.forEach(line => {
-                                                if (line.endsWith(':') && !line.includes('-')) {
-                                                    // This is likely a header like "Network:"
-                                                    if (currentSection.items.length > 0) {
-                                                        sections.push(currentSection);
-                                                    }
-                                                    currentSection = { title: line.replace(':', ''), items: [] };
-                                                } else {
-                                                    // This is a content line (or key-value)
-                                                    currentSection.items.push(line);
-                                                }
-                                            });
-                                            if (currentSection.items.length > 0) sections.push(currentSection);
-
-                                            return sections.map((section, idx) => (
-                                                <div key={idx} className="bg-card/50 backdrop-blur-sm border border-border/50 rounded-xl p-5 hover:border-primary/50 transition-colors group">
-                                                    <h5 className="font-semibold text-primary mb-3 flex items-center gap-2">
-                                                        {section.title}
-                                                    </h5>
-                                                    <ul className="space-y-2 text-sm">
-                                                        {section.items.map((item, i) => {
-                                                            const parts = item.split(':');
-                                                            const isKeyValue = item.startsWith('-') && item.includes(':');
-
-                                                            if (isKeyValue) {
-                                                                const key = parts[0].replace('-', '').trim();
-                                                                const val = parts.slice(1).join(':').trim();
-                                                                return (
-                                                                    <li key={i} className="flex flex-col gap-0.5">
-                                                                        <span className="text-muted-foreground text-xs font-medium uppercase tracking-wider">{key}</span>
-                                                                        <span className="text-foreground font-medium">{val}</span>
-                                                                    </li>
-                                                                )
-                                                            } else {
-                                                                return (
-                                                                    <li key={i} className="text-muted-foreground pl-2 border-l-2 border-primary/20">
-                                                                        {item.replace(/^-/, '').trim()}
-                                                                    </li>
-                                                                )
-                                                            }
-                                                        })}
-                                                    </ul>
-                                                </div>
-                                            ));
-                                        })()}
-                                    </div>
-                                ) : (
-                                    <div className="bg-card rounded-xl p-6 border border-border">
-                                        <p className="text-muted-foreground leading-relaxed whitespace-pre-wrap">
-                                            {product.description}
-                                        </p>
-                                    </div>
-                                )}
+                                {/* Using the new Client Component for truncation */}
+                                <ProductDescription description={product.description || ""} />
                             </div>
                         </div>
                     </div>

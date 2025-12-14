@@ -32,7 +32,12 @@ model Product {
   brand        String?
   status       String      @default("active")
   isFeatured   Boolean     @default(false)
+
   isNew        Boolean     @default(false)
+  // Second Hand Fields
+  batteryHealth Int?       // e.g. 85, 90, 100
+  warranty     String?     // e.g. "12 Ay ZK Garantisi", "Apple Türkiye Garantili"
+  condition    String?     // e.g. "Mükemmel", "Çok İyi", "İyi" -> "excellent", "good", "fair"
   createdAt    DateTime    @default(now())
   updatedAt    DateTime    @updatedAt
   orderItems   OrderItem[]

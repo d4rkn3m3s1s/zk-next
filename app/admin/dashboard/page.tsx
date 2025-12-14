@@ -1,3 +1,6 @@
+"use client";
+
+import { useEffect, useState } from "react";
 import { getDashboardStats } from "@/app/actions/dashboard"
 import {
     DollarSign,
@@ -11,15 +14,28 @@ import {
     CreditCard,
     Cpu
 } from "lucide-react"
+import { LowStockWidget } from "@/components/admin/widgets/LowStockWidget"
+import { RecentRepairsWidget } from "@/components/admin/widgets/RecentRepairsWidget"
+
+
+import { QuickActionsWidget } from "@/components/admin/widgets/QuickActionsWidget"
+import { UnreadMessagesWidget } from "@/components/admin/widgets/UnreadMessagesWidget"
+import { DailyHadithWidget } from "@/components/admin/widgets/DailyHadithWidget"
 import { ExchangeRateWidget } from "@/components/admin/widgets/ExchangeRateWidget"
 import { WeatherWidget } from "@/components/admin/widgets/WeatherWidget"
 import { KdvCalculator } from "@/components/admin/widgets/KdvCalculator"
 import { InstallmentCalculator } from "@/components/admin/widgets/InstallmentCalculator"
 import { DashboardBackground } from "@/components/admin/DashboardBackground"
+import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 
+export default function LegendaryDashboard() {
+    const [data, setData] = useState<any>(null);
 
-export default async function LegendaryDashboard() {
-    const data = await getDashboardStats()
+    useEffect(() => {
+        getDashboardStats().then(setData);
+    }, []);
+
+    if (!data) return <div className="min-h-screen bg-black text-white flex items-center justify-center">Yükleniyor...</div>;
 
     const stats = [
         {
@@ -48,15 +64,6 @@ export default async function LegendaryDashboard() {
             bg: "bg-orange-500/10",
             border: "border-orange-500/20",
             trend: "+3"
-        },
-        {
-            title: "Randevular",
-            value: data.todayAppointmentsCount.toString(),
-            icon: Calendar,
-            color: "text-purple-400",
-            bg: "bg-purple-500/10",
-            border: "border-purple-500/20",
-            trend: "Bugün"
         },
     ]
 
@@ -117,9 +124,23 @@ export default async function LegendaryDashboard() {
                     ))}
                 </div>
 
-                {/* Widgets Grid */}
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                    <WeatherWidget />
+                {/* Widgets Row 1: Operations */}
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    <QuickActionsWidget />
+                    <RecentRepairsWidget repairs={data.recentRepairs} />
+                    <div className="lg:col-span-1">
+                        <WeatherWidget />
+                    </div>
+                </div>
+
+                {/* Widgets Row 2: Management */}
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <LowStockWidget products={data.lowStockProducts} />
+                    <UnreadMessagesWidget messages={data.unreadMessages} />
+                </div>
+
+                {/* Existing Widgets */}
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                     <ExchangeRateWidget />
                     <KdvCalculator />
                     <InstallmentCalculator />
@@ -127,61 +148,61 @@ export default async function LegendaryDashboard() {
 
                 {/* Dashboard Main Content */}
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                    {/* Recent Orders Table */}
+                    {/* Daily Sales Chart */}
                     <div className="lg:col-span-2 bg-slate-900/50 border border-white/10 rounded-2xl overflow-hidden backdrop-blur-md">
                         <div className="p-6 border-b border-white/10 flex justify-between items-center">
                             <h3 className="text-lg font-bold text-white flex items-center gap-2">
                                 <Activity className="w-5 h-5 text-cyan-400" />
-                                Son Sipariş Aktivitesi
+                                Günlük Satış Grafiği
                             </h3>
-                            <button className="text-xs font-bold text-cyan-400 hover:text-cyan-300 uppercase tracking-wider transition-colors">
-                                Tümünü Gör
-                            </button>
+                            <div className="flex items-center gap-2">
+                                <span className="flex items-center gap-1 text-xs font-bold px-2 py-1 rounded bg-green-500/10 text-green-400 border border-green-500/20">
+                                    <ArrowUpRight className="w-3 h-3" /> Son 7 Gün
+                                </span>
+                            </div>
                         </div>
-                        <div className="overflow-x-auto">
-                            <table className="w-full text-sm text-left">
-                                <thead className="text-xs text-slate-400 uppercase bg-black/20">
-                                    <tr>
-                                        <th className="px-6 py-4 font-bold">Sipariş No</th>
-                                        <th className="px-6 py-4 font-bold">Müşteri</th>
-                                        <th className="px-6 py-4 font-bold">Tutar</th>
-                                        <th className="px-6 py-4 font-bold text-right">Durum</th>
-                                    </tr>
-                                </thead>
-                                <tbody className="divide-y divide-white/5">
-                                    {data.recentOrders.length === 0 ? (
-                                        <tr>
-                                            <td colSpan={4} className="px-6 py-8 text-center text-slate-500">
-                                                Henüz veri akışı yok.
-                                            </td>
-                                        </tr>
-                                    ) : (
-                                        data.recentOrders.map((order) => (
-                                            <tr key={order.id} className="hover:bg-white/5 transition-colors group">
-                                                <td className="px-6 py-4 font-mono text-cyan-200 group-hover:text-cyan-400">
-                                                    #{order.orderNumber}
-                                                </td>
-                                                <td className="px-6 py-4 font-medium text-slate-300">
-                                                    {order.customerName || order.user?.username || "Misafir"}
-                                                </td>
-                                                <td className="px-6 py-4 text-white font-bold">
-                                                    ₺{Number(order.totalAmount).toLocaleString('tr-TR')}
-                                                </td>
-                                                <td className="px-6 py-4 text-right">
-                                                    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border ${order.status === 'Completed' || order.status === 'Delivered'
-                                                        ? 'bg-green-500/10 text-green-400 border-green-500/20'
-                                                        : order.status === 'Processing'
-                                                            ? 'bg-blue-500/10 text-blue-400 border-blue-500/20'
-                                                            : 'bg-slate-500/10 text-slate-400 border-slate-500/20'
-                                                        }`}>
-                                                        {order.status}
-                                                    </span>
-                                                </td>
-                                            </tr>
-                                        ))
-                                    )}
-                                </tbody>
-                            </table>
+                        <div className="p-6 h-[300px]">
+                            {data.last7DaysSales && data.last7DaysSales.length > 0 ? (
+                                <ResponsiveContainer width="100%" height="100%">
+                                    <AreaChart data={data.last7DaysSales}>
+                                        <defs>
+                                            <linearGradient id="colorSales" x1="0" y1="0" x2="0" y2="1">
+                                                <stop offset="5%" stopColor="#22d3ee" stopOpacity={0.3} />
+                                                <stop offset="95%" stopColor="#22d3ee" stopOpacity={0} />
+                                            </linearGradient>
+                                        </defs>
+                                        <CartesianGrid strokeDasharray="3 3" stroke="#334155" vertical={false} />
+                                        <XAxis
+                                            dataKey="date"
+                                            stroke="#94a3b8"
+                                            tickFormatter={(val) => val.split('-').slice(1).join('/')}
+                                            tick={{ fontSize: 12 }}
+                                        />
+                                        <YAxis stroke="#94a3b8" tick={{ fontSize: 12 }} />
+                                        <Tooltip
+                                            contentStyle={{ backgroundColor: '#0f172a', border: '1px solid #1e293b', borderRadius: '8px' }}
+                                            itemStyle={{ color: '#fff' }}
+                                            formatter={(value: number) => [`₺${value.toLocaleString()}`, 'Satış']}
+                                            labelFormatter={(label) => label.split('-').reverse().join('.')}
+                                        />
+                                        <Area
+                                            type="monotone"
+                                            dataKey="amount"
+                                            stroke="#22d3ee"
+                                            fillOpacity={1}
+                                            fill="url(#colorSales)"
+                                            strokeWidth={3}
+                                        />
+                                    </AreaChart>
+                                </ResponsiveContainer>
+                            ) : (
+                                <div className="flex h-full items-center justify-center text-slate-500">
+                                    <div className="text-center">
+                                        <Activity className="w-12 h-12 mx-auto mb-2 opacity-20" />
+                                        <p>Henüz satış verisi bulunmuyor.</p>
+                                    </div>
+                                </div>
+                            )}
                         </div>
                     </div>
 
@@ -220,14 +241,6 @@ export default async function LegendaryDashboard() {
                                         <h4 className="text-2xl font-black text-white">{data.totalStock}</h4>
                                     </div>
                                 </div>
-                                <div className="grid grid-cols-2 gap-2 mt-4">
-                                    <button className="bg-white/5 hover:bg-white/10 border border-white/5 rounded-lg py-2 text-xs font-bold text-slate-300 transition-colors">
-                                        Stok Girişi
-                                    </button>
-                                    <button className="bg-indigo-500/20 hover:bg-indigo-500/30 border border-indigo-500/30 rounded-lg py-2 text-xs font-bold text-indigo-300 transition-colors">
-                                        Raporlar
-                                    </button>
-                                </div>
                             </div>
                         </div>
 
@@ -248,13 +261,6 @@ export default async function LegendaryDashboard() {
                                         API Gateway
                                     </span>
                                     <span className="text-green-400 font-mono text-xs">ONLINE</span>
-                                </div>
-                                <div className="flex items-center justify-between text-sm">
-                                    <span className="text-slate-300 flex items-center gap-2">
-                                        <span className="w-1.5 h-1.5 rounded-full bg-green-500"></span>
-                                        Frontend
-                                    </span>
-                                    <span className="text-green-400 font-mono text-xs">Vercel Edge</span>
                                 </div>
                             </div>
                         </div>

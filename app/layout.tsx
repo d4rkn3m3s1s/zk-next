@@ -2,9 +2,7 @@ import type { Metadata } from "next";
 import { Space_Grotesk, Noto_Sans } from "next/font/google";
 import "./globals.css";
 import { Providers } from "@/components/providers/Providers";
-import { Header } from "@/components/layout/Header";
-import { Footer } from "@/components/layout/Footer";
-import { Chatbot } from "@/components/chat/Chatbot";
+import { MainLayout } from "@/components/layout/MainLayout";
 
 const spaceGrotesk = Space_Grotesk({
   subsets: ["latin"],
@@ -20,7 +18,20 @@ const notoSans = Noto_Sans({
 export const metadata: Metadata = {
   title: "Zk İletişim - Kadıköy Telefon Tamiri ve Aksesuar",
   description: "Kadıköy'de güvenilir telefon tamiri, teknik servis ve orijinal aksesuar satışı. iPhone, Samsung ve tüm modeller için profesyonel hizmet.",
+  manifest: '/manifest.webmanifest',
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "black-translucent",
+    title: "ZK İletişim",
+  },
+  formatDetection: {
+    telephone: false,
+  },
 };
+
+export const viewport = {
+  themeColor: '#00F0FF',
+}
 
 export default function RootLayout({
   children,
@@ -30,15 +41,13 @@ export default function RootLayout({
   return (
     <html lang="tr" className="dark" suppressHydrationWarning>
       <body
+        suppressHydrationWarning
         className={`${spaceGrotesk.variable} ${notoSans.variable} font-body bg-background text-foreground antialiased`}
       >
         <Providers>
-          <Header />
-          <main className="min-h-screen pt-[72px]">
+          <MainLayout>
             {children}
-          </main>
-          <Footer />
-          <Chatbot />
+          </MainLayout>
         </Providers>
       </body>
     </html>

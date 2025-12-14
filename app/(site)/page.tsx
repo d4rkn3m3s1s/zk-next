@@ -1,11 +1,14 @@
 import Link from "next/link"
-import { ArrowRight, PlayCircle, ShieldCheck, BatteryCharging, Zap, Gem, Lock, Smartphone, ArrowUpRight, RefreshCw, Headphones, Building2, ShoppingBag } from "lucide-react"
+import { ArrowRight, PlayCircle, ShieldCheck, BatteryCharging, Zap, Gem, Lock, Smartphone, ArrowUpRight, RefreshCw, Headphones, Building2, ShoppingBag, Bot } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { getProducts } from "@/app/actions/product"
 import { getPosts } from "@/app/actions/blog"
 
 import { HeroScene } from "@/components/ui/three-hero"
 import { BentoGrid, BentoCard } from "@/components/ui/bento-grid";
+import { AiTriggerButton } from "@/components/home/AiTriggerButton";
+
+
 
 export default async function Home() {
   const featuredProducts = await getProducts({ isFeatured: true, limit: 10 })
@@ -43,40 +46,51 @@ export default async function Home() {
       </div>
 
       {/* Services Section - Bento Grid */}
-      <section className="relative py-24 bg-[#050505] text-white" id="services">
-        <div className="max-w-7xl mx-auto px-4 md:px-10">
-          <div className="flex flex-col gap-4 mb-16 text-center">
-            <div className="inline-block mx-auto mb-4 px-3 py-1 text-xs font-mono text-purple-400 border border-purple-500/30 rounded-full bg-purple-500/10 backdrop-blur-sm">
-              SYSTEM.SERVICES
+      <section className="relative py-32 bg-[#020204] overflow-hidden" id="services">
+        {/* Background Animation */}
+        <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20 mix-blend-overlay pointer-events-none"></div>
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[1000px] h-[600px] bg-purple-900/20 rounded-[100%] blur-[120px] pointer-events-none"></div>
+
+        <div className="max-w-7xl mx-auto px-4 md:px-10 relative z-10">
+          <div className="flex flex-col gap-6 mb-20 text-center items-center">
+            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-purple-950/30 border border-purple-500/30 backdrop-blur-md">
+              <span className="relative flex h-2 w-2">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-purple-400 opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-2 w-2 bg-purple-500"></span>
+              </span>
+              <span className="text-xs font-bold font-mono text-purple-300 tracking-widest uppercase">SYSTEM.SERVICES_V2.0</span>
             </div>
-            <h2 className="text-4xl md:text-5xl font-bold tracking-tight">Üst Düzey Çözümler</h2>
-            <p className="text-slate-400 text-lg max-w-2xl mx-auto font-light">
-              Yapay zeka destekli analizler ve mikroskobik hassasiyette onarımlar.
+
+            <h2 className="text-5xl md:text-7xl font-black tracking-tight text-white drop-shadow-2xl">
+              ÜST DÜZEY <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-500">ÇÖZÜMLER</span>
+            </h2>
+            <p className="text-slate-400 text-xl max-w-2xl mx-auto font-light leading-relaxed">
+              Yapay zeka destekli analizler ve <span className="text-purple-400 font-bold">mikroskobik hassasiyette</span> onarımlar.
             </p>
           </div>
 
-          <BentoGrid className="lg:grid-rows-3 dark">
+          <BentoGrid className="lg:grid-rows-3">
             <BentoCard
               name="Mikro-Lehimleme"
-              className="lg:row-span-3 lg:col-span-1 border-white/10 bg-neutral-900"
+              className="lg:row-span-3 lg:col-span-1"
               icon={<Zap className="h-full w-full" />}
               description="Anakart seviyesinde mikroskobik onarım işlemleri. Veri kaybı olmadan hayata döndürme."
               href="#"
               cta="Detayları İncele"
-              background={<div className="absolute top-0 opacity-20 w-full h-full bg-[url('https://grainy-gradients.vercel.app/noise.svg')] bg-cover" />}
+              background={<div className="absolute top-0 opacity-20 w-full h-full bg-[url('https://grainy-gradients.vercel.app/noise.svg')] bg-cover mix-blend-overlay" />}
             />
             <BentoCard
               name="Orijinal Parça Garantisi"
-              className="lg:col-span-2 lg:row-span-1 border-white/10 bg-neutral-900"
+              className="lg:col-span-2 lg:row-span-1"
               icon={<ShieldCheck className="h-full w-full" />}
               description="Apple, Samsung ve Xiaomi logolu orijinal servis parçaları ile değişim."
               href="#"
               cta="Garanti Şartları"
-              background={<div className="absolute right-0 top-0 h-full w-1/3 bg-gradient-to-l from-purple-500/20 to-transparent" />}
+              background={<div className="absolute right-0 top-0 h-full w-1/3 bg-gradient-to-l from-purple-500/10 to-transparent" />}
             />
             <BentoCard
               name="Hızlı Ekran Değişimi"
-              className="lg:col-span-1 lg:row-span-1 border-white/10 bg-neutral-900"
+              className="lg:col-span-1 lg:row-span-1"
               icon={<Smartphone className="h-full w-full" />}
               description="30 Dakikada fabrika standartlarında ekran değişimi."
               href="#"
@@ -85,7 +99,7 @@ export default async function Home() {
             />
             <BentoCard
               name="Eskiyi Getir, Yeniyi Götür"
-              className="lg:col-span-1 lg:row-span-1 border-white/10 bg-neutral-900"
+              className="lg:col-span-1 lg:row-span-1"
               icon={<RefreshCw className="h-full w-full" />}
               description="Eski cihazınız hak ettiği değerde alınır, yeni cihaza anında geçersiniz."
               href="#"
@@ -94,12 +108,12 @@ export default async function Home() {
             />
             <BentoCard
               name="Kurumsal Anlaşmalar"
-              className="lg:col-span-2 lg:row-span-1 border-white/10 bg-neutral-900"
+              className="lg:col-span-2 lg:row-span-1"
               icon={<Building2 className="h-full w-full" />}
               description="Şirketiniz için özel fiyatlar ve yerinde servis imkanı."
               href="#"
               cta="Teklif İste"
-              background={<div className="absolute inset-0 bg-gradient-to-r from-neutral-800/50 to-neutral-900/50" />}
+              background={<div className="absolute inset-0 bg-gradient-to-r from-purple-900/10 to-transparent" />}
             />
           </BentoGrid>
         </div>
@@ -179,25 +193,60 @@ export default async function Home() {
       )}
 
       {/* CTA / Banner Section */}
+      {/* Holographic CTA Section */}
       <section className="py-20 px-4">
-        <div className="max-w-7xl mx-auto rounded-[2.5rem] bg-gradient-to-b from-[#192633] to-[#0f151b] border border-[#324d67] overflow-hidden relative">
-          <div className="absolute top-0 right-0 -mt-20 -mr-20 w-80 h-80 bg-primary/30 rounded-full blur-[80px]"></div>
-          <div className="absolute bottom-0 left-0 -mb-20 -ml-20 w-80 h-80 bg-purple-600/20 rounded-full blur-[80px]"></div>
-          <div className="relative z-10 flex flex-col md:flex-row items-center justify-between p-10 md:p-20 gap-10">
-            <div className="max-w-xl text-center md:text-left">
-              <h2 className="text-3xl md:text-5xl font-bold text-white mb-6">Aradığınız Aksesuarı Bulamadınız mı?</h2>
-              <p className="text-slate-400 text-lg mb-8">
-                Mağazamızda binlerce çeşit ürün var. Sizin için en uygun olanı bulmamız için bize ulaşın veya mağazamızı ziyaret edin.
+        <div className="max-w-7xl mx-auto rounded-[2.5rem] bg-[#020204] border border-white/10 overflow-hidden relative group">
+          {/* Animated Background */}
+          <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20 mix-blend-overlay pointer-events-none"></div>
+          <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-gradient-to-b from-cyan-500/20 to-purple-600/20 rounded-full blur-[120px] -translate-y-1/2 translate-x-1/2 animate-pulse"></div>
+
+          <div className="relative z-10 flex flex-col md:flex-row items-center justify-between p-12 md:p-24 gap-12">
+
+            {/* Left Content */}
+            <div className="max-w-2xl text-center md:text-left space-y-8">
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-cyan-500/30 bg-cyan-950/30 backdrop-blur-md text-cyan-400 text-xs font-mono tracking-widest uppercase mb-4">
+                <span className="w-2 h-2 rounded-full bg-cyan-400 animate-pulse" />
+                AI Assistant Available
+              </div>
+
+              <h2 className="text-4xl md:text-6xl font-black text-white leading-tight">
+                Aradığınızı <br />
+                <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-purple-500">Bulamadınız mı?</span>
+              </h2>
+
+              <p className="text-slate-400 text-xl font-light leading-relaxed">
+                Yapay zeka asistanımız stoklarımızı saniyeler içinde tarar.
+                Veya özel sipariş oluşturmak için uzmanlarımızla görüşün.
               </p>
-              <div className="flex flex-col sm:flex-row gap-4 justify-center md:justify-start">
-                <Button variant="secondary" size="lg" className="font-bold px-8 py-6 text-base">Mağazayı Ara</Button>
-                <Button variant="outline" size="lg" className="font-bold px-8 py-6 text-base border-white/20 text-white hover:bg-white/10">WhatsApp Hattı</Button>
+
+              <div className="flex flex-col sm:flex-row gap-4 justify-center md:justify-start pt-4">
+                <AiTriggerButton />
+                <Button variant="outline" size="lg" className="h-14 px-8 rounded-full border-white/10 hover:bg-white/5 text-white backdrop-blur-sm transition-all" asChild>
+                  <Link href="/contact">Bize Ulaşın</Link>
+                </Button>
               </div>
             </div>
-            <div className="relative w-full max-w-sm">
-              <div className="aspect-square bg-gradient-to-tr from-primary to-cyan-400 rounded-full opacity-20 blur-2xl absolute inset-0 animate-pulse"></div>
-              <div className="relative z-10 aspect-square bg-contain bg-center bg-no-repeat drop-shadow-2xl" style={{ backgroundImage: "url('https://lh3.googleusercontent.com/aida-public/AB6AXuD8oGkFbkGIdZIg5yAnmNgK1OeHzzIfdaJXryNYgm3HEEKJ09hVq7uPDhKEL1fbuGn1HABpKZKXSdKrxLr__iw0gffa082-ojpiNoujze1FRWjFeEaOZdCIPFn8jdIN-fM-yUglnDNiZWNX99-daHizyM3t-Zp5QJsSBSHKqWpCuRgRv28y0t7gUV8nIR7DKWmIG3PUtch4L6wgSH7lOsMrFz29fBk9FkU-XCHRmpqedcdNY7AAnWgw9qMH0jNWFkSPb17CL1FZYA')" }}></div>
+
+            {/* Right Visual - Holographic Box Projection */}
+            <div className="relative group-hover:scale-105 transition-transform duration-700">
+              <div className="relative w-64 h-64 md:w-80 md:h-80">
+                {/* Hologram Base */}
+                <div className="absolute inset-x-0 bottom-0 h-1/4 bg-gradient-to-t from-cyan-500/20 to-transparent blur-xl"></div>
+
+                {/* Floating Cube Illustration (CSS or Image) */}
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <div className="relative w-48 h-48 bg-gradient-to-br from-cyan-500/30 to-purple-600/30 backdrop-blur-xl border border-white/20 rounded-3xl transform rotate-12 flex items-center justify-center shadow-2xl">
+                    <div className="absolute inset-0 bg-white/5 rounded-3xl animate-pulse"></div>
+                    <Bot className="w-24 h-24 text-white/80 drop-shadow-[0_0_15px_rgba(255,255,255,0.5)]" />
+                  </div>
+                </div>
+
+                {/* Floating Particles */}
+                <div className="absolute top-10 right-10 w-3 h-3 bg-cyan-400 rounded-full blur-[2px] animate-bounce delay-100"></div>
+                <div className="absolute bottom-20 left-10 w-2 h-2 bg-purple-400 rounded-full blur-[2px] animate-bounce delay-300"></div>
+              </div>
             </div>
+
           </div>
         </div>
       </section>

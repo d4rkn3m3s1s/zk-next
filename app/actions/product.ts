@@ -15,8 +15,9 @@ export async function getProducts(options?: {
     sort?: string
     limit?: number
     page?: number
+    isSecondHand?: boolean // Added
 }) {
-    const { query, isFeatured, category, brand, status, minPrice, maxPrice, sort, limit, page = 1 } = options || {}
+    const { query, isFeatured, category, brand, status, minPrice, maxPrice, sort, limit, page = 1, isSecondHand } = options || {}
     const take = limit || 12
     const skip = (page - 1) * take
 
@@ -27,6 +28,11 @@ export async function getProducts(options?: {
             { name: { contains: query } },
             { description: { contains: query } }
         ]
+    }
+
+    // Filter by Second Hand status
+    if (isSecondHand) {
+        where.isNew = false
     }
 
     if (isFeatured !== undefined) {
@@ -103,7 +109,10 @@ export async function createProduct(formData: FormData) {
             status,
             isFeatured,
             isNew,
-            images
+            images,
+            batteryHealth: formData.get("batteryHealth") ? parseInt(formData.get("batteryHealth") as string) : null,
+            warranty: formData.get("warranty") as string,
+            condition: formData.get("condition") as string
         }
     })
 

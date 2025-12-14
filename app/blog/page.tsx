@@ -26,57 +26,61 @@ export default async function BlogPage({ searchParams }: { searchParams: Promise
 
     return (
         <div className="flex flex-col min-h-screen">
-            {/* Hero Section */}
-            <div className="relative w-full overflow-hidden bg-background">
+            {/* Legendary Hero Section */}
+            <div className="relative w-full overflow-hidden bg-background py-20 lg:py-32">
                 {/* Background Elements */}
-                <div className="absolute top-[-20%] right-[-10%] w-[800px] h-[800px] bg-primary/20 rounded-full blur-[120px] pointer-events-none"></div>
-                <div className="absolute bottom-[-20%] left-[-10%] w-[600px] h-[600px] bg-purple-600/10 rounded-full blur-[100px] pointer-events-none"></div>
+                <div className="absolute top-[-300px] right-[-100px] w-[1000px] h-[1000px] bg-purple-600/10 rounded-full blur-[150px] pointer-events-none animate-pulse-slow"></div>
+                <div className="absolute bottom-[-200px] left-[-200px] w-[800px] h-[800px] bg-indigo-600/10 rounded-full blur-[150px] pointer-events-none"></div>
 
-                <div className="container max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 py-16 lg:py-24 relative z-10">
-                    <div className="grid lg:grid-cols-2 gap-12 items-center">
-                        <div className="flex flex-col gap-6 text-center lg:text-left">
-                            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 border border-primary/20 w-fit mx-auto lg:mx-0">
-                                <span className="relative flex h-2 w-2">
-                                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
-                                    <span className="relative inline-flex rounded-full h-2 w-2 bg-primary"></span>
+                <div className="container max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+                    <div className="grid lg:grid-cols-2 gap-16 items-center">
+                        <div className="flex flex-col gap-8 text-center lg:text-left">
+                            <div className="inline-flex items-center gap-3 px-4 py-2 rounded-2xl bg-white/5 border border-white/10 w-fit mx-auto lg:mx-0 backdrop-blur-md">
+                                <span className="relative flex h-2.5 w-2.5">
+                                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-purple-500 opacity-75"></span>
+                                    <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-purple-500"></span>
                                 </span>
-                                <span className="text-xs font-bold tracking-widest uppercase text-primary">Teknoloji Dünyası</span>
+                                <span className="text-xs font-bold tracking-[0.2em] uppercase text-purple-300">Gelecek_Burada</span>
                             </div>
-                            <h1 className="text-5xl lg:text-7xl font-black text-foreground leading-[0.9] tracking-tighter drop-shadow-2xl">
-                                Geleceği <br />
-                                <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary via-blue-400 to-purple-400">Keşfetmeye</span>
+
+                            <h1 className="text-6xl lg:text-8xl font-black text-white leading-[0.85] tracking-tighter drop-shadow-2xl">
+                                GELECEĞİ <br />
+                                <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-400 via-pink-500 to-purple-400 animate-gradient-x">KEŞFETMEYE</span>
                                 <br />
-                                Hazır Mısın?
+                                HAZIR MISIN?
                             </h1>
-                            <p className="text-muted-foreground text-lg lg:text-xl font-normal leading-relaxed max-w-xl mx-auto lg:mx-0">
-                                Zk İletişim farkıyla en yeni teknoloji incelemeleri, ipuçları ve sektörel gelişmeler. Mobil dünyadaki yenilikleri ilk sen öğren.
+
+                            <p className="text-slate-400 text-xl font-light leading-relaxed max-w-xl mx-auto lg:mx-0">
+                                <span className="text-white font-bold">ZK İletişim</span> farkıyla en yeni teknoloji incelemeleri, hacker ipuçları ve mobil dünyadaki son gelişmeler.
                             </p>
-                            <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start pt-4">
-                                <Button size="lg" className="h-14 px-8 rounded-2xl text-base font-bold shadow-lg hover:shadow-xl hover:-translate-y-1 transition-all">
-                                    Hemen Okumaya Başla
+
+                            <div className="flex flex-col sm:flex-row gap-5 justify-center lg:justify-start pt-6">
+                                <Button size="lg" className="h-14 px-10 rounded-xl text-lg font-black bg-purple-600 hover:bg-purple-500 text-white shadow-[0_0_30px_rgba(147,51,234,0.4)] hover:shadow-[0_0_50px_rgba(147,51,234,0.6)] hover:-translate-y-1 transition-all border border-purple-400/20">
+                                    OKUMAYA BAŞLA
                                     <ArrowRight className="ml-2 h-5 w-5" />
                                 </Button>
-                                <Button variant="outline" size="lg" className="h-14 px-8 rounded-2xl text-base font-bold backdrop-blur-sm">
-                                    <PlayCircle className="mr-2 h-5 w-5 text-primary" />
-                                    İnceleme Videosu
+                                <Button variant="outline" size="lg" className="h-14 px-10 rounded-xl text-lg font-bold border-white/10 text-white hover:bg-white/10 backdrop-blur-md">
+                                    <PlayCircle className="mr-2 h-5 w-5 text-purple-400" />
+                                    VİDEOLAR
                                 </Button>
                             </div>
                         </div>
 
                         {/* 3D Graphic Placeholder */}
-                        <div className="relative h-[400px] lg:h-[600px] flex items-center justify-center perspective-1000">
+                        <div className="relative h-[500px] lg:h-[700px] flex items-center justify-center perspective-1000">
+                            <div className="absolute inset-0 bg-gradient-to-tr from-purple-500/10 to-transparent rounded-full blur-3xl animate-pulse-slow"></div>
                             <div className="relative w-full h-full animate-float">
                                 <img
                                     alt="3D Smartphone Tech"
-                                    className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[80%] lg:w-[90%] max-w-[600px] object-contain drop-shadow-[0_20px_50px_rgba(19,127,236,0.3)] z-20 hover:scale-105 transition-transform duration-500"
+                                    className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[85%] lg:w-[95%] max-w-[700px] object-contain drop-shadow-[0_50px_100px_rgba(147,51,234,0.4)] z-20 hover:scale-105 transition-transform duration-700"
                                     src="https://lh3.googleusercontent.com/aida-public/AB6AXuD2XHUF6fowyW4LH2FPMxP9dQe3WROdR3ZX_EO8alh4dv_HTt5hEa1MV7Cydh7mM2S7Sz9A5EU5B9LViTsEPrdUj7QLG-S8x9w-l2G0pARqSvwkaM9j8uYXyL6p_hxylbwPRjdorFF6dpT9aQrXZo7b8npPN7fh3IMfu4De3aj2qGsJZ15MNw-afkLymSRK0N3UCHVWL0UALm0a_-1TCiueP4e-IYrB7MP3ydMxl4oIebeHkmOfV1yf-0HNG5d4D-r2OjFoZZeGHw"
                                 />
                                 {/* Floating Elements */}
-                                <div className="absolute top-[20%] right-[10%] p-4 bg-card/80 backdrop-blur-md rounded-2xl border border-primary/20 animate-bounce delay-700 z-30 shadow-lg shadow-primary/20 hidden sm:block">
-                                    <Cpu className="text-primary h-8 w-8" />
+                                <div className="absolute top-[15%] right-[5%] p-5 bg-black/40 backdrop-blur-xl rounded-2xl border border-white/10 animate-bounce delay-700 z-30 shadow-2xl hidden sm:block hover:border-purple-500/50 transition-colors">
+                                    <Cpu className="text-purple-400 h-10 w-10" />
                                 </div>
-                                <div className="absolute bottom-[20%] left-[5%] p-4 bg-card/80 backdrop-blur-md rounded-2xl border border-purple-500/20 animate-bounce delay-1000 z-30 shadow-lg shadow-purple-500/20 hidden sm:block">
-                                    <Rocket className="text-purple-400 h-8 w-8" />
+                                <div className="absolute bottom-[15%] left-[0%] p-5 bg-black/40 backdrop-blur-xl rounded-2xl border border-white/10 animate-bounce delay-1000 z-30 shadow-2xl hidden sm:block hover:border-pink-500/50 transition-colors">
+                                    <Rocket className="text-pink-400 h-10 w-10" />
                                 </div>
                             </div>
                         </div>

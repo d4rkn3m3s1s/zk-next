@@ -1,103 +1,133 @@
-"use client"
+"use client";
 
-import Link from "next/link"
-import { useSession, signOut } from "next-auth/react"
-import { Smartphone, Menu, User, LogOut } from "lucide-react"
-import { Button } from "@/components/ui/button"
-import {
-    DropdownMenu,
-    DropdownMenuContent,
-    DropdownMenuItem,
-    DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
-import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
+import { useState, useEffect } from "react";
+import Link from "next/link";
+import { motion, AnimatePresence } from "framer-motion";
+import { Search, Menu, User, ShoppingBag } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 
 export function Header() {
-    const { data: session } = useSession()
+    const [scrolled, setScrolled] = useState(false);
+    const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
+    useEffect(() => {
+        const handleScroll = () => {
+            setScrolled(window.scrollY > 20);
+        };
+        window.addEventListener("scroll", handleScroll);
+        return () => window.removeEventListener("scroll", handleScroll);
+    }, []);
+
+    const navItems = [
+        { name: "Ana Sayfa", href: "/" },
+        { name: "Hizmetler", href: "/services" },
+        { name: "Mağaza", href: "/shop" },
+        { name: "Tamir Sorgula", href: "/repair-tracking" },
+        { name: "Hakkımızda", href: "/about" },
+        { name: "İletişim", href: "/contact" },
+    ];
 
     return (
-        <header className="fixed top-0 left-0 right-0 z-50 bg-background/70 backdrop-blur-md border-b border-white/5 px-4 md:px-10 py-3 transition-all duration-300">
-            <div className="max-w-7xl mx-auto flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                    <div className="size-8 rounded-full bg-gradient-to-tr from-primary to-cyan-400 flex items-center justify-center text-white">
-                        <Smartphone className="size-5" />
-                    </div>
-                    <h2 className="text-foreground text-xl font-bold tracking-tight">Zk İletişim</h2>
-                </div>
+        <>
+            <motion.header
+                initial={{ y: -100 }}
+                animate={{ y: 0 }}
+                transition={{ duration: 0.5, ease: "easeOut" }}
+                className={cn(
+                    "fixed top-0 left-0 right-0 z-50 transition-all duration-300 border-b border-transparent",
+                    scrolled ? "bg-black/50 backdrop-blur-xl border-white/5 py-3" : "bg-transparent py-5"
+                )}
+            >
+                <div className="container mx-auto px-4 md:px-6 flex items-center justify-between">
+                    {/* Logo */}
+                    <Link href="/" className="group flex items-center gap-2">
+                        <div className="relative size-10 flex items-center justify-center bg-transparent border border-white/10 rounded-xl overflow-hidden group-hover:border-cyan-500/50 transition-colors duration-300">
+                            <div className="absolute inset-0 bg-gradient-to-br from-cyan-500/20 to-purple-600/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                            <span className="font-display font-bold text-xl text-white tracking-tighter">
+                                zk
+                            </span>
+                        </div>
+                        <span className="hidden sm:block font-display font-bold text-xl tracking-tight text-white/90 group-hover:text-white transition-colors">
+                            ZK İletişim
+                        </span>
+                    </Link>
 
-                <nav className="hidden md:flex items-center gap-8">
-                    <Link href="/" className="text-muted-foreground hover:text-primary text-sm font-medium transition-colors">
-                        Ana Sayfa
-                    </Link>
-                    <Link href="/#services" className="text-muted-foreground hover:text-primary text-sm font-medium transition-colors">
-                        Hizmetler
-                    </Link>
-                    <Link href="/products" className="text-muted-foreground hover:text-primary text-sm font-medium transition-colors">
-                        Ürünler
-                    </Link>
-                    <Link href="/repair-tracking" className="relative group">
-                        <span className="text-muted-foreground group-hover:text-cyan-400 text-sm font-medium transition-colors">Cihaz Takip</span>
-                        <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-cyan-400 transition-all group-hover:w-full"></span>
-                    </Link>
-                    <Link href="/contact" className="text-muted-foreground hover:text-primary text-sm font-medium transition-colors">
-                        İletişim
-                    </Link>
-                    <Link href="/scan" className="px-3 py-1.5 rounded-full bg-pink-500/10 text-pink-500 hover:bg-pink-500/20 text-sm font-medium transition-colors border border-pink-500/20">
-                        Barkod Tara
-                    </Link>
-                </nav>
+                    {/* Desktop Navigation */}
+                    <nav className="hidden md:flex items-center gap-1 p-1 bg-white/5 rounded-full border border-white/5 backdrop-blur-sm">
+                        {navItems.map((item) => (
+                            <Link
+                                key={item.name}
+                                href={item.href}
+                                className="relative px-4 py-2 rounded-full text-sm font-medium text-slate-300 hover:text-white transition-colors group"
+                            >
+                                <span className="relative z-10">{item.name}</span>
+                                <span className="absolute inset-0 bg-white/10 rounded-full scale-0 group-hover:scale-100 transition-transform duration-300 ease-out origin-center"></span>
+                            </Link>
+                        ))}
+                    </nav>
 
-                <div className="flex items-center gap-4">
-                    {session ? (
-                        <DropdownMenu>
-                            <DropdownMenuTrigger asChild>
-                                <Button variant="ghost" className="relative h-10 w-10 rounded-full">
-                                    <User className="size-5" />
-                                </Button>
-                            </DropdownMenuTrigger>
-                            <DropdownMenuContent className="w-56" align="end" forceMount>
-                                <DropdownMenuItem asChild>
-                                    <Link href="/profile">Profilim</Link>
-                                </DropdownMenuItem>
-                                {session.user.role === 'admin' && (
-                                    <DropdownMenuItem asChild>
-                                        <Link href="/admin/dashboard">Admin Paneli</Link>
-                                    </DropdownMenuItem>
-                                )}
-                                <DropdownMenuItem onClick={() => signOut()}>
-                                    <LogOut className="mr-2 h-4 w-4" />
-                                    <span>Çıkış Yap</span>
-                                </DropdownMenuItem>
-                            </DropdownMenuContent>
-                        </DropdownMenu>
-                    ) : (
-                        <Button asChild className="hidden sm:flex bg-primary hover:bg-blue-600 text-white shadow-[0_0_15px_rgba(19,127,236,0.3)] hover:shadow-[0_0_25px_rgba(19,127,236,0.5)]">
-                            <Link href="/auth/login">Giriş Yap</Link>
+                    {/* Actions */}
+                    <div className="flex items-center gap-3">
+                        <Button
+                            variant="ghost"
+                            size="icon"
+                            className="text-slate-400 hover:text-white hover:bg-white/10 rounded-full w-10 h-10 transition-all duration-300"
+                        >
+                            <Search className="w-5 h-5" />
                         </Button>
-                    )}
-
-                    <Sheet>
-                        <SheetTrigger asChild>
-                            <Button variant="ghost" size="icon" className="md:hidden text-foreground">
-                                <Menu className="size-6" />
+                        <Link href="/auth/login">
+                            <Button
+                                variant="ghost"
+                                size="icon"
+                                className="text-slate-400 hover:text-white hover:bg-white/10 rounded-full w-10 h-10 transition-all duration-300"
+                            >
+                                <User className="w-5 h-5" />
                             </Button>
-                        </SheetTrigger>
-                        <SheetContent side="right">
-                            <nav className="flex flex-col gap-4 mt-8">
-                                <Link href="/" className="text-lg font-medium">Ana Sayfa</Link>
-                                <Link href="/#services" className="text-lg font-medium">Hizmetler</Link>
-                                <Link href="/products" className="text-lg font-medium">Ürünler</Link>
-                                <Link href="/repair-tracking" className="text-lg font-medium text-cyan-500">Cihaz Takip</Link>
-                                <Link href="/contact" className="text-lg font-medium">İletişim</Link>
-                                <Link href="/scan" className="text-lg font-medium text-pink-500">Tara</Link>
-                                {!session && (
-                                    <Link href="/auth/login" className="text-lg font-medium text-primary">Giriş Yap</Link>
-                                )}
-                            </nav>
-                        </SheetContent>
-                    </Sheet>
+                        </Link>
+                        <Button
+                            variant="ghost"
+                            size="icon"
+                            className="text-slate-400 hover:text-white hover:bg-white/10 rounded-full w-10 h-10 transition-all duration-300 relative group"
+                        >
+                            <ShoppingBag className="w-5 h-5" />
+                            <span className="absolute top-2 right-2 w-2 h-2 bg-cyan-500 rounded-full group-hover:animate-pulse"></span>
+                        </Button>
+
+                        <Button
+                            variant="ghost"
+                            size="icon"
+                            className="md:hidden text-slate-400 hover:text-white"
+                            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+                        >
+                            <Menu className="w-6 h-6" />
+                        </Button>
+                    </div>
                 </div>
-            </div>
-        </header>
-    )
+            </motion.header>
+
+            {/* Mobile Menu Overlay */}
+            <AnimatePresence>
+                {mobileMenuOpen && (
+                    <motion.div
+                        initial={{ opacity: 0, y: -20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: -20 }}
+                        className="fixed inset-x-0 top-[70px] z-40 bg-black/95 backdrop-blur-2xl border-b border-white/10 p-4 md:hidden flex flex-col gap-2 shadow-2xl shadow-cyan-900/10"
+                    >
+                        {navItems.map((item) => (
+                            <Link
+                                key={item.name}
+                                href={item.href}
+                                onClick={() => setMobileMenuOpen(false)}
+                                className="px-4 py-3 rounded-lg text-lg font-medium text-slate-300 hover:text-white hover:bg-white/10 transition-all border border-transparent hover:border-white/5"
+                            >
+                                {item.name}
+                            </Link>
+                        ))}
+                    </motion.div>
+                )}
+            </AnimatePresence>
+        </>
+    );
 }

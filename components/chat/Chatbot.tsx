@@ -51,6 +51,12 @@ export function Chatbot() {
         scrollToBottom()
     }, [messages, isOpen])
 
+    useEffect(() => {
+        const handleOpen = () => setIsOpen(true);
+        window.addEventListener('open-chatbot', handleOpen);
+        return () => window.removeEventListener('open-chatbot', handleOpen);
+    }, []);
+
     const handleSendMessage = () => {
         if (!inputValue.trim()) return
 
@@ -126,17 +132,46 @@ export function Chatbot() {
                 }
             })
         } else {
-            // Simulate default bot response for non-tracking messages
-            setTimeout(() => {
-                const botResponse: Message = {
-                    id: (Date.now() + 1).toString(),
-                    text: "Anladım. Cihaz durumunu sorgulamak için lütfen 'ZK-XXXX' formatındaki takip kodunuzu yazın. Başka bir konuda size nasıl yardımcı olabilirim?",
-                    sender: "bot",
-                    timestamp: new Date().toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' }),
-                    type: "text"
+            // Call Real AI
+            setMessages(prev => [...prev, {
+                id: (Date.now() + 1).toString(),
+                text: "Analiz ediliyor...", // Temporary loading state if desired, or just wait. 
+                // Better UX: Add a typing indicator, but for now let's just wait and append.
+                sender: "bot",
+                timestamp: new Date().toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' }),
+                type: "text"
+            }])
+
+            // Remove the "Analiz ediliyor..." temporary message before adding real one? 
+            // Simplified approach: Just wait for response and append.
+            import("@/app/actions/chat").then(async (mod) => {
+                try {
+                    const aiResponse = await mod.chatWithAI(inputValue)
+
+                    // Filter out the "Analiz ediliyor..." message (optional, or just append)
+                    setMessages(prev => {
+                        const filtered = prev.filter(m => m.text !== "Analiz ediliyor...")
+                        return [...filtered, {
+                            id: (Date.now() + 2).toString(),
+                            text: aiResponse,
+                            sender: "bot",
+                            timestamp: new Date().toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' }),
+                            type: "text"
+                        }]
+                    })
+                } catch (e) {
+                    setMessages(prev => {
+                        const filtered = prev.filter(m => m.text !== "Analiz ediliyor...")
+                        return [...filtered, {
+                            id: (Date.now() + 2).toString(),
+                            text: "Bağlantı hatası. Lütfen tekrar deneyin.",
+                            sender: "bot",
+                            timestamp: new Date().toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' }),
+                            type: "text"
+                        }]
+                    })
                 }
-                setMessages(prev => [...prev, botResponse])
-            }, 1000)
+            })
         }
     }
 

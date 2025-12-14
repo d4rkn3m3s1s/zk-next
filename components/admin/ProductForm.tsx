@@ -168,9 +168,10 @@ function ModelCombobox({ models, value, onChange, disabled }: ModelComboboxProps
 
 interface ProductFormProps {
     product?: any
+    isSecondHand?: boolean
 }
 
-export function ProductForm({ product }: ProductFormProps) {
+export function ProductForm({ product, isSecondHand = false }: ProductFormProps) {
     const router = useRouter()
     // Form States
     const [productName, setProductName] = useState(product?.name || "")
@@ -181,6 +182,11 @@ export function ProductForm({ product }: ProductFormProps) {
     const [productCategory, setProductCategory] = useState(product?.category || "phones")
     const [productStatus, setProductStatus] = useState(product?.status || "active")
     const [images, setImages] = useState<string[]>(product?.images ? JSON.parse(product.images) : [])
+    // Second Hand Fields
+    const [condition, setCondition] = useState(product?.condition || "")
+    const [batteryHealth, setBatteryHealth] = useState(product?.batteryHealth || "")
+    const [warranty, setWarranty] = useState(product?.warranty || "")
+
     const [loading, setLoading] = useState(false)
     const [fetchingParams, setFetchingParams] = useState(false)
 
@@ -578,12 +584,69 @@ export function ProductForm({ product }: ProductFormProps) {
                         </div>
                     </div>
 
+                    {/* Second Hand Specific Fields */}
+                    {(isSecondHand || condition || batteryHealth) && (
+                        <div className="bg-card p-6 rounded-xl border border-border shadow-sm space-y-6">
+                            <h3 className="text-lg font-semibold flex items-center gap-2">
+                                <span className="w-2 h-2 rounded-full bg-cyan-500 shadow-[0_0_10px_#06b6d4]"></span>
+                                İkinci El Durumu
+                            </h3>
+
+                            <div className="space-y-4">
+                                <div className="space-y-2">
+                                    <Label>Kozmetik Durum</Label>
+                                    <Select name="condition" value={condition} onValueChange={setCondition}>
+                                        <SelectTrigger>
+                                            <SelectValue placeholder="Durum seçin" />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                            <SelectItem value="mukemmel">Mükemmel (Kusursuz)</SelectItem>
+                                            <SelectItem value="cok-iyi">Çok İyi (Kılcal Çizikler)</SelectItem>
+                                            <SelectItem value="iyi">İyi (Belirgin İzler)</SelectItem>
+                                            <SelectItem value="orta">Orta (Yıpranmış)</SelectItem>
+                                            <SelectItem value="tamir-gormus">Tamir Görmüş</SelectItem>
+                                        </SelectContent>
+                                    </Select>
+                                </div>
+
+                                <div className="grid grid-cols-2 gap-4">
+                                    <div className="space-y-2">
+                                        <Label htmlFor="batteryHealth">Pil Sağlığı (%)</Label>
+                                        <div className="relative">
+                                            <Input
+                                                id="batteryHealth"
+                                                name="batteryHealth"
+                                                type="number"
+                                                min="0"
+                                                max="100"
+                                                value={batteryHealth}
+                                                onChange={(e) => setBatteryHealth(e.target.value)}
+                                                placeholder="85"
+                                            />
+                                            <span className="absolute right-3 top-2.5 text-muted-foreground text-sm">%</span>
+                                        </div>
+                                    </div>
+                                    <div className="space-y-2">
+                                        <Label htmlFor="warranty">Garanti Durumu</Label>
+                                        <Input
+                                            id="warranty"
+                                            name="warranty"
+                                            value={warranty}
+                                            onChange={(e) => setWarranty(e.target.value)}
+                                            placeholder="Örn: 6 Ay Mağaza, 1 Yıl Apple"
+                                        />
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    )}
+
                     <Button type="submit" size="lg" className="w-full" disabled={loading}>
                         <Save className="mr-2 h-4 w-4" />
                         {loading ? "Kaydediliyor..." : "Kaydet"}
                     </Button>
                 </div>
-            </form>
-        </div>
+            </form >
+        </div >
     )
 }
