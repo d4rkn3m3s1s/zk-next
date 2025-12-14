@@ -83,7 +83,7 @@ function HeroScene() {
 
                     <Rig />
 
-                    <EffectComposer disableNormalPass>
+                    <EffectComposer>
                         <Bloom luminanceThreshold={0.2} mipmapBlur intensity={1.5} radius={0.4} />
                         <Noise opacity={0.15} blendFunction={BlendFunction.OVERLAY} />
                         <Vignette eskil={false} offset={0.1} darkness={1.1} />
