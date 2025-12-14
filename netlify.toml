@@ -3,6 +3,8 @@
 
 [build.environment]
   DATABASE_URL = "file:./dev.db"
+  NEXTAUTH_URL = "https://zcorp.netlify.app"
+  NEXTAUTH_SECRET = "zcorp-secret-key-change-me-in-production"
 
 [[plugins]]
   package = "@netlify/plugin-nextjs"
