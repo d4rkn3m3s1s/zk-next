@@ -11,6 +11,12 @@ import {
     CreditCard,
     Cpu
 } from "lucide-react"
+import { ExchangeRateWidget } from "@/components/admin/widgets/ExchangeRateWidget"
+import { WeatherWidget } from "@/components/admin/widgets/WeatherWidget"
+import { KdvCalculator } from "@/components/admin/widgets/KdvCalculator"
+import { InstallmentCalculator } from "@/components/admin/widgets/InstallmentCalculator"
+import { DashboardBackground } from "@/components/admin/DashboardBackground"
+
 
 export default async function LegendaryDashboard() {
     const data = await getDashboardStats()
@@ -61,6 +67,7 @@ export default async function LegendaryDashboard() {
                 <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-cyan-500/5 rounded-full blur-[120px] animate-pulse-slow"></div>
                 <div className="absolute bottom-0 left-0 w-[500px] h-[500px] bg-purple-600/5 rounded-full blur-[100px]"></div>
                 <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20 contrast-150"></div>
+                <DashboardBackground />
             </div>
 
             <div className="relative z-10 max-w-7xl mx-auto space-y-8">
@@ -110,6 +117,14 @@ export default async function LegendaryDashboard() {
                     ))}
                 </div>
 
+                {/* Widgets Grid */}
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                    <WeatherWidget />
+                    <ExchangeRateWidget />
+                    <KdvCalculator />
+                    <InstallmentCalculator />
+                </div>
+
                 {/* Dashboard Main Content */}
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
                     {/* Recent Orders Table */}
@@ -154,10 +169,10 @@ export default async function LegendaryDashboard() {
                                                 </td>
                                                 <td className="px-6 py-4 text-right">
                                                     <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border ${order.status === 'Completed' || order.status === 'Delivered'
-                                                            ? 'bg-green-500/10 text-green-400 border-green-500/20'
-                                                            : order.status === 'Processing'
-                                                                ? 'bg-blue-500/10 text-blue-400 border-blue-500/20'
-                                                                : 'bg-slate-500/10 text-slate-400 border-slate-500/20'
+                                                        ? 'bg-green-500/10 text-green-400 border-green-500/20'
+                                                        : order.status === 'Processing'
+                                                            ? 'bg-blue-500/10 text-blue-400 border-blue-500/20'
+                                                            : 'bg-slate-500/10 text-slate-400 border-slate-500/20'
                                                         }`}>
                                                         {order.status}
                                                     </span>

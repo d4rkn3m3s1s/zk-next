@@ -135,3 +135,14 @@ model SiteSettings {
   robots_txt    String?
   updatedAt     DateTime @updatedAt
 }
+
+model Sale {
+  id          Int      @id @default(autoincrement())
+  productId   Int?
+  productName String
+  soldPrice   Decimal
+  costPrice   Decimal?
+  profit      Decimal?
+  quantity    Int      @default(1)
+  soldAt      DateTime @default(now())
+}

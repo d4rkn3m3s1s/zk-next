@@ -87,8 +87,7 @@ function HeroScene() {
                         <Bloom luminanceThreshold={0.2} mipmapBlur intensity={1.5} radius={0.4} />
                         <Noise opacity={0.15} blendFunction={BlendFunction.OVERLAY} />
                         <Vignette eskil={false} offset={0.1} darkness={1.1} />
-                        {/* <Glitch delay={[1.5, 3.5]} duration={[0.6, 1.0]} strength={[0.3, 1.0]} mode={GlitchMode.SPORADIC} active ratio={0.85} /> */}
-                        <Scanline density={1.2} opacity={0.05} />
+
                     </EffectComposer>
                 </Canvas>
             </div>

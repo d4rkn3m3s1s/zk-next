@@ -116,8 +116,8 @@ export default async function Home() {
           </div>
           {/* Horizontal Scroll Container */}
           <div className="flex overflow-x-auto pb-8 gap-6 snap-x snap-mandatory scroll-smooth hide-scrollbar">
-            {featuredProducts.length > 0 ? (
-              featuredProducts.map((product) => {
+            {featuredProducts.products.length > 0 ? (
+              featuredProducts.products.map((product) => {
                 const images = product.images ? JSON.parse(product.images) : []
                 const image = images.length > 0 ? images[0] : "https://picsum.photos/400/500"
                 return (

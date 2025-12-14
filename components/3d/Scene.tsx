@@ -8,8 +8,8 @@ import * as random from "maath/random/dist/maath-random.esm";
 import { Color } from "three";
 
 function ParticleSphere(props: any) {
-    const ref = useRef<any>();
-    const [sphere] = useState(() => random.inSphere(new Float32Array(5000), { radius: 1.5 }));
+    const ref = useRef<any>(null);
+    const [sphere] = useState(() => random.inSphere(new Float32Array(5001), { radius: 1.5 }));
 
     useFrame((state, delta) => {
         if (ref.current) {

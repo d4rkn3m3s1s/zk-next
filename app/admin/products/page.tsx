@@ -8,7 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 
 export default async function AdminProductsPage({ searchParams }: { searchParams: Promise<{ q?: string, status?: string, min?: string, max?: string, brand?: string }> }) {
     const { q: query, status, min, max, brand } = await searchParams
-    const products = await getProducts({
+    const result = await getProducts({
         query,
         status,
         limit: 100, // Increase limit for admin
@@ -16,6 +16,14 @@ export default async function AdminProductsPage({ searchParams }: { searchParams
         maxPrice: max ? Number(max) : undefined,
         brand
     })
+
+    const products = result.products.map((product) => ({
+        ...product,
+        price: Number(product.price),
+        comparePrice: product.comparePrice ? Number(product.comparePrice) : null,
+        cost: product.cost ? Number(product.cost) : null,
+    }));
+
 
     return (
         <div className="space-y-8">

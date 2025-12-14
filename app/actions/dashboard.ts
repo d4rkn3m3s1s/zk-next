@@ -3,10 +3,8 @@
 import { prisma } from "@/lib/prisma"
 
 export async function getDashboardStats() {
-    // 1. Total Revenue (Sum of completed orders or all non-cancelled orders?)
-    // Let's assume all orders that are not Cancelled for now, or maybe only Shipped/Delivered.
-    // For simplicity and "Total Revenue", we usually mean "Sales". Let's take all non-cancelled.
-    const revenueAggregation = await prisma.order.aggregate({
+    // 1. Order Revenue
+    const orderRevenueAggregation = await prisma.order.aggregate({
         _sum: {
             totalAmount: true
         },
@@ -16,7 +14,24 @@ export async function getDashboardStats() {
             }
         }
     })
-    const totalRevenue = revenueAggregation._sum.totalAmount || 0
+    const orderRevenue = Number(orderRevenueAggregation._sum.totalAmount || 0)
+
+    // 1b. Sales Ledger Revenue (New)
+    let salesRevenue = 0;
+    try {
+        if ((prisma as any).sale) {
+            const saleAggregation = await prisma.sale.aggregate({
+                _sum: {
+                    soldPrice: true
+                }
+            })
+            salesRevenue = Number(saleAggregation._sum.soldPrice || 0)
+        }
+    } catch (e) {
+        console.error("Failed to aggregate sales:", e);
+    }
+
+    const totalRevenue = orderRevenue + salesRevenue
 
     // 2. Active Orders (Processing or Shipped)
     const activeOrdersCount = await prisma.order.count({

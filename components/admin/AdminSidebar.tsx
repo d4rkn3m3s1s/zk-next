@@ -11,16 +11,22 @@ import {
     MessageSquare,
     Settings,
     LogOut,
-    FileText
+    FileText,
+    DollarSign
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 
 const sidebarItems = [
     {
-        title: "Panel",
-        href: "/admin",
+        title: "Komuta Merkezi",
+        href: "/admin/dashboard",
         icon: LayoutDashboard
+    },
+    {
+        title: "Kârlılık Defteri",
+        href: "/admin/sales",
+        icon: DollarSign
     },
     {
         title: "Ürünler",

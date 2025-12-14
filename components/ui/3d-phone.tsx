@@ -74,8 +74,8 @@ function ProceduralPhone(props: any) {
             </mesh>
 
             {/* Screen Content (Simulated Dynamic Island & UI) */}
-            <mesh position={[0, 2.8, 0.181]}>
-                <capsuleGeometry args={[0.12, 0.6, 4, 8]} rotation={[0, 0, Math.PI / 2]} />
+            <mesh position={[0, 2.8, 0.181]} rotation={[0, 0, Math.PI / 2]}>
+                <capsuleGeometry args={[0.12, 0.6, 4, 8]} />
                 <meshBasicMaterial color="black" />
             </mesh>
 
@@ -177,8 +177,8 @@ export default function PhoneExperience() {
 
                 <PresentationControls
                     global
-                    config={{ mass: 2, tension: 500 }}
-                    snap={{ mass: 4, tension: 1500 }}
+
+                    snap={{ mass: 4, tension: 1500 } as any}
                     rotation={[0, 0.3, 0]}
                     polar={[-Math.PI / 4, Math.PI / 4]}
                     azimuth={[-Math.PI / 4, Math.PI / 4]}

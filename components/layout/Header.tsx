@@ -42,6 +42,9 @@ export function Header() {
                     <Link href="/contact" className="text-muted-foreground hover:text-primary text-sm font-medium transition-colors">
                         İletişim
                     </Link>
+                    <Link href="/scan" className="px-3 py-1.5 rounded-full bg-pink-500/10 text-pink-500 hover:bg-pink-500/20 text-sm font-medium transition-colors border border-pink-500/20">
+                        Barkod Tara
+                    </Link>
                 </nav>
 
                 <div className="flex items-center gap-4">
@@ -86,6 +89,7 @@ export function Header() {
                                 <Link href="/products" className="text-lg font-medium">Ürünler</Link>
                                 <Link href="/repair-tracking" className="text-lg font-medium text-cyan-500">Cihaz Takip</Link>
                                 <Link href="/contact" className="text-lg font-medium">İletişim</Link>
+                                <Link href="/scan" className="text-lg font-medium text-pink-500">Tara</Link>
                                 {!session && (
                                     <Link href="/auth/login" className="text-lg font-medium text-primary">Giriş Yap</Link>
                                 )}
