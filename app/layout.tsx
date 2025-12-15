@@ -16,8 +16,11 @@ const notoSans = Noto_Sans({
 });
 
 export const metadata: Metadata = {
-  title: "Zk İletişim - Kadıköy Telefon Tamiri ve Aksesuar",
-  description: "Kadıköy'de güvenilir telefon tamiri, teknik servis ve orijinal aksesuar satışı. iPhone, Samsung ve tüm modeller için profesyonel hizmet.",
+  title: {
+    default: "ZK İletişim",
+    template: "%s | ZK İletişim"
+  },
+  description: "Kadıköy'ün en güvenilir, ödüllü teknik servisi. iPhone, Samsung tamiri ve premium aksesuarlar.",
   manifest: '/manifest.webmanifest',
   appleWebApp: {
     capable: true,
@@ -33,11 +36,17 @@ export const viewport = {
   themeColor: '#00F0FF',
 }
 
-export default function RootLayout({
+import { getSettings } from "@/app/actions/settings";
+
+// ... (existing imports)
+
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const settings = await getSettings();
+
   return (
     <html lang="tr" className="dark" suppressHydrationWarning>
       <body
@@ -45,7 +54,7 @@ export default function RootLayout({
         className={`${spaceGrotesk.variable} ${notoSans.variable} font-body bg-background text-foreground antialiased`}
       >
         <Providers>
-          <MainLayout>
+          <MainLayout settings={settings}>
             {children}
           </MainLayout>
         </Providers>

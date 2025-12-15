@@ -102,20 +102,20 @@ function HeroScene() {
                         <div className="absolute -inset-1 bg-gradient-to-r from-purple-600 to-cyan-600 rounded-lg blur opacity-25 group-hover:opacity-75 transition duration-1000 group-hover:duration-200" />
                         <div className="relative px-4 py-1 bg-black ring-1 ring-gray-900/5 rounded-lg leading-none flex items-center">
                             <span className="text-xs font-mono text-purple-400">
-                                SYSTEM.INIT(v2.0) :: ZK.CORP
+                                SYSTEM.READY :: NEXT_GEN_REPAIR
                             </span>
                         </div>
                     </div>
 
                     <h1 className="text-7xl md:text-[9rem] font-bold tracking-tighter text-white mb-4 mix-blend-difference leading-[0.8]" style={{ fontFamily: 'monospace' }}>
-                        ZK<span className="text-purple-600">.</span>CORP
+                        ZK<span className="text-purple-600">.</span>İLETİŞİM
                     </h1>
 
                     <div className="h-px w-20 bg-gradient-to-r from-transparent via-purple-500 to-transparent mb-8" />
 
                     <p className="text-xl md:text-2xl text-slate-400 font-light tracking-wide max-w-2xl mx-auto mb-10 mix-blend-difference">
-                        <span className="text-purple-400 font-mono text-sm mr-2">[AI_REPAIR]</span>
-                        Geleceği Dönüştürüyoruz.
+                        <span className="text-purple-400 font-mono text-sm mr-2">[PREMIUM_SERVICE]</span>
+                        Zahmetsiz Çözüm, Kusursuz Hizmet.
                     </p>
 
                     <div className="flex flex-col sm:flex-row gap-6 items-center justify-center">

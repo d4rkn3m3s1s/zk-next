@@ -194,23 +194,23 @@ export default function AboutPage() {
                 <div className="max-w-[1200px] mx-auto">
                     <h2 className="text-3xl font-bold text-foreground text-center mb-12">Uzman Ekibimizle Tanışın</h2>
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
-                        {/* Team Member 1 */}
-                        <div className="group relative rounded-2xl overflow-hidden bg-card shadow-sm hover:shadow-xl transition-all duration-300">
-                            <div className="aspect-[4/5] w-full overflow-hidden">
-                                <div className="w-full h-full bg-cover bg-center transition-transform duration-500 group-hover:scale-105" style={{ backgroundImage: 'url("https://lh3.googleusercontent.com/aida-public/AB6AXuDVqwZVhZ1D1_ohdSz1_Cn96ExA83Iq6qjoY21aB3kITWlPXzm0hl8nQefhwl7MHxq0umJLQoQgaLCl80FDQnonktSn84YLDG_UARWh3-XEWbggY6gW7f_cV0iyejpOuRMnvjKYzFVdjuXPSSk625Az8XYzHYlHh8JsWzS3nNspWvwUNhxCr-R0i-9fajyzsvuAyoe6frO4PYt3-FbCKHXdpLOPxU6jfKGOgOg5HKq7SqseeXbviL8T5-BAtVXauuvEfD72dyYDpw")' }}></div>
-                            </div>
-                            <div className="p-4 text-center relative z-10 -mt-8 mx-4 bg-card rounded-xl shadow-md border border-border">
-                                <h3 className="font-bold text-foreground">Ahmet Yılmaz</h3>
-                                <p className="text-primary text-sm font-medium">Kurucu & CEO</p>
-                            </div>
-                        </div>
-                        {/* Team Member 2 */}
+                        {/* Team Member 1 - Gamze Describes (Female) uses previous Elif's image */}
                         <div className="group relative rounded-2xl overflow-hidden bg-card shadow-sm hover:shadow-xl transition-all duration-300">
                             <div className="aspect-[4/5] w-full overflow-hidden">
                                 <div className="w-full h-full bg-cover bg-center transition-transform duration-500 group-hover:scale-105" style={{ backgroundImage: 'url("https://lh3.googleusercontent.com/aida-public/AB6AXuCU_7yk0L4PtpWWalm8IvLWY1sT31ZxZHj16-hwINnFwY7_LR-o8Kg8l-xTiUYstZ638VmbfhEExVmauI_XE4ykDfn3SynghrvsM7feGl3j41t16eHkMWTFZPM4u39DwYVg1H2w-SggkyoW4NZ03WEG8U6atK4Alz2AVclZx5W_wTPdZOwuBpQUBmF-OJsziCgQpKz03dRfQ-25CmETpdxCAg-rx6MeZntGrqr8DmLt1rCajLMAPblNgWVK3wdudoJDxai-brl6XA")' }}></div>
                             </div>
                             <div className="p-4 text-center relative z-10 -mt-8 mx-4 bg-card rounded-xl shadow-md border border-border">
-                                <h3 className="font-bold text-foreground">Elif Demir</h3>
+                                <h3 className="font-bold text-foreground">Gamze Çoksoylu</h3>
+                                <p className="text-primary text-sm font-medium">Kurucu & CEO</p>
+                            </div>
+                        </div>
+                        {/* Team Member 2 - Talha Describes (Male) uses previous Ahmet's image */}
+                        <div className="group relative rounded-2xl overflow-hidden bg-card shadow-sm hover:shadow-xl transition-all duration-300">
+                            <div className="aspect-[4/5] w-full overflow-hidden">
+                                <div className="w-full h-full bg-cover bg-center transition-transform duration-500 group-hover:scale-105" style={{ backgroundImage: 'url("https://lh3.googleusercontent.com/aida-public/AB6AXuDVqwZVhZ1D1_ohdSz1_Cn96ExA83Iq6qjoY21aB3kITWlPXzm0hl8nQefhwl7MHxq0umJLQoQgaLCl80FDQnonktSn84YLDG_UARWh3-XEWbggY6gW7f_cV0iyejpOuRMnvjKYzFVdjuXPSSk625Az8XYzHYlHh8JsWzS3nNspWvwUNhxCr-R0i-9fajyzsvuAyoe6frO4PYt3-FbCKHXdpLOPxU6jfKGOgOg5HKq7SqseeXbviL8T5-BAtVXauuvEfD72dyYDpw")' }}></div>
+                            </div>
+                            <div className="p-4 text-center relative z-10 -mt-8 mx-4 bg-card rounded-xl shadow-md border border-border">
+                                <h3 className="font-bold text-foreground">Talha Çoksoylu</h3>
                                 <p className="text-primary text-sm font-medium">Operasyon Müdürü</p>
                             </div>
                         </div>
@@ -220,7 +220,7 @@ export default function AboutPage() {
                                 <div className="w-full h-full bg-cover bg-center transition-transform duration-500 group-hover:scale-105" style={{ backgroundImage: 'url("https://lh3.googleusercontent.com/aida-public/AB6AXuB5OG7QpZPTIcVksi4iquIBobC59Om0tefKDSPjpUZX4EC_JQeHrmLRX39_nD4uvoWBjXOTrfWL3_6Pq_J8JUvdPAKzkg4KsUm606LLxqWkruVbFS2M6Ij9qg9mP3yVtYPEbjL8Zcs7_K52CA730xEpvHHyuUJNEsx_ybbKOfylQYqEFwe1cHjLlCr0ASXnG3lcF9F2bx1lQ3QHAMggUQN9JhmIFJMbasx6IgWu3BRpwmnCuumN2J9jkt1rz-AQODxG5swhjBTQvg")' }}></div>
                             </div>
                             <div className="p-4 text-center relative z-10 -mt-8 mx-4 bg-card rounded-xl shadow-md border border-border">
-                                <h3 className="font-bold text-foreground">Caner Öztürk</h3>
+                                <h3 className="font-bold text-foreground">Mahmut Murat Çoksoylu</h3>
                                 <p className="text-primary text-sm font-medium">Teknik Servis Şefi</p>
                             </div>
                         </div>
@@ -230,7 +230,7 @@ export default function AboutPage() {
                                 <div className="w-full h-full bg-cover bg-center transition-transform duration-500 group-hover:scale-105" style={{ backgroundImage: 'url("https://lh3.googleusercontent.com/aida-public/AB6AXuDF6E60nVBHKeR_X_Yb92Kgw8eE10qYvDKwJDLV-5b-iYVftVlFMH9vbebe41wM3qwvwgej3IE5taD0ZSJHUHFcDJbspXSWbzdrQuj5G5hLVfZwbn62QED1iURgyZNIzP1NzrOYx4d8GKTsiu4fi_Ank-iUEX3sB9yeqHMDSKMqcY0kXRzprRMWd14WXgNcNDfu5XWBm8b0QtXF6fJ76GNf8tJsaPtssNT-EN_22AWyswLPkxpb2kHEAXUJbBjnOgifIUsWFO-cXg")' }}></div>
                             </div>
                             <div className="p-4 text-center relative z-10 -mt-8 mx-4 bg-card rounded-xl shadow-md border border-border">
-                                <h3 className="font-bold text-foreground">Zeynep Kaya</h3>
+                                <h3 className="font-bold text-foreground">Büşra Çoksoylu</h3>
                                 <p className="text-primary text-sm font-medium">Müşteri İlişkileri</p>
                             </div>
                         </div>

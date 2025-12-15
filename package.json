@@ -3,8 +3,8 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev --webpack",
-    "dev:all": "concurrently \"next dev --webpack\" \"npm run api\"",
+    "dev": "concurrently \"next dev --turbo\" \"npm run api\"",
+    "dev:next": "next dev --turbo",
     "api": "cd mobile-specs-server && npm start",
     "build": "next build",
     "start": "next start",

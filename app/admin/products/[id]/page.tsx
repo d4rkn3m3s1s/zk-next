@@ -4,10 +4,20 @@ import { notFound } from "next/navigation"
 
 export default async function EditProductPage({ params }: { params: Promise<{ id: string }> }) {
     const { id } = await params
-    const product = await getProduct(parseInt(id))
+    const productRaw = await getProduct(parseInt(id))
 
-    if (!product) {
+    if (!productRaw) {
         notFound()
+    }
+
+    // Serialize Decimal and Date fields to plain strings/numbers for Client Component
+    const product = {
+        ...productRaw,
+        price: productRaw.price.toString(),
+        comparePrice: productRaw.comparePrice?.toString() || null,
+        cost: productRaw.cost?.toString() || null,
+        createdAt: productRaw.createdAt.toISOString(),
+        updatedAt: productRaw.updatedAt.toISOString(),
     }
 
     return (

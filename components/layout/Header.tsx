@@ -7,7 +7,7 @@ import { Search, Menu, User, ShoppingBag } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
-export function Header() {
+export function Header({ settings }: { settings?: any }) {
     const [scrolled, setScrolled] = useState(false);
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
@@ -45,11 +45,11 @@ export function Header() {
                         <div className="relative size-10 flex items-center justify-center bg-transparent border border-white/10 rounded-xl overflow-hidden group-hover:border-cyan-500/50 transition-colors duration-300">
                             <div className="absolute inset-0 bg-gradient-to-br from-cyan-500/20 to-purple-600/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                             <span className="font-display font-bold text-xl text-white tracking-tighter">
-                                zk
+                                {settings?.site_name?.substring(0, 2).toLowerCase() || "zk"}
                             </span>
                         </div>
                         <span className="hidden sm:block font-display font-bold text-xl tracking-tight text-white/90 group-hover:text-white transition-colors">
-                            ZK İletişim
+                            {settings?.site_name || "ZK İletişim"}
                         </span>
                     </Link>
 

@@ -5,7 +5,7 @@ import { Header } from '@/components/layout/Header';
 import { Footer } from '@/components/layout/Footer';
 import { Chatbot } from '@/components/chat/Chatbot';
 
-export function MainLayout({ children }: { children: React.ReactNode }) {
+export function MainLayout({ children, settings }: { children: React.ReactNode, settings?: any }) {
     const pathname = usePathname();
     const isSpecialPage = pathname?.startsWith('/admin') || pathname?.startsWith('/auth');
 
@@ -15,11 +15,11 @@ export function MainLayout({ children }: { children: React.ReactNode }) {
 
     return (
         <>
-            <Header />
+            <Header settings={settings} />
             <main className="min-h-screen pt-[72px]">
                 {children}
             </main>
-            <Footer />
+            <Footer settings={settings} />
             <Chatbot />
         </>
     );

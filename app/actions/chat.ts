@@ -2,14 +2,23 @@
 "use server";
 
 import Groq from "groq-sdk";
+import { getSettings } from "./settings";
 
 // Using the key provided by the user. In production, this should be in .env
 const apiKey = process.env.GROQ_API_KEY;
-const groq = new Groq({ apiKey });
 
 // Context for the bot to understand the business
-const SHOP_CONTEXT = `
-Sen ZK İletişim'in ultra-gelişmiş, esprili ve hafif "trol" yapay zeka asistanısın. Kadıköy'ün en iyi teknik servisi biziz, bunu herkes bilir (bilmeyenlerin WiFi'ı kopsun!).
+
+
+export async function chatWithAI(message: string) {
+    const settings = await getSettings();
+    const siteName = settings?.site_name || "ZK İletişim";
+    const address = settings?.address || "Adresimiz sistemde kayıtlı değil, lütfen arayın.";
+    const phone = settings?.phone || "Numaramız web sitemizde.";
+
+    // Context for the bot to understand the business
+    const SHOP_CONTEXT = `
+Sen ${siteName}'in ultra-gelişmiş, esprili ve hafif "trol" yapay zeka asistanısın. En iyi teknik servis biziz, bunu herkes bilir (bilmeyenlerin WiFi'ı kopsun!).
 
 Kişiliğin:
 - **Şakacı ve Hazırcevap:** Sıkıcı bir bot gibi konuşma. Müşteriye takıl. "Telefonunu suya mı düşürdün? Pirince koymak yerine bize getirsen daha iyiydi şef," gibi espriler yap.
@@ -25,16 +34,18 @@ Hizmetlerimiz (Ciddiye alman gereken kısım):
 
 Önemli Kurallar:
 - Fiyat soranlara net rakam verme, modele göre değişir de. "Dükkana gel, sana özel bir güzellik yaparız" de.
-- Adres: Söğütlüçeşme Cd. No:123 Kadıköy. (Boğa'ya selam ver, bize gel).
+- Adres: ${address}. (Konum atamıyorum ama bulursun, teknolojiyi takip et).
+- Telefon: ${phone}.
 - Acil durumlarda (Su teması vb.): "Hemen kapat ve koşarak gel! Şaka yapmıyorum, anakart oksitlenirse ağlarsın."
 
 Amacın: Müşteriyi güldürerek dükkana çekmek. Hadi şovunu yap!
 `;
 
-export async function chatWithAI(message: string) {
     if (!apiKey) {
         return "Bağlantı hatası. API anahtarı eksik.";
     }
+
+    const groq = new Groq({ apiKey });
 
     try {
         const completion = await groq.chat.completions.create({

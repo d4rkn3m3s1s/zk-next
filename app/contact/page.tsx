@@ -3,16 +3,21 @@ import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { Mail, MapPin, Phone, Send, Github, Twitter, Instagram } from "lucide-react"
 
-export default function ContactPage() {
+import { getSettings } from "@/app/actions/settings"
+
+export default async function ContactPage() {
+    const settings = await getSettings()
+
     return (
         <div className="min-h-screen pt-24 pb-12 relative overflow-hidden bg-[#020204]">
-            {/* Background Effects */}
+            {/* ... (Background Effects - Unchanged) ... */}
             <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20 mix-blend-overlay pointer-events-none"></div>
             <div className="absolute top-0 right-0 w-[800px] h-[800px] bg-cyan-600/10 rounded-full blur-[120px] pointer-events-none animate-pulse-slow"></div>
             <div className="absolute bottom-0 left-0 w-[800px] h-[800px] bg-purple-600/10 rounded-full blur-[120px] pointer-events-none animate-pulse-slow delay-1000"></div>
 
             <div className="container max-w-7xl mx-auto px-4 relative z-10">
                 <div className="text-center mb-16">
+                    {/* ... (Header - Unchanged) ... */}
                     <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-cyan-950/30 border border-cyan-500/30 backdrop-blur-md mb-6">
                         <span className="relative flex h-2 w-2">
                             <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-cyan-400 opacity-75"></span>
@@ -32,10 +37,11 @@ export default function ContactPage() {
                 <div className="grid lg:grid-cols-2 gap-12 lg:gap-24 items-start">
                     {/* Holographic Contact Form */}
                     <div className="relative group">
+                        {/* ... (Form Content - Unchanged) ... */}
                         <div className="absolute -inset-1 bg-gradient-to-r from-cyan-500 to-purple-500 rounded-3xl blur opacity-25 group-hover:opacity-50 transition duration-1000"></div>
                         <div className="relative bg-black/40 backdrop-blur-xl border border-white/10 rounded-3xl p-8 md:p-10 shadow-2xl">
+                            {/* ... Form ... */}
                             <div className="absolute top-0 left-0 w-full h-[1px] bg-gradient-to-r from-transparent via-cyan-500/50 to-transparent"></div>
-
                             <h3 className="text-2xl font-bold text-white mb-8 flex items-center gap-3">
                                 <Mail className="h-6 w-6 text-cyan-400" />
                                 <span className="tracking-wide">Mesaj Gönder</span>
@@ -45,16 +51,16 @@ export default function ContactPage() {
                                 <div className="grid grid-cols-2 gap-6">
                                     <div className="space-y-2">
                                         <label className="text-xs font-bold text-cyan-400 uppercase tracking-wider">İsim</label>
-                                        <Input className="bg-white/5 border-white/10 text-white placeholder:text-white/20 h-12 rounded-xl focus:border-cyan-400/50 focus:ring-cyan-400/20 transition-all font-light" placeholder="John Doe" />
+                                        <Input className="bg-white/5 border-white/10 text-white placeholder:text-white/20 h-12 rounded-xl focus:border-cyan-400/50 focus:ring-cyan-400/20 transition-all font-light" placeholder="Adınız Soyadınız" />
                                     </div>
                                     <div className="space-y-2">
                                         <label className="text-xs font-bold text-cyan-400 uppercase tracking-wider">E-posta</label>
-                                        <Input className="bg-white/5 border-white/10 text-white placeholder:text-white/20 h-12 rounded-xl focus:border-cyan-400/50 focus:ring-cyan-400/20 transition-all font-light" placeholder="john@example.com" />
+                                        <Input className="bg-white/5 border-white/10 text-white placeholder:text-white/20 h-12 rounded-xl focus:border-cyan-400/50 focus:ring-cyan-400/20 transition-all font-light" placeholder="ornek@email.com" />
                                     </div>
                                 </div>
                                 <div className="space-y-2">
                                     <label className="text-xs font-bold text-cyan-400 uppercase tracking-wider">Konu</label>
-                                    <Input className="bg-white/5 border-white/10 text-white placeholder:text-white/20 h-12 rounded-xl focus:border-cyan-400/50 focus:ring-cyan-400/20 transition-all font-light" placeholder="Proje veya Destek Talebi" />
+                                    <Input className="bg-white/5 border-white/10 text-white placeholder:text-white/20 h-12 rounded-xl focus:border-cyan-400/50 focus:ring-cyan-400/20 transition-all font-light" placeholder="Konu başlığı" />
                                 </div>
                                 <div className="space-y-2">
                                     <label className="text-xs font-bold text-cyan-400 uppercase tracking-wider">Mesaj</label>
@@ -79,9 +85,8 @@ export default function ContactPage() {
                                     </div>
                                     <div>
                                         <h4 className="text-lg font-bold text-white mb-1">Merkez Ofis</h4>
-                                        <p className="text-slate-400 leading-relaxed">
-                                            Teknoloji Vadisi, Blok 404<br />
-                                            Maslak, İstanbul 34000
+                                        <p className="text-slate-400 leading-relaxed whitespace-pre-wrap">
+                                            {settings?.address || "Adres bilgisi girilmedi."}
                                         </p>
                                     </div>
                                 </div>
@@ -96,7 +101,7 @@ export default function ContactPage() {
                                     <div>
                                         <h4 className="text-lg font-bold text-white mb-1">İletişim Hattı</h4>
                                         <p className="text-slate-400 leading-relaxed">
-                                            +90 (212) 555 0123<br />
+                                            {settings?.phone || "Telefon bilgisi girilmedi."}<br />
                                             <span className="text-xs text-purple-400 uppercase tracking-wider">09:00 - 18:00 (Pzt-Cum)</span>
                                         </p>
                                     </div>
@@ -112,8 +117,7 @@ export default function ContactPage() {
                                     <div>
                                         <h4 className="text-lg font-bold text-white mb-1">E-posta</h4>
                                         <p className="text-slate-400 leading-relaxed">
-                                            hello@zk-iletisim.com<br />
-                                            support@zk-iletisim.com
+                                            {settings?.email || "Email bilgisi girilmedi."}
                                         </p>
                                     </div>
                                 </div>

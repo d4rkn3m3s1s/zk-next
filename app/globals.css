@@ -45,7 +45,7 @@
 
 :root {
   --radius: 0.75rem;
-  
+
   /* System Colors - Light Mode (Clean Tech) */
   --background: oklch(0.99 0 0);
   --foreground: oklch(0.1 0 0);
@@ -53,7 +53,8 @@
   --card-foreground: oklch(0.1 0 0);
   --popover: oklch(1 0 0);
   --popover-foreground: oklch(0.1 0 0);
-  --primary: oklch(0.5 0.2 260); /* Deep Blue */
+  --primary: oklch(0.5 0.2 260);
+  /* Deep Blue */
   --primary-foreground: oklch(1 0 0);
   --secondary: oklch(0.96 0 0);
   --secondary-foreground: oklch(0.2 0 0);
@@ -70,7 +71,7 @@
   --chart-3: oklch(0.4 0.1 230);
   --chart-4: oklch(0.8 0.2 80);
   --chart-5: oklch(0.7 0.2 70);
-  
+
   --sidebar: oklch(0.98 0 0);
   --sidebar-foreground: oklch(0.2 0 0);
   --sidebar-primary: oklch(0.2 0 0);
@@ -83,40 +84,47 @@
 
 .dark {
   /* LEGENDARY DARK MODE - Deep Space / Neon */
-  --background: #020204; /* Ultra Dark Void */
+  --background: #020204;
+  /* Ultra Dark Void */
   --foreground: #ffffff;
-  
+
   --card: #08080a;
   --card-foreground: #ffffff;
-  
+
   --popover: #08080a;
   --popover-foreground: #ffffff;
-  
+
   /* Electric Cyan / Neon Purple Gradient Base */
-  --primary: oklch(0.7 0.2 200); /* Cyan-ish */
+  --primary: oklch(0.7 0.2 200);
+  /* Cyan-ish */
   --primary-foreground: #000000;
-  
+
   --secondary: rgba(255, 255, 255, 0.05);
   --secondary-foreground: #ffffff;
-  
+
   --muted: rgba(255, 255, 255, 0.03);
   --muted-foreground: #a0a0b0;
-  
+
   --accent: rgba(0, 240, 255, 0.1);
   --accent-foreground: #00f0ff;
-  
+
   --destructive: #ff3333;
   --border: rgba(255, 255, 255, 0.08);
   --input: rgba(255, 255, 255, 0.08);
   --ring: oklch(0.7 0.2 200);
-  
+
   /* Chart Colors for Neon Data Viz */
-  --chart-1: #00f0ff; /* Cyan */
-  --chart-2: #bd00ff; /* Purple */
-  --chart-3: #00ff9d; /* Green */
-  --chart-4: #ff0055; /* Pink */
-  --chart-5: #ffd900; /* Yellow */
-  
+  --chart-1: #00f0ff;
+  /* Cyan */
+  --chart-2: #bd00ff;
+  /* Purple */
+  --chart-3: #00ff9d;
+  /* Green */
+  --chart-4: #ff0055;
+  /* Pink */
+  --chart-5: #ffd900;
+  /* Yellow */
+
   --sidebar: #050505;
   --sidebar-foreground: #ffffff;
   --sidebar-primary: #00f0ff;
@@ -131,41 +139,60 @@
   * {
     @apply border-border outline-ring/50;
   }
+
   body {
     @apply bg-background text-foreground antialiased selection:bg-cyan-500/30 selection:text-cyan-100;
   }
-  
+
   /* Custom Scrollbar */
   ::-webkit-scrollbar {
-    width: 8px;
-    height: 8px;
+    width: 6px;
+    height: 6px;
   }
+
   ::-webkit-scrollbar-track {
-    background: var(--background);
+    background: #020204;
   }
+
   ::-webkit-scrollbar-thumb {
     background: #333;
-    border-radius: 4px;
+    border-radius: 3px;
+    border: 1px solid transparent;
+    background-clip: content-box;
   }
+
   ::-webkit-scrollbar-thumb:hover {
-    background: #555;
+    background: #00f0ff;
+    border: 0;
   }
 }
 
 @layer utilities {
-  .perspective-1000 { perspective: 1000px; }
-  .preserve-3d { transform-style: preserve-3d; }
-  .backface-hidden { backface-visibility: hidden; }
-  .rotate-y-180 { transform: rotateY(180deg); }
-  
+  .perspective-1000 {
+    perspective: 1000px;
+  }
+
+  .preserve-3d {
+    transform-style: preserve-3d;
+  }
+
+  .backface-hidden {
+    backface-visibility: hidden;
+  }
+
+  .rotate-y-180 {
+    transform: rotateY(180deg);
+  }
+
   .glass-card {
     @apply bg-white/5 backdrop-blur-xl border border-white/10 shadow-2xl;
   }
-  
+
   .neon-border {
     @apply border border-transparent transition-all duration-300;
-    box-shadow: 0 0 0 1px rgba(255,255,255,0.05);
+    box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.05);
   }
+
   .neon-border:hover {
     box-shadow: 0 0 15px rgba(0, 240, 255, 0.3), inset 0 0 0 1px rgba(0, 240, 255, 0.5);
   }
@@ -173,40 +200,127 @@
   .text-glow {
     text-shadow: 0 0 20px rgba(0, 240, 255, 0.5);
   }
-  
-  .no-scrollbar::-webkit-scrollbar { display: none; }
-  .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
 }
 
 @keyframes float {
-  0%, 100% { transform: translateY(0px); }
-  50% { transform: translateY(-20px); }
-}
-@keyframes float-delayed {
-  0%, 100% { transform: translateY(0px); }
-  50% { transform: translateY(-15px); }
-}
-@keyframes pulse-slow {
-  0%, 100% { opacity: 0.3; transform: scale(1); }
-  50% { opacity: 0.6; transform: scale(1.05); }
-}
-@keyframes blink {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0; }
-}
-@keyframes scan {
-  0% { transform: translateY(-100%); }
-  100% { transform: translateY(100%); }
+
+  0%,
+  100% {
+    transform: translateY(0px);
+  }
+
+  50% {
+    transform: translateY(-20px);
+  }
 }
 
-.animate-float { animation: float 6s ease-in-out infinite; }
-.animate-float-delayed { animation: float-delayed 5s ease-in-out 2s infinite; }
-.animate-pulse-slow { animation: pulse-slow 4s ease-in-out infinite; }
-.animate-blink { animation: blink 1s step-end infinite; }
-.animate-scan { animation: scan 3s linear infinite; }
-.animate-marquee { animation: marquee 30s linear infinite; }
+@keyframes float-delayed {
+
+  0%,
+  100% {
+    transform: translateY(0px);
+  }
+
+  50% {
+    transform: translateY(-15px);
+  }
+}
+
+@keyframes pulse-slow {
+
+  0%,
+  100% {
+    opacity: 0.3;
+    transform: scale(1);
+  }
+
+  50% {
+    opacity: 0.6;
+    transform: scale(1.05);
+  }
+}
+
+@keyframes blink {
+
+  0%,
+  100% {
+    opacity: 1;
+  }
+
+  50% {
+    opacity: 0;
+  }
+}
+
+@keyframes scan {
+  0% {
+    transform: translateY(-100%);
+  }
+
+  100% {
+    transform: translateY(100%);
+  }
+}
+
+.animate-float {
+  animation: float 6s ease-in-out infinite;
+}
+
+.animate-float-delayed {
+  animation: float-delayed 5s ease-in-out 2s infinite;
+}
+
+.animate-pulse-slow {
+  animation: pulse-slow 4s ease-in-out infinite;
+}
+
+.animate-blink {
+  animation: blink 1s step-end infinite;
+}
+
+.animate-scan {
+  animation: scan 3s linear infinite;
+}
+
+.animate-marquee {
+  animation: marquee 30s linear infinite;
+}
 
 @keyframes marquee {
-  0% { transform: translateX(0); }
-  100% { transform: translateX(-50%); }
+  0% {
+    transform: translateX(0);
+  }
+
+  100% {
+    transform: translateX(-50%);
+  }
+}
+
+@keyframes meteor {
+  0% {
+    transform: rotate(215deg) translateX(0);
+    opacity: 1;
+  }
+
+  70% {
+    opacity: 1;
+  }
+
+  100% {
+    transform: rotate(215deg) translateX(-500px);
+    opacity: 0;
+  }
+}
+
+.animate-meteor {
+  animation: meteor 5s linear infinite;
 }

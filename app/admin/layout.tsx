@@ -6,6 +6,7 @@ import { LayoutDashboard, Bell, Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Sidebar } from "@/components/admin/Sidebar";
+import { GridBackground } from "@/components/ui/grid-background";
 
 export default function AdminLayout({
     children,
@@ -31,8 +32,7 @@ export default function AdminLayout({
 
             {/* Main Content */}
             <main className="flex-1 flex flex-col min-h-screen relative overflow-hidden">
-                {/* Background Noise/Grid */}
-                <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-5 pointer-events-none mix-blend-overlay fixed"></div>
+                <GridBackground className="absolute inset-0 z-0" />
 
                 {/* Header */}
                 <header className="h-16 border-b border-white/5 bg-[#0a0a0a]/50 backdrop-blur-md sticky top-0 z-40 px-4 md:px-8 flex items-center justify-between">

@@ -1,6 +1,6 @@
 "use server"
 
-const API_BASE_URL = "http://localhost:3001"
+const API_BASE_URL = "http://localhost:4000"
 
 export interface Brand {
     brand_id: number

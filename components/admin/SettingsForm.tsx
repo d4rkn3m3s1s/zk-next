@@ -53,7 +53,7 @@ export function SettingsForm({ settings }: { settings: any }) {
                     <TabsTrigger value="security">Güvenlik</TabsTrigger>
                 </TabsList>
 
-                <TabsContent value="general" className="space-y-8">
+                <TabsContent value="general" forceMount={true} className="space-y-8 data-[state=inactive]:hidden">
                     <Card>
                         <CardHeader>
                             <CardTitle className="flex items-center gap-2">
@@ -86,7 +86,7 @@ export function SettingsForm({ settings }: { settings: any }) {
                     </Card>
                 </TabsContent>
 
-                <TabsContent value="contact" className="space-y-8">
+                <TabsContent value="contact" forceMount={true} className="space-y-8 data-[state=inactive]:hidden">
                     <Card>
                         <CardHeader>
                             <CardTitle className="flex items-center gap-2">
@@ -136,7 +136,7 @@ export function SettingsForm({ settings }: { settings: any }) {
                     </Card>
                 </TabsContent>
 
-                <TabsContent value="seo" className="space-y-8">
+                <TabsContent value="seo" forceMount={true} className="space-y-8 data-[state=inactive]:hidden">
                     <Card>
                         <CardHeader>
                             <CardTitle className="flex items-center gap-2">
@@ -168,7 +168,7 @@ export function SettingsForm({ settings }: { settings: any }) {
                     </Card>
                 </TabsContent>
 
-                <TabsContent value="security" className="space-y-8">
+                <TabsContent value="security" forceMount={true} className="space-y-8 data-[state=inactive]:hidden">
                     <Card>
                         <CardHeader>
                             <CardTitle className="flex items-center gap-2">

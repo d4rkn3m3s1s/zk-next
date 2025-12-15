@@ -1,7 +1,13 @@
 import Link from "next/link"
 import { Facebook, Instagram, Twitter, Youtube, Zap, Shield, Globe } from "lucide-react"
 
-export function Footer() {
+interface FooterProps {
+    settings?: any
+}
+
+export function Footer({ settings }: FooterProps) {
+    const year = new Date().getFullYear();
+
     return (
         <footer className="relative bg-[#020204] border-t border-white/10 overflow-hidden pt-20 pb-10">
             {/* Neon Grid Floor Effect */}
@@ -10,7 +16,7 @@ export function Footer() {
             {/* Massive Typography Background */}
             <div className="absolute bottom-0 left-1/2 -translate-x-1/2 opacity-[0.03] select-none pointer-events-none">
                 <h1 className="text-[20vw] font-black text-white leading-none tracking-tighter truncate">
-                    ZK_FUTURE
+                    {settings?.site_name?.toUpperCase() || "ZK_FUTURE"}
                 </h1>
             </div>
 
@@ -20,22 +26,27 @@ export function Footer() {
                     <div className="space-y-6">
                         <Link href="/" className="inline-block">
                             <h2 className="text-3xl font-black text-white tracking-tighter">
-                                ZK<span className="text-cyan-400">.</span>IO
+                                {settings?.site_name || "ZK"}
+                                <span className="text-cyan-400">.</span>IO
                             </h2>
                         </Link>
                         <p className="text-slate-400 leading-relaxed font-light">
-                            Geleceğin teknolojisini bugünden deneyimleyin.
-                            <br />
-                            Yenilenmiş cihazlarda güvenin adresi.
+                            {settings?.description || "Geleceğin teknolojisini bugünden deneyimleyin. Yenilenmiş cihazlarda güvenin adresi."}
                         </p>
                         <div className="flex gap-4">
-                            {[Facebook, Twitter, Instagram, Youtube].map((Icon, i) => (
+                            {[
+                                { icon: Facebook, href: "#" },
+                                { icon: Twitter, href: "#" },
+                                { icon: Instagram, href: settings?.instagram || "#" },
+                                { icon: Youtube, href: "#" }
+                            ].map((social, i) => (
                                 <Link
                                     key={i}
-                                    href="#"
+                                    href={social.href}
+                                    target={social.href !== "#" ? "_blank" : undefined}
                                     className="h-10 w-10 flex items-center justify-center rounded-xl bg-white/5 text-slate-400 hover:text-cyan-400 hover:bg-cyan-950/30 transition-all border border-white/5 hover:border-cyan-500/30"
                                 >
-                                    <Icon className="h-5 w-5" />
+                                    <social.icon className="h-5 w-5" />
                                 </Link>
                             ))}
                         </div>
@@ -47,7 +58,7 @@ export function Footer() {
                         <ul className="space-y-4">
                             {['Hakkımızda', 'Kariyer', 'Blog', 'İletişim'].map((item) => (
                                 <li key={item}>
-                                    <Link href="#" className="text-slate-400 hover:text-cyan-400 transition-colors flex items-center gap-2 group">
+                                    <Link href={item === 'İletişim' ? '/contact' : '#'} className="text-slate-400 hover:text-cyan-400 transition-colors flex items-center gap-2 group">
                                         <span className="h-px w-0 bg-cyan-400 group-hover:w-4 transition-all duration-300"></span>
                                         {item}
                                     </Link>
@@ -58,16 +69,20 @@ export function Footer() {
 
                     {/* Links Column 2 */}
                     <div>
-                        <h3 className="text-sm font-bold text-white uppercase tracking-widest mb-6">Hizmetler</h3>
+                        <h3 className="text-sm font-bold text-white uppercase tracking-widest mb-6">İletişim & Adres</h3>
                         <ul className="space-y-4">
-                            {['Tamir Hizmetleri', 'Cihaz Satın Al', 'Cihazını Sat', 'Kurumsal'].map((item) => (
-                                <li key={item}>
-                                    <Link href="#" className="text-slate-400 hover:text-purple-400 transition-colors flex items-center gap-2 group">
-                                        <span className="h-px w-0 bg-purple-400 group-hover:w-4 transition-all duration-300"></span>
-                                        {item}
-                                    </Link>
-                                </li>
-                            ))}
+                            <li className="text-slate-400 flex items-start gap-2">
+                                <span className="text-cyan-400 mt-1">📍</span>
+                                <span>{settings?.address || "Adres bilgisi girilmedi."}</span>
+                            </li>
+                            <li className="text-slate-400 flex items-center gap-2">
+                                <span className="text-cyan-400">📞</span>
+                                <span>{settings?.phone || "+90 (212) 555 0123"}</span>
+                            </li>
+                            <li className="text-slate-400 flex items-center gap-2">
+                                <span className="text-cyan-400">✉️</span>
+                                <span>{settings?.email || "info@zkiletisim.com"}</span>
+                            </li>
                         </ul>
                     </div>
 
@@ -92,7 +107,7 @@ export function Footer() {
 
                 {/* Bottom Bar */}
                 <div className="pt-8 border-t border-white/10 flex flex-col md:flex-row items-center justify-between gap-4 text-sm text-slate-500">
-                    <p>© 2024 ZK İletişim. Tüm hakları saklıdır.</p>
+                    <p>© {year} {settings?.site_name || "ZK İletişim"}. Tüm hakları saklıdır.</p>
                     <div className="flex gap-8">
                         <Link href="#" className="hover:text-white transition-colors">Gizlilik Politikası</Link>
                         <Link href="#" className="hover:text-white transition-colors">Kullanım Şartları</Link>

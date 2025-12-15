@@ -67,21 +67,20 @@ export async function getDashboardStats() {
         const totalRevenue = Number(orderRevAgg._sum.totalAmount) || 0
         const totalStock = totalStockAgg._sum.stock || 0
 
-        // Process Chart Data (Using Orders instead of possibly missing Sales model)
+        // Process Chart Data (Using Sale model from Profitability Ledger)
         const sevenDaysAgo = new Date();
         sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
 
-        const last7DaysOrders = await prisma.order.findMany({
+        const last7DaysSalesRaw = await prisma.sale.findMany({
             where: {
-                createdAt: { gte: sevenDaysAgo },
-                status: 'Completed'
+                soldAt: { gte: sevenDaysAgo }
             },
-            orderBy: { createdAt: 'asc' }
+            orderBy: { soldAt: 'asc' }
         });
 
-        const last7DaysSalesMap = last7DaysOrders.reduce((acc: Record<string, number>, curr) => {
-            const date = curr.createdAt.toISOString().split('T')[0];
-            acc[date] = (acc[date] || 0) + Number(curr.totalAmount);
+        const last7DaysSalesMap = last7DaysSalesRaw.reduce((acc: Record<string, number>, curr) => {
+            const date = curr.soldAt.toISOString().split('T')[0];
+            acc[date] = (acc[date] || 0) + Number(curr.soldPrice);
             return acc;
         }, {});
 

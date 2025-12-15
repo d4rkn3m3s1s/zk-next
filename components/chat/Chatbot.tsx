@@ -94,29 +94,46 @@ export function Chatbot() {
                             cancelled: "İptal Edildi"
                         }
 
-                        responseText = `🔎 **Cihaz Durumu:**\n\n` +
-                            `📌 **Model:** ${repair.device_model}\n` +
-                            `🔧 **Durum:** ${statusLabels[repair.status] || repair.status}\n` +
-                            `📅 **Kayıt Tarihi:** ${new Date(repair.createdAt).toLocaleDateString('tr-TR')}\n`
+                        const funnyIntros = [
+                            "Dedektiflerimiz cihazını buldu! İşte son durum raporu: 🕵️‍♂️",
+                            "Sanki NASA laboratuvarındaymış gibi ilgileniyoruz. Durum şöyle: 🚀",
+                            "Cihazın emin ellerde, şu an spa keyfi yapıyor olabilir. Detaylar: 💆‍♂️",
+                            "Sistemlerimi taradım ve cihazını yakaladım! İşte bilgileri: 🤖",
+                            "Operasyon merkezinden gelen son istihbarat şöyle: 📡"
+                        ];
+                        const randomIntro = funnyIntros[Math.floor(Math.random() * funnyIntros.length)];
 
-                        if (repair.receivedBy) responseText += `👤 **İlgilenen:** ${repair.receivedBy}\n`
-                        if (repair.estimatedDate) responseText += `🕒 **Tahmini Teslim:** ${new Date(repair.estimatedDate).toLocaleDateString('tr-TR')}\n`
+                        const statusLabel = statusLabels[repair.status] || repair.status;
 
-                        responseText += `\nDetaylı bilgi için bizi arayabilirsiniz.`
+                        setTimeout(() => {
+                            const botResponse: Message = {
+                                id: (Date.now() + 1).toString(),
+                                text: randomIntro,
+                                sender: "bot",
+                                timestamp: new Date().toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' }),
+                                type: "card",
+                                cardData: {
+                                    device_model: repair.device_model,
+                                    status: statusLabel,
+                                    date: new Date(repair.createdAt).toLocaleDateString('tr-TR'),
+                                    estimated: repair.estimatedDate ? new Date(repair.estimatedDate).toLocaleDateString('tr-TR') : 'Hesaplanıyor...',
+                                    receivedBy: repair.receivedBy
+                                }
+                            }
+                            setMessages(prev => [...prev, botResponse])
+                        }, 500)
                     } else {
-                        responseText = "⚠️ Bu takip koduyla kayıtlı bir cihaz bulunamadı. Lütfen kodu kontrol edip tekrar yazın."
+                        setTimeout(() => {
+                            const botResponse: Message = {
+                                id: (Date.now() + 1).toString(),
+                                text: "⚠️ Bu takip koduyla kayıtlı bir cihaz bulunamadı. Lütfen kodu kontrol edip tekrar yazın.",
+                                sender: "bot",
+                                timestamp: new Date().toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' }),
+                                type: "text"
+                            }
+                            setMessages(prev => [...prev, botResponse])
+                        }, 500)
                     }
-
-                    setTimeout(() => {
-                        const botResponse: Message = {
-                            id: (Date.now() + 1).toString(),
-                            text: responseText,
-                            sender: "bot",
-                            timestamp: new Date().toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' }),
-                            type: "text"
-                        }
-                        setMessages(prev => [...prev, botResponse])
-                    }, 500)
 
                 } catch (error) {
                     console.error("Chatbot error", error)
@@ -248,14 +265,69 @@ export function Chatbot() {
                                     </div>
                                 )}
                                 <div className={cn("flex flex-col gap-2 max-w-[85%]", msg.sender === "user" ? "items-end" : "")}>
-                                    <div className={cn(
-                                        "p-3.5 rounded-2xl shadow-sm text-sm leading-relaxed",
-                                        msg.sender === "bot"
-                                            ? "bg-muted border border-border text-foreground rounded-tl-none"
-                                            : "bg-primary text-primary-foreground rounded-tr-none shadow-primary/20"
-                                    )}>
-                                        {msg.text}
-                                    </div>
+                                    {msg.type === "card" && msg.cardData ? (
+                                        <div className="w-full">
+                                            <div className={cn(
+                                                "p-3.5 rounded-2xl shadow-sm text-sm leading-relaxed mb-2",
+                                                "bg-muted border border-border text-foreground rounded-tl-none"
+                                            )}>
+                                                {msg.text}
+                                            </div>
+
+                                            {/* Legendary Repair Card */}
+                                            <div className="relative group overflow-hidden rounded-xl border border-cyan-500/30 bg-black/40 backdrop-blur-md">
+                                                <div className="absolute inset-0 bg-gradient-to-br from-cyan-500/10 via-transparent to-purple-500/10 opacity-50 group-hover:opacity-100 transition-opacity"></div>
+
+                                                {/* Animated Border Glow */}
+                                                <div className="absolute -inset-1 bg-gradient-to-r from-cyan-500 to-purple-600 opacity-20 blur-md group-hover:opacity-40 transition-opacity"></div>
+
+                                                <div className="relative p-4 space-y-3">
+                                                    {/* Header */}
+                                                    <div className="flex justify-between items-start">
+                                                        <div>
+                                                            <div className="text-[10px] uppercase tracking-wider text-cyan-400 font-bold mb-1">Cihaz Modeli</div>
+                                                            <div className="text-lg font-black text-white">{msg.cardData.device_model}</div>
+                                                        </div>
+                                                        <div className="p-2 bg-cyan-500/20 rounded-lg">
+                                                            <Wrench className="w-4 h-4 text-cyan-400" />
+                                                        </div>
+                                                    </div>
+
+                                                    {/* Status Bar */}
+                                                    <div className="space-y-1">
+                                                        <div className="flex justify-between text-xs text-slate-400">
+                                                            <span>Durum</span>
+                                                            <span className="text-white font-bold">{msg.cardData.status}</span>
+                                                        </div>
+                                                        <div className="w-full h-1.5 bg-slate-800 rounded-full overflow-hidden">
+                                                            <div className="h-full bg-gradient-to-r from-cyan-500 to-purple-500 animate-pulse w-2/3 rounded-full"></div>
+                                                        </div>
+                                                    </div>
+
+                                                    {/* Details Grid */}
+                                                    <div className="grid grid-cols-2 gap-2 pt-2">
+                                                        <div className="bg-white/5 p-2 rounded-lg border border-white/5">
+                                                            <div className="text-[10px] text-slate-500 mb-0.5">Kayıt Tarihi</div>
+                                                            <div className="text-xs font-medium text-slate-300">{msg.cardData.date}</div>
+                                                        </div>
+                                                        <div className="bg-white/5 p-2 rounded-lg border border-white/5">
+                                                            <div className="text-[10px] text-slate-500 mb-0.5">Tahmini Teslim</div>
+                                                            <div className="text-xs font-medium text-cyan-300">{msg.cardData.estimated}</div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    ) : (
+                                        <div className={cn(
+                                            "p-3.5 rounded-2xl shadow-sm text-sm leading-relaxed",
+                                            msg.sender === "bot"
+                                                ? "bg-muted border border-border text-foreground rounded-tl-none"
+                                                : "bg-primary text-primary-foreground rounded-tr-none shadow-primary/20"
+                                        )}>
+                                            {msg.text}
+                                        </div>
+                                    )}
                                     {msg.sender === "user" && (
                                         <span className="text-[10px] text-muted-foreground mr-1 flex items-center gap-1">
                                             Okundu {msg.timestamp} <CheckCheck className="h-3 w-3" />
