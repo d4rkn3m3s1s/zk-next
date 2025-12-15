@@ -2,7 +2,7 @@
   command = "npm run build"
 
 [build.environment]
-  DATABASE_URL = "file:./dev.db"
+  DATABASE_URL = "postgresql://neondb_owner:npg_tielNshkCx75@ep-polished-pine-ae2saapw-pooler.c-2.us-east-2.aws.neon.tech/neondb?channel_binding=require&sslmode=require"
   NEXTAUTH_URL = "https://zcorp.netlify.app"
   NEXTAUTH_SECRET = "zcorp-secret-key-change-me-in-production"
 
