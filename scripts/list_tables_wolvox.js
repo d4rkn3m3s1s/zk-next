@@ -21,11 +21,11 @@ Firebird.attach(options, (err, db) => {
     }
 
     // Query to list tables
-    const query = `
         SELECT RDB$RELATION_NAME 
         FROM RDB$RELATIONS 
         WHERE RDB$SYSTEM_FLAG = 0 
         AND RDB$VIEW_BLR IS NULL
+        AND RDB$RELATION_NAME LIKE 'CARI%'
         ORDER BY RDB$RELATION_NAME
     `;
 
@@ -38,10 +38,7 @@ Firebird.attach(options, (err, db) => {
             console.log("Found " + result.length + " tables:");
             result.forEach(row => {
                 const name = row.RDB$RELATION_NAME.toString().trim();
-                // Filter to likely candidates to keep log short(er) but show enough
-                if (name.includes('STOK') || name.includes('FIYAT') || name.includes('DEPO') || name.includes('BAKIYE')) {
-                    console.log("- " + name);
-                }
+                console.log("- " + name);
             });
             process.exit(0);
         }

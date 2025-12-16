@@ -9,6 +9,8 @@ import { ArrowRight, Filter, Search } from "lucide-react"
 import { getProducts } from "@/app/actions/product"
 import Link from "next/link"
 import { redirect } from "next/navigation"
+import { getActiveCampaign } from "@/app/actions/campaign"
+import { CampaignPopup } from "@/components/shop/CampaignPopup"
 
 export default async function ProductsPage({ searchParams }: {
     searchParams: Promise<{
@@ -36,15 +38,18 @@ export default async function ProductsPage({ searchParams }: {
 
     const page = searchParamsObj.page ? parseInt(searchParamsObj.page) : 1
 
-    const { products, totalPages } = await getProducts({
-        query,
-        category,
-        brand,
-        minPrice,
-        maxPrice,
-        sort,
-        page
-    })
+    const [{ products, totalPages }, activeCampaign] = await Promise.all([
+        getProducts({
+            query,
+            category,
+            brand,
+            minPrice,
+            maxPrice,
+            sort,
+            page
+        }),
+        getActiveCampaign()
+    ])
 
     async function filterAction(formData: FormData) {
         "use server"
@@ -79,6 +84,7 @@ export default async function ProductsPage({ searchParams }: {
 
     return (
         <div className="flex flex-col min-h-screen">
+            <CampaignPopup campaign={activeCampaign} />
             {/* Legendary Hero Section */}
             <section className="relative overflow-hidden py-24 min-h-[60vh] flex items-center bg-background">
                 {/* Deep Space Background Effects */}
@@ -202,7 +208,7 @@ export default async function ProductsPage({ searchParams }: {
                             {/* Products Grid */}
                             {products.length > 0 ? (
                                 <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6">
-                                    {products.map((product) => {
+                                    {products.map((product: any) => {
                                         const images = product.images ? JSON.parse(product.images) : []
                                         const image = images.length > 0 ? images[0] : "https://picsum.photos/400/500"
 

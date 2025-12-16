@@ -186,6 +186,8 @@ export function ProductForm({ product, isSecondHand = false }: ProductFormProps)
     const [condition, setCondition] = useState(product?.condition || "")
     const [batteryHealth, setBatteryHealth] = useState(product?.batteryHealth || "")
     const [warranty, setWarranty] = useState(product?.warranty || "")
+    const [ram, setRam] = useState(product?.ram || "")
+    const [storage, setStorage] = useState(product?.storage || "")
 
     const [loading, setLoading] = useState(false)
     const [fetchingParams, setFetchingParams] = useState(false)
@@ -220,9 +222,15 @@ export function ProductForm({ product, isSecondHand = false }: ProductFormProps)
     // State for visual specs preview
     const [specHighlights, setSpecHighlights] = useState<Record<string, string>>({})
 
+    const [availableVariants, setAvailableVariants] = useState<{ ram: string, storage: string }[]>([])
+    const [selectedVariantIndex, setSelectedVariantIndex] = useState<string>("")
+
     const handleFetchSpecs = async () => {
         if (!selectedBrand || !selectedModel) return
         setFetchingParams(true)
+        setAvailableVariants([])
+        setSelectedVariantIndex("")
+
         try {
             const specs = await getPhoneSpecs(selectedBrand, selectedModel)
             if (specs) {
@@ -231,6 +239,8 @@ export function ProductForm({ product, isSecondHand = false }: ProductFormProps)
 
                 // Extract Highlights
                 const newHighlights: Record<string, string> = {}
+                let foundVariants: { ram: string, storage: string }[] = []
+
                 if (specs.specifications) {
                     // Display
                     const display = specs.specifications["Display"]
@@ -250,10 +260,7 @@ export function ProductForm({ product, isSecondHand = false }: ProductFormProps)
                     // Camera (Main)
                     const mainCam = specs.specifications["Main Camera"]
                     if (mainCam) {
-                        // Usually "Triple", "Dual" or just keys like "Single"
-                        // We iterate to find the first key that looks like a camera spec or check standard keys
                         const features = Object.values(mainCam).join(" ");
-                        // Simple extraction: take the first ~50 chars or first line
                         newHighlights["Kamera"] = features.split(',')[0]
                     }
 
@@ -264,15 +271,37 @@ export function ProductForm({ product, isSecondHand = false }: ProductFormProps)
                         if (type) newHighlights["Batarya"] = type
                     }
 
-                    // Memory
+                    // Memory & Variants Parsing
                     const memory = specs.specifications["Memory"]
                     if (memory) {
                         const internal = memory["Internal"]
-                        if (internal) newHighlights["Hafıza"] = internal
+                        if (internal) {
+                            newHighlights["Hafıza"] = internal
+
+                            // Parse string like "128GB 8GB RAM, 256GB 8GB RAM"
+                            // Split by comma
+                            const parts = internal.split(',')
+                            parts.forEach((part: string) => {
+                                const p = part.trim()
+                                // Regex to find Storage and RAM
+                                // Look for "X GB" or "X TB" 
+                                // Example: "256GB 8GB RAM"
+                                const ramMatch = p.match(/(\d+\s?GB)\s+RAM/i)
+                                const storageMatch = p.match(/^(\d+\s?(GB|TB))/) // Start of string usually storage
+
+                                if (ramMatch || storageMatch) {
+                                    foundVariants.push({
+                                        ram: ramMatch ? ramMatch[1] : "",
+                                        storage: storageMatch ? storageMatch[1] : p.replace(ramMatch ? ramMatch[0] : "", "").trim()
+                                    })
+                                }
+                            })
+                        }
                     }
+                    setAvailableVariants(foundVariants)
 
                     // Colors
-                    const misc = specs.specifications["Misc"] || specs.specifications["Comms"]; // Sometimes Colors in Comms or Misc
+                    const misc = specs.specifications["Misc"] || specs.specifications["Comms"];
                     if (misc && misc["Colors"]) {
                         const colors = misc["Colors"];
                         newHighlights["Renkler"] = colors;
@@ -280,7 +309,7 @@ export function ProductForm({ product, isSecondHand = false }: ProductFormProps)
                 }
                 setSpecHighlights(newHighlights)
 
-                // Format description (Keeping full detail for SEO/Page)
+                // Format description
                 let desc = `Marka: ${specs.brand_name}\nModel: ${specs.model_name}\n`
                 if (specs.specifications) {
                     Object.entries(specs.specifications).forEach(([category, values]) => {
@@ -296,9 +325,6 @@ export function ProductForm({ product, isSecondHand = false }: ProductFormProps)
                 }
                 setProductDesc(desc)
 
-                // Try to map brand
-                // Our internal brands: apple, samsung, xiaomi, huawei, oppo
-                // API Brand: Samsung, Apple, etc.
                 const lowerBrand = specs.brand_name.toLowerCase()
                 if (['apple', 'samsung', 'xiaomi', 'huawei', 'oppo'].includes(lowerBrand)) {
                     setProductBrand(lowerBrand)
@@ -306,7 +332,6 @@ export function ProductForm({ product, isSecondHand = false }: ProductFormProps)
 
                 setProductCategory("phones")
 
-                // Images - Populate Gallery
                 if (specs.phone_images && specs.phone_images.length > 0) {
                     setImages(specs.phone_images)
                 } else if (specs.model_img) {
@@ -397,6 +422,35 @@ export function ProductForm({ product, isSecondHand = false }: ProductFormProps)
                         </Button>
                     </div>
                 </div>
+
+                {/* Variant Selector */}
+                {availableVariants.length > 0 && (
+                    <div className="mt-4 p-4 bg-muted/20 border border-white/10 rounded-lg animate-in fade-in slide-in-from-top-2">
+                        <Label className="mb-2 block text-purple-400 font-medium">Bulunan Varyasyonlar (Seçiniz)</Label>
+                        <Select
+                            value={selectedVariantIndex}
+                            onValueChange={(val) => {
+                                setSelectedVariantIndex(val)
+                                const variant = availableVariants[parseInt(val)]
+                                if (variant) {
+                                    setRam(variant.ram)
+                                    setStorage(variant.storage)
+                                }
+                            }}
+                        >
+                            <SelectTrigger className="w-full bg-black/50 border-white/10">
+                                <SelectValue placeholder="Varyasyon Seç..." />
+                            </SelectTrigger>
+                            <SelectContent>
+                                {availableVariants.map((v, i) => (
+                                    <SelectItem key={i} value={i.toString()}>
+                                        {v.storage} {v.ram ? `+ ${v.ram} RAM` : ""}
+                                    </SelectItem>
+                                ))}
+                            </SelectContent>
+                        </Select>
+                    </div>
+                )}
             </div>
 
             <form onSubmit={handleSubmit} className="grid grid-cols-1 lg:grid-cols-3 gap-8">

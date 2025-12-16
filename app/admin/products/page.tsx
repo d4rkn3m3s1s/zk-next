@@ -1,6 +1,6 @@
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
-import { Plus, Search, Filter } from "lucide-react"
+import { Plus, Search, Filter, UploadCloud } from "lucide-react"
 import { Input } from "@/components/ui/input"
 import { getProducts } from "@/app/actions/product"
 import { ProductTable } from "./ProductTable"

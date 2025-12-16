@@ -110,6 +110,9 @@ export async function createProduct(formData: FormData) {
             isFeatured,
             isNew,
             images,
+            // Variant Specs
+            ram: formData.get("ram") as string,
+            storage: formData.get("storage") as string,
             batteryHealth: formData.get("batteryHealth") ? parseInt(formData.get("batteryHealth") as string) : null,
             warranty: formData.get("warranty") as string,
             condition: formData.get("condition") as string
@@ -148,7 +151,9 @@ export async function updateProduct(id: number, formData: FormData) {
             status,
             isFeatured,
             isNew,
-            images
+            images,
+            ram: formData.get("ram") as string,
+            storage: formData.get("storage") as string,
         }
     })
 

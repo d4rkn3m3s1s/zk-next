@@ -48,7 +48,7 @@ export default async function RootLayout({
   const settings = await getSettings();
 
   return (
-    <html lang="tr" className="dark" suppressHydrationWarning>
+    <html lang="tr" suppressHydrationWarning>
       <body
         suppressHydrationWarning
         className={`${spaceGrotesk.variable} ${notoSans.variable} font-body bg-background text-foreground antialiased`}

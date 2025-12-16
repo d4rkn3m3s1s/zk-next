@@ -4,7 +4,13 @@ import { notFound } from "next/navigation"
 
 export default async function EditProductPage({ params }: { params: Promise<{ id: string }> }) {
     const { id } = await params
-    const productRaw = await getProduct(parseInt(id))
+    const productId = parseInt(id)
+
+    if (isNaN(productId)) {
+        notFound()
+    }
+
+    const productRaw = await getProduct(productId)
 
     if (!productRaw) {
         notFound()

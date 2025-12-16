@@ -28,6 +28,8 @@ import { TodoListWidget } from "@/components/admin/widgets/TodoListWidget"
 import { MarginCalculatorWidget } from "@/components/admin/widgets/MarginCalculatorWidget"
 import { DashboardBackground } from "@/components/admin/DashboardBackground"
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+import { Meteors } from "@/components/ui/meteors";
+import { SpotlightCard } from "@/components/ui/spotlight-card";
 
 
 export default function LegendaryDashboard() {
@@ -41,13 +43,13 @@ export default function LegendaryDashboard() {
 
     const stats = [
         {
-            title: "Toplam Gelir",
-            value: `₺${data.totalRevenue.toLocaleString('tr-TR')}`,
+            title: "Toplam Kâr", // Changed from Gelir
+            value: `₺${data.totalProfit ? data.totalProfit.toLocaleString('tr-TR') : '0'}`,
             icon: DollarSign,
             color: "text-green-400",
             bg: "bg-green-500/10",
             border: "border-green-500/20",
-            trend: "+12%"
+            trend: `${data.profitTrend > 0 ? '+' : ''}${data.profitTrend}%`
         },
         {
             title: "Aktif Siparişler",
@@ -56,7 +58,7 @@ export default function LegendaryDashboard() {
             color: "text-blue-400",
             bg: "bg-blue-500/10",
             border: "border-blue-500/20",
-            trend: "+5"
+            trend: "Siparişler"
         },
         {
             title: "Bekleyen Tamirler",
@@ -81,10 +83,11 @@ export default function LegendaryDashboard() {
     return (
         <div className="relative z-20 w-full px-2 md:px-0 pb-10 font-sans selection:bg-cyan-500/30 overflow-x-hidden">
             {/* Background Ambient Glow - Keep subtle or remove if GridBackground is enough */}
-            <div className="fixed inset-0 pointer-events-none z-0">
+            <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden">
                 <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-cyan-500/5 rounded-full blur-[120px] animate-pulse-slow"></div>
                 <div className="absolute bottom-0 left-0 w-[500px] h-[500px] bg-purple-600/5 rounded-full blur-[100px]"></div>
                 <DashboardBackground />
+                <Meteors number={20} />
             </div>
 
             {/* Stock Ticker Area */}
@@ -120,8 +123,12 @@ export default function LegendaryDashboard() {
                 {/* Main Stats Grid */}
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                     {stats.map((stat, idx) => (
-                        <div key={idx} className={`relative group p-6 rounded-2xl border backdrop-blur-xl transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl ${stat.bg} ${stat.border}`}>
-                            <div className="flex justify-between items-start mb-4">
+                        <SpotlightCard
+                            key={idx}
+                            className={`group p-6 transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl ${stat.bg} ${stat.border}`}
+                            spotlightColor="rgba(255, 255, 255, 0.15)"
+                        >
+                            <div className="flex justify-between items-start mb-4 relative z-10">
                                 <div className={`p-3 rounded-xl bg-black/20 ${stat.color}`}>
                                     <stat.icon className="w-6 h-6" />
                                 </div>
@@ -129,12 +136,11 @@ export default function LegendaryDashboard() {
                                     {stat.trend} <ArrowUpRight className="w-3 h-3" />
                                 </span>
                             </div>
-                            <div>
+                            <div className="relative z-10">
                                 <h3 className="text-slate-400 text-sm font-bold uppercase tracking-wider mb-1">{stat.title}</h3>
                                 <div className="text-3xl font-black text-white">{stat.value}</div>
                             </div>
-                            <div className={`absolute inset-0 rounded-2xl transition-opacity duration-300 opacity-0 group-hover:opacity-100 bg-gradient-to-br from-white/5 to-transparent pointer-events-none`}></div>
-                        </div>
+                        </SpotlightCard>
                     ))}
                 </div>
 

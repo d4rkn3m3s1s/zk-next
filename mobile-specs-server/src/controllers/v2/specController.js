@@ -2,10 +2,6 @@ const request = require("request-promise");
 const cheerio = require("cheerio");
 const { json, errorJson } = require("../../utils/response");
 
-let brand;
-let phone_name;
-let phone_img_url;
-let scrapeResults = [];
 
 let features = [
 	"Network",
@@ -27,19 +23,25 @@ let features = [
 
 const scrapeSpecs = async (url) => {
 	try {
+		let brand;
+		let phone_name;
+		let thumbnail;
+		let scrapeResults = [];
+
 		const htmlResult = await request.get(url);
-        let $ = await cheerio.load(htmlResult);
-      
-		phone = $("h1.specs-phone-name-title").text();
-		if (!phone) {
+		let $ = await cheerio.load(htmlResult);
+
+		const phoneTitle = $("h1.specs-phone-name-title").text(); // renaming local var to avoid confusion if any
+		if (!phoneTitle) {
 			throw new Error("Invalid url!");
 		}
-		brand = phone.split(" ")[0];
-		phone_name = phone.split(brand)[1].trim();
+		brand = phoneTitle.split(" ")[0];
+		phone_name = phoneTitle.split(brand)[1].trim();
 		thumbnail = $(".specs-photo-main")
 			.children("a")
 			.children("img")
 			.attr("src");
+
 		features.map((feature) => {
 			let obj = {
 				title: null,
@@ -59,7 +61,7 @@ const scrapeSpecs = async (url) => {
 						$(el)
 							.children("tr")
 							.each((index, e) => {
-								key = $(e)
+								let key = $(e) // declared local
 									.children("td.ttl")
 									.children("a")
 									.text();
@@ -93,12 +95,12 @@ const scrapeSpecs = async (url) => {
 		const storage = $('.icon-sd-card-0').next().text();
 		const phone_image_url = $('.icon-pictures').parent('a').attr('href');
 		const phone_images = [];
-		if(phone_image_url) {
+		if (phone_image_url) {
 			const html = await request.get(`${process.env.BASE_URL}/${phone_image_url}`);
 			$ = await cheerio.load(html);
 			$('#pictures-list').children('img').each((index, el) => {
 				let src = $(el).attr('src');
-				if(src) phone_images.push(src);
+				if (src) phone_images.push(src);
 			});
 		}
 		return {
@@ -126,7 +128,7 @@ exports.index = async (req, res) => {
 		const response = await scrapeSpecs(url);
 		response.specifications = response.scrapeResults;
 		delete response.scrapeResults;
-		scrapeResults = [];
+		// Global clear no longer needed
 		return json(res, response);
 	} catch (error) {
 		return errorJson(res, 'Please provide a valid phone slug!');

@@ -9,7 +9,8 @@ exports.index = async (req, res) => {
     if (q === undefined || q === "") {
       return errorJson(res, "Please provide query search!");
     } else {
-      url = `${process.env.BASE_URL}/results.php3?sSearch=${q}`;
+      // Use sName for specific name search and sQuickSearch=yes to mimic the quick search bar
+      url = `${process.env.BASE_URL}/results.php3?sQuickSearch=yes&sName=${q}`;
     }
 
     const browser = await puppeteer.launch({
@@ -21,12 +22,12 @@ exports.index = async (req, res) => {
         '--disable-accelerated-2d-canvas',
         '--no-first-run',
         '--no-zygote',
-        '--single-process', // <- this one doesn't works in Windows
         '--disable-gpu'
       ]
     });
 
     const page = await browser.newPage();
+    await page.setUserAgent('Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.36');
     await page.goto(url, {
       waitUntil: "networkidle2", // Wait until the network is idle to ensure all elements are fully loaded
     });
@@ -37,6 +38,9 @@ exports.index = async (req, res) => {
     // const htmlResult = await request.get(url);
     // const $ = await cheerio.load(htmlResult);
     const title = $(".article-info-name").text();
+    const fs = require('fs');
+    fs.appendFileSync('debug_log.txt', `Date: ${new Date().toISOString()}\nQuery: ${q}\nURL: ${page.url()}\nTitle: ${title}\nFound: ${$(".makers ul li").length} items\n\n`);
+
     const phones = [];
     $(".makers")
       .children("ul")
@@ -62,6 +66,8 @@ exports.index = async (req, res) => {
     });
   } catch (error) {
     console.error("Puppeteer Search Error:", error);
+    const fs = require('fs');
+    fs.appendFileSync('error_log.txt', new Date().toISOString() + ' - ' + error.stack + '\n');
     return errorJson(res, error);
   }
 };

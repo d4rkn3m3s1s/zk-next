@@ -14,7 +14,9 @@ import {
     Smartphone,
     ChevronLeft,
     ChevronRight,
-    BarChart3
+    BarChart3,
+    Megaphone,
+    UploadCloud
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
@@ -33,7 +35,9 @@ export function Sidebar({ className }: { className?: string }) {
         { icon: Smartphone, label: "Cihaz Karşılaştırma", href: "/compare" },
         { icon: Calendar, label: "Randevular", href: "/admin/appointments" },
         { icon: Package, label: "Ürünler", href: "/admin/products" },
-        { icon: Smartphone, label: "İkinci El Girişi", href: "/admin/products/new-second-hand" }, // Added
+        { icon: Smartphone, label: "İkinci El Girişi", href: "/admin/products/new-second-hand" },
+        { icon: DollarSign, label: "Alacak Defteri", href: "/admin/debtors" },
+        { icon: Megaphone, label: "Kampanyalar", href: "/admin/marketing" },
         { icon: Wrench, label: "Tamirler", href: "/admin/repairs" },
         { icon: Users, label: "Kullanıcılar", href: "/admin/users" },
         { icon: Settings, label: "Ayarlar", href: "/admin/settings" },

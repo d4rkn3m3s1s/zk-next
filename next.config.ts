@@ -8,6 +8,7 @@ const withPWA = withPWAInit({
 
 const nextConfig: NextConfig = {
   /* config options here */
+  // Trigger restart for Prisma Client update
 };
 
 export default withPWA(nextConfig);

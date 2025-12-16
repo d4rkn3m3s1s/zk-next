@@ -1,12 +1,11 @@
 "use client";
 
-import React, { useRef, useState, useEffect } from "react";
-import { cn } from "@/lib/utils";
+import React, { useRef, useState } from "react";
 
 export const SpotlightCard = ({
     children,
     className = "",
-    spotlightColor = "rgba(0, 240, 255, 0.15)",
+    spotlightColor = "rgba(255, 255, 255, 0.1)"
 }: {
     children: React.ReactNode;
     className?: string;
@@ -37,10 +36,7 @@ export const SpotlightCard = ({
             onMouseMove={handleMouseMove}
             onMouseEnter={handleMouseEnter}
             onMouseLeave={handleMouseLeave}
-            className={cn(
-                "relative rounded-xl border border-white/10 bg-black overflow-hidden",
-                className
-            )}
+            className={`relative overflow-hidden rounded-xl border border-white/10 bg-black/40 ${className}`}
         >
             <div
                 className="pointer-events-none absolute -inset-px opacity-0 transition duration-300"
@@ -49,7 +45,7 @@ export const SpotlightCard = ({
                     background: `radial-gradient(600px circle at ${position.x}px ${position.y}px, ${spotlightColor}, transparent 40%)`,
                 }}
             />
-            <div className="relative h-full">{children}</div>
+            <div className="relative">{children}</div>
         </div>
     );
 };

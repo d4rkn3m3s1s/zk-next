@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Sidebar } from "@/components/admin/Sidebar";
 import { GridBackground } from "@/components/ui/grid-background";
+import { CommandPalette } from "@/components/admin/CommandPalette";
 
 export default function AdminLayout({
     children,
@@ -25,6 +26,7 @@ export default function AdminLayout({
 
     return (
         <div className="flex min-h-screen bg-[#050505] text-slate-200 font-sans selection:bg-purple-500/30">
+            <CommandPalette />
             {/* Desktop Sidebar */}
             <div className="hidden md:block">
                 <Sidebar />

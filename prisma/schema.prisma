@@ -20,27 +20,35 @@ model User {
 }
 
 model Product {
-  id           Int         @id @default(autoincrement())
+  id           Int      @id @default(autoincrement())
   name         String
   description  String?
   price        Decimal
   comparePrice Decimal?
   cost         Decimal?
-  stock        Int         @default(0)
+  stock        Int      @default(0)
   images       String? // JSON string of image URLs
   category     String?
   brand        String?
-  status       String      @default("active")
-  isFeatured   Boolean     @default(false)
+  status       String   @default("active")
+  isFeatured   Boolean  @default(false)
 
-  isNew        Boolean     @default(false)
+  // Specs Integration
+  specsSlug String? // Slug for mobile-specs-server (e.g. "samsung_galaxy_a54")
+  specsJson String? // Cached technical specs (JSON)
+
+  // Variant Specs
+  ram     String? // e.g. "4GB", "8GB"
+  storage String? // e.g. "128GB", "256GB"
+
+  isNew         Boolean     @default(false)
   // Second Hand Fields
-  batteryHealth Int?       // e.g. 85, 90, 100
-  warranty     String?     // e.g. "12 Ay ZK Garantisi", "Apple Türkiye Garantili"
-  condition    String?     // e.g. "Mükemmel", "Çok İyi", "İyi" -> "excellent", "good", "fair"
-  createdAt    DateTime    @default(now())
-  updatedAt    DateTime    @updatedAt
-  orderItems   OrderItem[]
+  batteryHealth Int? // e.g. 85, 90, 100
+  warranty      String? // e.g. "12 Ay ZK Garantisi", "Apple Türkiye Garantili"
+  condition     String? // e.g. "Mükemmel", "Çok İyi", "İyi" -> "excellent", "good", "fair"
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+  orderItems    OrderItem[]
 }
 
 model Order {
@@ -80,23 +88,23 @@ model Appointment {
 }
 
 model Repair {
-  id             Int      @id @default(autoincrement())
+  id             Int       @id @default(autoincrement())
   customer_name  String
   phone          String
   device_model   String
   issue          String
-  tracking_code  String   @unique
-  status         String   @default("received")
+  tracking_code  String    @unique
+  status         String    @default("received")
   estimated_cost Decimal?
-  lockPassword   String?  // For numeric/text passwords
-  lockPattern    String?  // For pattern locks (e.g. "1-2-3-6-9")
-  images         String?  // JSON string of image URLs
-  privateNotes   String?  // Internal technician notes
-  receivedBy     String?  // Staff who received the device
+  lockPassword   String? // For numeric/text passwords
+  lockPattern    String? // For pattern locks (e.g. "1-2-3-6-9")
+  images         String? // JSON string of image URLs
+  privateNotes   String? // Internal technician notes
+  receivedBy     String? // Staff who received the device
   requestedDate  DateTime? // Customer requested delivery date
   estimatedDate  DateTime? // Shop estimated completion date
-  createdAt      DateTime @default(now())
-  updatedAt      DateTime @updatedAt
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
 }
 
 model Message {
@@ -150,4 +158,51 @@ model Sale {
   profit      Decimal?
   quantity    Int      @default(1)
   soldAt      DateTime @default(now())
+}
+
+model Debtor {
+  id           Int                 @id @default(autoincrement())
+  name         String
+  phone        String?
+  balance      Decimal             @default(0)
+  taxOffice    String?
+  taxNumber    String?
+  city         String?
+  district     String?
+  notes        String?
+  createdAt    DateTime            @default(now())
+  updatedAt    DateTime            @updatedAt
+  transactions DebtorTransaction[]
+}
+
+model DebtorTransaction {
+  id          Int      @id @default(autoincrement())
+  debtorId    Int
+  debtor      Debtor   @relation(fields: [debtorId], references: [id], onDelete: Cascade)
+  type        String // "DEBT" (Borç Eklendi/Satış) or "PAYMENT" (Ödeme Alındı)
+  amount      Decimal
+  description String?
+  createdAt   DateTime @default(now())
+}
+
+model AuditLog {
+  id        Int      @id @default(autoincrement())
+  action    String // CREATE, UPDATE, DELETE, LOGIN, ETC.
+  entity    String // Product, Debtor, System
+  entityId  String? // ID of the related entity
+  details   String? // JSON string containing details
+  username  String? // Who performed the action
+  createdAt DateTime @default(now())
+}
+
+model Campaign {
+  id          Int       @id @default(autoincrement())
+  title       String
+  description String
+  imageUrl    String?
+  isActive    Boolean   @default(false)
+  startDate   DateTime?
+  endDate     DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
 }
