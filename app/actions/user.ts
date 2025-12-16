@@ -2,6 +2,37 @@
 
 import { prisma } from "@/lib/prisma"
 import { revalidatePath } from "next/cache"
+import bcrypt from "bcrypt"
+
+export async function createUser(data: any) {
+    try {
+        const hashedPassword = await bcrypt.hash(data.password, 10)
+        await prisma.user.create({
+            data: {
+                username: data.username,
+                email: data.email,
+                password: hashedPassword,
+                role: data.role || "user",
+                phone: data.phone
+            }
+        })
+        revalidatePath("/admin/settings")
+        return { success: true }
+    } catch (error) {
+        console.error("Create User Error:", error)
+        return { success: false, error: "Kullanıcı oluşturulamadı" }
+    }
+}
+
+export async function deleteUser(id: number) {
+    try {
+        await prisma.user.delete({ where: { id } })
+        revalidatePath("/admin/settings")
+        return { success: true }
+    } catch (error) {
+        return { success: false, error: "Silinemedi" }
+    }
+}
 
 export async function getUsers(options?: { query?: string, role?: string, isActive?: boolean }) {
     const { query, role, isActive } = options || {}

@@ -1,10 +1,13 @@
 
 import { getSettings, updateSettings } from "@/app/actions/settings"
-import { SettingsForm } from "@/components/admin/SettingsForm"
+import { getUsers } from "@/app/actions/user"
+import { SettingsForm, SettingsFormReal } from "@/components/admin/SettingsForm"
 
 export default async function AdminSettingsPage() {
     // Fetch settings on server
     const settings = await getSettings()
+    // Fetch users for Team tab
+    const users = await getUsers()
 
     return (
         <div className="space-y-8">
@@ -15,7 +18,7 @@ export default async function AdminSettingsPage() {
                 </div>
             </div>
             {/* Pass settings to client form wrapper */}
-            <SettingsForm settings={settings} />
+            <SettingsFormReal settings={settings} users={users} />
         </div>
     )
 }
