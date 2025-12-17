@@ -1,0 +1,12 @@
+.git
+.next
+node_modules
+*.log
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+build_log*.txt
+generate_log.txt
+prisma_log.txt
+test-result.txt

@@ -12,7 +12,7 @@ export async function getSales() {
         });
 
         // Convert Decimals to numbers for client components
-        const serializedSales = sales.map(sale => ({
+        const serializedSales = sales.map((sale: any) => ({
             ...sale,
             soldPrice: Number(sale.soldPrice),
             costPrice: Number(sale.costPrice),

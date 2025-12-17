@@ -9,6 +9,7 @@ const withPWA = withPWAInit({
 const nextConfig: NextConfig = {
   /* config options here */
   // Trigger restart for Prisma Client update
+  turbopack: {}, // Explicitly enable Turbopack (silences webpack config warning)
 };
 
 export default withPWA(nextConfig);

@@ -26,7 +26,7 @@ export async function getDebtors(): Promise<GetDebtorsResponse> {
             orderBy: { balance: 'desc' }
         });
 
-        const mappedDebtors: Debtor[] = debtors.map((d) => ({
+        const mappedDebtors: Debtor[] = debtors.map((d: any) => ({
             id: d.id,
             name: d.name,
             phone: d.phone || "",

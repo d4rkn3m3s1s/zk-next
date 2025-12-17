@@ -131,7 +131,7 @@ export default async function Home() {
           {/* Horizontal Scroll Container */}
           <div className="flex overflow-x-auto pb-8 gap-6 snap-x snap-mandatory scroll-smooth hide-scrollbar">
             {featuredProducts.products.length > 0 ? (
-              featuredProducts.products.map((product) => {
+              featuredProducts.products.map((product: any) => {
                 const images = product.images ? JSON.parse(product.images) : []
                 const image = images.length > 0 ? images[0] : "https://picsum.photos/400/500"
                 return (
@@ -174,7 +174,7 @@ export default async function Home() {
               </Link>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-              {latestPosts.map((post) => (
+              {latestPosts.map((post: any) => (
                 <Link key={post.id} href={`/blog/${post.id}`} className="group">
                   <div className="rounded-2xl overflow-hidden aspect-video mb-4 border border-border">
                     <img

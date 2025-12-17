@@ -44,7 +44,7 @@ export async function getRepairs(query?: string) {
         } : undefined,
         orderBy: { createdAt: 'desc' }
     })
-    return repairs.map(repair => ({
+    return repairs.map((repair: any) => ({
         ...repair,
         estimated_cost: repair.estimated_cost ? Number(repair.estimated_cost) : null
     }))

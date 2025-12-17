@@ -3,11 +3,11 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "concurrently \"next dev --turbo\" \"npm run api\"",
-    "dev:next": "next dev --turbo",
+    "dev": "concurrently \"next dev\" \"npm run api\"",
+    "dev:next": "next dev",
     "api": "cd mobile-specs-server && npm start",
     "build": "next build",
-    "start": "next start",
+    "start": "concurrently \"next start\" \"npm run api\"",
     "lint": "eslint",
     "postinstall": "prisma generate"
   },

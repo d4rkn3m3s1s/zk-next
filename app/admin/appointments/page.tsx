@@ -68,7 +68,7 @@ export default async function AdminAppointmentsPage({ searchParams }: { searchPa
                                 </TableCell>
                             </TableRow>
                         ) : (
-                            appointments.map((appointment) => {
+                            appointments.map((appointment: any) => {
                                 const status = statusConfig[appointment.status] || statusConfig.pending
                                 const StatusIcon = status.icon
                                 return (

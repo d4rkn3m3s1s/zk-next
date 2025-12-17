@@ -68,7 +68,7 @@ export default async function AdminBlogPage({ searchParams }: { searchParams: Pr
                                 </TableCell>
                             </TableRow>
                         ) : (
-                            posts.map((post) => (
+                            posts.map((post: any) => (
                                 <TableRow key={post.id}>
                                     <TableCell>
                                         <div className="h-12 w-12 rounded-md bg-muted overflow-hidden">
