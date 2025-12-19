@@ -337,6 +337,24 @@ export function ProductForm({ product, isSecondHand = false }: ProductFormProps)
                 } else if (specs.model_img) {
                     setImages([specs.model_img])
                 }
+
+                // Append colors and more to description
+                let extraInfo = "";
+                const misc = specs.specifications["Misc"];
+                if (misc && misc["Colors"]) {
+                    extraInfo += `\nRenk Seçenekleri: ${misc["Colors"]}\n`;
+                }
+
+                const mainCam = specs.specifications["Main Camera"];
+                if (mainCam && mainCam["Single"]) {
+                    extraInfo += `\nAna Kamera: ${mainCam["Single"]}\n`;
+                } else if (mainCam && mainCam["Triple"]) {
+                    extraInfo += `\nAna Kamera: ${mainCam["Triple"]}\n`;
+                } else if (mainCam && mainCam["Quad"]) {
+                    extraInfo += `\nAna Kamera: ${mainCam["Quad"]}\n`;
+                }
+
+                setProductDesc((prev: string) => prev + extraInfo);
             }
         } catch (error) {
             console.error("Error fetching specs:", error)
@@ -346,9 +364,17 @@ export function ProductForm({ product, isSecondHand = false }: ProductFormProps)
     }
 
     const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-        if (e.target.files && e.target.files[0]) {
-            const url = `https://picsum.photos/seed/${Math.random()}/400/400`
-            setImages([...images, url])
+        if (e.target.files) {
+            const files = Array.from(e.target.files);
+
+            files.forEach(file => {
+                const reader = new FileReader();
+                reader.onloadend = () => {
+                    const base64String = reader.result as string;
+                    setImages(prev => [...prev, base64String]);
+                };
+                reader.readAsDataURL(file);
+            });
         }
     }
 
@@ -515,7 +541,7 @@ export function ProductForm({ product, isSecondHand = false }: ProductFormProps)
                             <label className="aspect-square rounded-lg border-2 border-dashed border-border hover:border-primary hover:bg-muted/50 transition-colors flex flex-col items-center justify-center cursor-pointer gap-2">
                                 <ImagePlus className="h-8 w-8 text-muted-foreground" />
                                 <span className="text-xs text-muted-foreground font-medium">Görsel Ekle</span>
-                                <input type="file" className="hidden" accept="image/*" onChange={handleImageUpload} />
+                                <input type="file" className="hidden" accept="image/*" multiple onChange={handleImageUpload} />
                             </label>
                         </div>
                     </div>

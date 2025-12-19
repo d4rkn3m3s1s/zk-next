@@ -2,33 +2,37 @@
 
 export async function getExchangeRates() {
     try {
-        const responses = await Promise.allSettled([
-            fetch("https://doviz.dev/v1/usd.json", { next: { revalidate: 0 } }),
-            fetch("https://doviz.dev/v1/eur.json", { next: { revalidate: 0 } }),
-            fetch("https://doviz.dev/v1/gram-altin.json", { next: { revalidate: 0 } })
-        ]);
+        const response = await fetch("https://finans.truncgil.com/today.json", {
+            next: { revalidate: 3600 } // Cache for 1 hour
+        });
 
-        const rates: { code: string, value: number, change: number }[] = [];
-        const [usd, eur, gold] = responses;
+        if (!response.ok) throw new Error("API response not ok");
 
-        const parseRate = async (response: PromiseSettledResult<Response>, code: string, fallback: number) => {
-            if (response.status === 'fulfilled' && response.value.ok) {
-                try {
-                    const data = await response.value.json();
-                    const val = parseFloat(data.selling || data.EURTRY || data.USDTRY || fallback.toString());
-                    if (isNaN(val)) return { code, value: fallback, change: 0 };
-                    return { code, value: val, change: parseFloat(data.change_rate || "0") };
-                } catch (e) {
-                    console.error(`Error parsing ${code}:`, e);
-                    return { code, value: fallback, change: 0 };
-                }
-            }
-            return { code, value: fallback, change: 0 };
+        const data = await response.json();
+
+        const parseValue = (val: string) => {
+            if (!val) return 0;
+            // Remove thousand separator if any, and replace decimal comma with dot
+            return parseFloat(val.replace(/\./g, '').replace(',', '.'));
         };
 
-        rates.push(await parseRate(usd, "USD", 35.80));
-        rates.push(await parseRate(eur, "EUR", 38.20));
-        rates.push(await parseRate(gold, "GOLD", 3250.00));
+        const rates = [
+            {
+                code: "USD",
+                value: parseValue(data.USD?.Satış),
+                change: parseFloat(data.USD?.Değişim?.replace('%', '').replace(',', '.') || "0")
+            },
+            {
+                code: "EUR",
+                value: parseValue(data.EUR?.Satış),
+                change: parseFloat(data.EUR?.Değişim?.replace('%', '').replace(',', '.') || "0")
+            },
+            {
+                code: "GOLD",
+                value: parseValue(data["gram-altin"]?.Satış),
+                change: parseFloat(data["gram-altin"]?.Değişim?.replace('%', '').replace(',', '.') || "0")
+            }
+        ];
 
         return { success: true, rates };
 

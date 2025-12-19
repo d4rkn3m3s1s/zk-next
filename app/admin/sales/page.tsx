@@ -203,7 +203,7 @@ export default function SalesPage() {
                                     contentStyle={{ backgroundColor: '#1e293b', border: '1px solid #334155', borderRadius: '8px' }}
                                     itemStyle={{ color: '#fff' }}
                                     labelStyle={{ color: '#94a3b8' }}
-                                    formatter={(value: number) => [`₺${value.toLocaleString()}`, '']}
+                                    formatter={(value: any) => [`₺${(value || 0).toLocaleString()}`, '']}
                                     labelFormatter={(label) => format(new Date(label), 'd MMMM yyyy HH:mm', { locale: tr })}
                                 />
                                 <Line name="Kâr" type="monotone" dataKey="profit" stroke="#22d3ee" strokeWidth={2} dot={false} />

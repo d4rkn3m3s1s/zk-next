@@ -12,7 +12,7 @@ const apiKey = process.env.GROQ_API_KEY;
 
 export async function chatWithAI(message: string) {
     const settings = await getSettings();
-    const siteName = settings?.site_name || "ZK İletişim";
+    const siteName = settings?.siteName || "ZK İletişim";
     const address = settings?.address || "Adresimiz sistemde kayıtlı değil, lütfen arayın.";
     const phone = settings?.phone || "Numaramız web sitemizde.";
 

@@ -188,7 +188,7 @@ export default function LegendaryDashboard() {
                                             <Tooltip
                                                 contentStyle={{ backgroundColor: '#0f172a', border: '1px solid #1e293b', borderRadius: '8px' }}
                                                 itemStyle={{ color: '#fff' }}
-                                                formatter={(value: number) => [`₺${value.toLocaleString()}`, 'Satış']}
+                                                formatter={(value: any) => [`₺${(value || 0).toLocaleString()}`, 'Satış']}
                                                 labelFormatter={(label) => label.split('-').reverse().join('.')}
                                             />
                                             <Area

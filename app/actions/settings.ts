@@ -36,6 +36,9 @@ export async function getSettings() {
             currency: "TRY",
             taxRate: 20,
             maintenanceMode: false,
+            phone: "",
+            address: "",
+            email: "",
             // Footer Fallbacks
             facebook: "",
             instagram: "",

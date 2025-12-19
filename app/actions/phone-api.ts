@@ -4,8 +4,8 @@ export async function searchPhones(query: string) {
     if (!query || query.length < 2) return [];
 
     try {
-        // Try localhost:3001 (default) or 3002 if 3001 blocked
-        const res = await fetch(`http://localhost:3001/search?query=${query}`, {
+        const baseUrl = process.env.NEXTAUTH_URL || "http://localhost:3000";
+        const res = await fetch(`${baseUrl}/api/gsmarena/search?query=${query}`, {
             next: { revalidate: 3600 } // Cache for 1 hour
         });
 
@@ -26,7 +26,8 @@ export async function getPhoneDetails(slug: string) {
     if (!slug) return null;
 
     try {
-        const res = await fetch(`http://localhost:3001/${slug}`, {
+        const baseUrl = process.env.NEXTAUTH_URL || "http://localhost:3000";
+        const res = await fetch(`${baseUrl}/api/gsmarena/${slug}`, {
             next: { revalidate: 86400 } // Cache for 24 hours
         });
 

@@ -20,12 +20,17 @@ export function RepairForm() {
     const [images, setImages] = useState<string[]>([])
 
     const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-        if (e.target.files && e.target.files[0]) {
-            // In a real app, upload to cloud. Here, using placeholder or local object URL for demo if needed.
-            // For this specific environment, we will simulate by adding a placeholder URL since we can't easily upload.
-            // OR use a reliable placeholder service.
-            const url = `https://picsum.photos/seed/${Math.random()}/300/300`
-            setImages([...images, url])
+        if (e.target.files) {
+            const files = Array.from(e.target.files);
+
+            files.forEach(file => {
+                const reader = new FileReader();
+                reader.onloadend = () => {
+                    const base64String = reader.result as string;
+                    setImages(prev => [...prev, base64String]);
+                };
+                reader.readAsDataURL(file);
+            });
         }
     }
 
@@ -223,7 +228,7 @@ export function RepairForm() {
                                 <label className="aspect-square flex flex-col items-center justify-center border-2 border-dashed rounded-lg cursor-pointer hover:bg-muted/50 transition-colors">
                                     <Upload className="h-6 w-6 text-muted-foreground mb-2" />
                                     <span className="text-xs text-muted-foreground">Fotoğraf Ekle</span>
-                                    <input type="file" accept="image/*" className="hidden" onChange={handleImageUpload} />
+                                    <input type="file" accept="image/*" multiple className="hidden" onChange={handleImageUpload} />
                                 </label>
                             </div>
                         </CardContent>
