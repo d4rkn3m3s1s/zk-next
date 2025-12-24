@@ -5,11 +5,12 @@ import { tr } from "date-fns/locale"
 export default async function SystemLogsPage({
     searchParams,
 }: {
-    searchParams?: {
+    searchParams: Promise<{
         page?: string
-    }
+    }>
 }) {
-    const page = Number(searchParams?.page) || 1
+    const params = await searchParams
+    const page = Number(params?.page) || 1
     const { logs, totalPages } = await getSystemLogs(page)
 
     return (
@@ -36,8 +37,8 @@ export default async function SystemLogsPage({
                                 </td>
                                 <td className="px-6 py-4">
                                     <span className={`px-2 py-1 rounded-full text-xs font-semibold ${log.severity === 'CRITICAL' ? 'bg-red-100 text-red-800' :
-                                            log.severity === 'WARNING' ? 'bg-yellow-100 text-yellow-800' :
-                                                'bg-blue-100 text-blue-800'
+                                        log.severity === 'WARNING' ? 'bg-yellow-100 text-yellow-800' :
+                                            'bg-blue-100 text-blue-800'
                                         }`}>
                                         {log.severity}
                                     </span>

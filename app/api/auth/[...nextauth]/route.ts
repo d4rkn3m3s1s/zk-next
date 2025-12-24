@@ -1,53 +1,80 @@
+import NextAuth from "next-auth"
+import CredentialsProvider from "next-auth/providers/credentials"
+import { prisma } from "@/lib/prisma"
+import bcrypt from "bcrypt"
 import { createLog } from "@/lib/logger"
 
-// ... existing imports
+const handler = NextAuth({
+    providers: [
+        CredentialsProvider({
+            name: "Credentials",
+            credentials: {
+                email: { label: "Email", type: "text" },
+                password: { label: "Password", type: "password" }
+            },
+            async authorize(credentials) {
+                if (!credentials?.email || !credentials?.password) {
+                    return null
+                }
 
-const isPasswordValid = await bcrypt.compare(credentials.password, user.password)
+                const user = await prisma.user.findUnique({
+                    where: { email: credentials.email }
+                })
 
-if (!isPasswordValid) {
-    return null
-}
+                if (!user) {
+                    return null
+                }
 
-// Log Successful Login
-await createLog(
-    'LOGIN',
-    'Auth',
-    `User ${user.username} logged in successfully`,
-    user.username,
-    'WARNING' // Warning level to track admin logins visibly
-)
+                const isPasswordValid = await bcrypt.compare(credentials.password, user.password)
 
-return {
-    id: user.id.toString(),
-    name: user.username,
-    email: user.email,
-    role: user.role,
-}
+                if (!isPasswordValid) {
+                    return null
+                }
+
+                // Log Successful Login
+                try {
+                    await createLog(
+                        'LOGIN',
+                        'Auth',
+                        `User ${user.username} logged in successfully`,
+                        user.username || 'Unknown',
+                        'WARNING' // Warning level to track admin logins visibly
+                    )
+                } catch (e) {
+                    console.error("Login logging failed", e)
+                }
+
+                return {
+                    id: user.id.toString(),
+                    name: user.username,
+                    email: user.email,
+                    role: user.role,
+                }
             }
         })
     ],
-callbacks: {
+    callbacks: {
         async session({ session, token }) {
-        if (session?.user) {
-            session.user.role = token.role as string
-            session.user.id = token.id as string
-        }
-        return session
-    },
+            if (session?.user) {
+                session.user.role = token.role as string
+                session.user.id = token.id as string
+            }
+            return session
+        },
         async jwt({ token, user }) {
-        if (user) {
-            token.role = user.role
-            token.id = user.id.toString()
+            if (user) {
+                token.role = user.role
+                token.id = user.id.toString()
+            }
+            return token
         }
-        return token
-    }
-},
-pages: {
-    signIn: '/auth/login',
     },
-session: {
-    strategy: "jwt"
-}
+    pages: {
+        signIn: '/auth/login',
+    },
+    session: {
+        strategy: "jwt"
+    }
 })
 
 export { handler as GET, handler as POST }
