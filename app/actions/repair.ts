@@ -4,6 +4,7 @@ import { prisma } from "@/lib/prisma"
 import { revalidatePath } from "next/cache"
 import { Repair } from "@prisma/client"
 import { sendRepairStatusEmail } from "@/lib/email"
+import { sendTelegramMessage } from "@/lib/telegram"
 
 export async function getPublicRepairStatus(trackingCode: string) {
     if (!trackingCode) return null
@@ -119,6 +120,20 @@ export async function createRepair(formData: FormData) {
             estimatedDate
         } as any
     })
+
+    // Telegram Notification
+    try {
+        await sendTelegramMessage(
+            `🔧 <b>New Repair Received</b>\n\n` +
+            `🎫 <b>Code:</b> ${code}\n` +
+            `📱 <b>Device:</b> ${device_model}\n` +
+            `👤 <b>Customer:</b> ${customer_name}\n` +
+            `📝 <b>Issue:</b> ${issue}`
+        )
+    } catch (e) {
+        console.error("Failed to send telegram notification:", e)
+    }
+
     revalidatePath("/admin/repairs")
 }
 
@@ -160,16 +175,30 @@ export async function updateRepair(id: number, formData: FormData) {
     })
 
     // Send email if status changed
-    if (currentRepair && data.status && data.status !== currentRepair.status && currentRepair.email) {
-        await sendRepairStatusEmail({
-            repairId: id,
-            customerName: currentRepair.customer_name,
-            customerEmail: currentRepair.email,
-            trackingCode: currentRepair.tracking_code,
-            deviceModel: currentRepair.device_model,
-            estimatedCost: data.estimated_cost || (currentRepair.estimated_cost ? Number(currentRepair.estimated_cost) : undefined),
-            status: data.status
-        })
+    if (currentRepair && data.status && data.status !== currentRepair.status) {
+        if (currentRepair.email) {
+            await sendRepairStatusEmail({
+                repairId: id,
+                customerName: currentRepair.customer_name,
+                customerEmail: currentRepair.email,
+                trackingCode: currentRepair.tracking_code,
+                deviceModel: currentRepair.device_model,
+                estimatedCost: data.estimated_cost || (currentRepair.estimated_cost ? Number(currentRepair.estimated_cost) : undefined),
+                status: data.status
+            })
+        }
+
+        // Telegram Notification for Status Change
+        try {
+            await sendTelegramMessage(
+                `🔄 <b>Repair Status Updated</b>\n\n` +
+                `🎫 <b>Code:</b> ${currentRepair.tracking_code}\n` +
+                `📱 <b>Device:</b> ${currentRepair.device_model}\n` +
+                `🆕 <b>Status:</b> ${data.status}`
+            )
+        } catch (e) {
+            console.error(e)
+        }
     }
 
     revalidatePath("/admin/repairs")

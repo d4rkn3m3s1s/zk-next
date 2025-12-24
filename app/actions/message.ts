@@ -3,6 +3,7 @@
 import { prisma } from "@/lib/prisma"
 import { revalidatePath } from "next/cache"
 import { redirect } from "next/navigation"
+import { sendTelegramMessage } from "@/lib/telegram"
 
 export async function getMessages(query?: string) {
     const messages = await prisma.message.findMany({
@@ -56,6 +57,19 @@ export async function createMessage(formData: FormData) {
             is_read: false
         }
     })
+
+    // Telegram Notification
+    try {
+        await sendTelegramMessage(
+            `📩 <b>New Contact Message!</b>\n\n` +
+            `👤 <b>Name:</b> ${name}\n` +
+            `📧 <b>Email:</b> ${email}\n` +
+            `📝 <b>Subject:</b> ${subject}\n` +
+            `💬 <b>Message:</b> ${message}`
+        )
+    } catch (e) {
+        console.error("Telegram notification failed:", e)
+    }
 
     revalidatePath("/admin/messages")
     redirect("/contact?success=true")

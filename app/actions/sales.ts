@@ -2,6 +2,7 @@
 
 import { prisma } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
+import { sendTelegramMessage } from "@/lib/telegram";
 
 export async function getSales() {
     try {
@@ -41,6 +42,20 @@ export async function createSale(formData: FormData) {
                 profit
             }
         });
+
+
+
+        // Telegram Notification
+        try {
+            await sendTelegramMessage(
+                `💰 <b>New Sale Recorded!</b>\n\n` +
+                `🛍️ <b>Product:</b> ${productName}\n` +
+                `💵 <b>Price:</b> ${soldPrice} TL\n` +
+                `📈 <b>Profit:</b> ${profit} TL`
+            );
+        } catch (e) {
+            console.error("Telegram notification failed:", e);
+        }
 
         revalidatePath("/admin/sales");
         return { success: true };

@@ -156,3 +156,71 @@ export async function getReportStats() {
         return { success: false, error: "Rapor verileri alınamadı" };
     }
 }
+
+import { sendTelegramMessage } from "@/lib/telegram";
+
+export async function sendDailyReport(targetChatId?: string) {
+    try {
+        const today = startOfDay(new Date());
+
+        // 1. Sales Today
+        const salesToday = await prisma.sale.findMany({
+            where: {
+                soldAt: { gte: today }
+            }
+        });
+        const salesRevenue = salesToday.reduce((acc, curr) => acc + Number(curr.soldPrice), 0);
+        const salesProfit = salesToday.reduce((acc, curr) => acc + Number(curr.profit || 0), 0);
+
+        // 2. Repairs Today
+        const repairsToday = await prisma.repair.findMany({
+            where: {
+                createdAt: { gte: today }
+            }
+        });
+        const completedRepairs = await prisma.repair.findMany({
+            where: {
+                updatedAt: { gte: today },
+                status: 'completed'
+            }
+        });
+        const repairRevenue = completedRepairs.reduce((acc, curr) => acc + Number(curr.estimated_cost || 0), 0);
+
+        // 3. New Debtors/Debt
+        const debtTransactions = await prisma.debtorTransaction.findMany({
+            where: {
+                createdAt: { gte: today },
+                type: 'DEBT'
+            }
+        });
+        const totalNewDebt = debtTransactions.reduce((acc, curr) => acc + Number(curr.amount), 0);
+
+        // 4. Low Stock
+        const lowStockCount = await prisma.product.count({ where: { stock: { lte: 3 } } });
+
+        const message =
+            `📊 <b>GÜNLÜK FİNANSAL RAPOR</b>\n` +
+            `📅 <b>Tarih:</b> ${format(new Date(), 'dd.MM.yyyy')}\n\n` +
+            `💰 <b>SATIŞLAR</b>\n` +
+            `• Adet: ${salesToday.length}\n` +
+            `• Ciro: ${salesRevenue.toFixed(2)} TL\n` +
+            `• Kâr: ${salesProfit.toFixed(2)} TL\n\n` +
+            `🔧 <b>TAMİR & TEKNİK SERVİS</b>\n` +
+            `• Yeni Kayıt: ${repairsToday.length}\n` +
+            `• Tamamlanan: ${completedRepairs.length}\n` +
+            `• Servis Cirosu: ${repairRevenue.toFixed(2)} TL\n\n` +
+            `📒 <b>VERESİYE & BORÇLAR</b>\n` +
+            `• Yeni Borç: ${totalNewDebt.toFixed(2)} TL\n\n` +
+            `📉 <b>STOKDURUMU</b>\n` +
+            `• Kritik Stoklu Ürün: ${lowStockCount} adet\n\n` +
+            `💵 <b>TOPLAM GÜNLÜK KÂR (Tahmini): ${(salesProfit + repairRevenue * 0.6).toFixed(2)} TL</b>`;
+        // Assuming 60% profit on repair revenue for estimation
+
+        await sendTelegramMessage(message, targetChatId);
+        return { success: true };
+
+    } catch (e) {
+        console.error("Failed to send daily report:", e);
+        return { success: false, error: "Rapor gönderilemedi." };
+    }
+}

@@ -30,6 +30,7 @@ import { DashboardBackground } from "@/components/admin/DashboardBackground"
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { Meteors } from "@/components/ui/meteors";
 import { SpotlightCard } from "@/components/ui/spotlight-card";
+import { TelegramReportButton } from "@/components/admin/TelegramReportButton"
 
 
 export default function LegendaryDashboard() {
@@ -112,6 +113,7 @@ export default function LegendaryDashboard() {
                     <div className="flex flex-col md:flex-row items-end md:items-center gap-4">
                         <DigitalClockWidget />
                         <div className="flex items-center gap-3">
+                            <TelegramReportButton />
                             <div className="flex items-center gap-2 px-4 py-2 bg-green-500/10 border border-green-500/20 rounded-full">
                                 <span className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
                                 <span className="text-green-400 text-sm font-bold">SİSTEM AKTİF</span>

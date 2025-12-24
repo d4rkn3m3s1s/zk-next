@@ -3,6 +3,7 @@
 import { prisma } from "@/lib/prisma"
 import { revalidatePath } from "next/cache"
 import { redirect } from "next/navigation"
+import { sendTelegramMessage } from "@/lib/telegram"
 
 export async function getProducts(options?: {
     query?: string
@@ -118,6 +119,18 @@ export async function createProduct(formData: FormData) {
             condition: formData.get("condition") as string
         }
     })
+
+    // Send Telegram Notification
+    try {
+        await sendTelegramMessage(
+            `📦 <b>New Product Added!</b>\n\n` +
+            `📌 <b>Name:</b> ${name}\n` +
+            `💰 <b>Price:</b> ${price} TL\n` +
+            `📊 <b>Stock:</b> ${stock}`
+        )
+    } catch (error) {
+        console.error("Failed to send telegram notification:", error)
+    }
 
     revalidatePath("/admin/products")
     redirect("/admin/products")

@@ -2,6 +2,7 @@
 
 import { prisma } from "@/lib/prisma"
 import { revalidatePath } from "next/cache"
+import { sendTelegramMessage } from "@/lib/telegram"
 
 export async function getAppointments(query?: string) {
     const appointments = await prisma.appointment.findMany({
@@ -76,6 +77,20 @@ export async function createAppointmentAction(formData: FormData) {
             status: 'pending'
         }
     })
+
+    // Telegram Notification
+    try {
+        await sendTelegramMessage(
+            `📅 <b>New Appointment Request!</b>\n\n` +
+            `👤 <b>Name:</b> ${name}\n` +
+            `📞 <b>Phone:</b> ${phone}\n` +
+            `🗓️ <b>Date:</b> ${date.toLocaleDateString('tr-TR')} ${time}\n` +
+            `📝 <b>Note:</b> ${description}`
+        )
+    } catch (e) {
+        console.error("Telegram notification failed:", e)
+    }
+
     revalidatePath("/admin/appointments")
     return { success: true }
 }
