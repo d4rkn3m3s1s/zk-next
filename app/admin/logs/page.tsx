@@ -1,65 +1,74 @@
-import { prisma } from "@/lib/prisma";
-import { format } from "date-fns";
-import { tr } from "date-fns/locale";
+import { getSystemLogs } from "@/app/actions/logs"
+import { format } from "date-fns"
+import { tr } from "date-fns/locale"
 
-export const dynamic = 'force-dynamic';
-
-export default async function LogsPage() {
-    const logs = await prisma.auditLog.findMany({
-        take: 100,
-        orderBy: { createdAt: 'desc' }
-    });
+export default async function SystemLogsPage({
+    searchParams,
+}: {
+    searchParams?: {
+        page?: string
+    }
+}) {
+    const page = Number(searchParams?.page) || 1
+    const { logs, totalPages } = await getSystemLogs(page)
 
     return (
-        <div className="space-y-6">
-            <div>
-                <h2 className="text-3xl font-bold tracking-tight text-foreground">İşlem Geçmişi</h2>
-                <p className="text-muted-foreground">Sistem üzerindeki son işlemleri takip edin.</p>
-            </div>
+        <div className="container mx-auto py-10">
+            <h1 className="text-3xl font-bold mb-6">Sistem Kayıtları</h1>
 
-            <div className="rounded-md border border-white/10 bg-black/20 overflow-hidden">
-                <table className="w-full text-sm">
-                    <thead>
-                        <tr className="border-b border-white/10 bg-white/5">
-                            <th className="p-4 text-left font-medium text-slate-300">Tarih</th>
-                            <th className="p-4 text-left font-medium text-slate-300">Kullanıcı</th>
-                            <th className="p-4 text-left font-medium text-slate-300">İşlem</th>
-                            <th className="p-4 text-left font-medium text-slate-300">Modül</th>
-                            <th className="p-4 text-left font-medium text-slate-300">Detaylar</th>
+            <div className="rounded-md border">
+                <table className="w-full text-sm text-left">
+                    <thead className="bg-muted/50 text-muted-foreground uppercase">
+                        <tr>
+                            <th className="px-6 py-3">Tarih</th>
+                            <th className="px-6 py-3">Seviye</th>
+                            <th className="px-6 py-3">Eylem</th>
+                            <th className="px-6 py-3">Varlık</th>
+                            <th className="px-6 py-3">Kullanıcı</th>
+                            <th className="px-6 py-3">Detaylar</th>
                         </tr>
                     </thead>
-                    <tbody className="divide-y divide-white/5">
+                    <tbody>
                         {logs.map((log) => (
-                            <tr key={log.id} className="hover:bg-white/5 transition-colors">
-                                <td className="p-4 text-slate-400 whitespace-nowrap">
-                                    {format(new Date(log.createdAt), 'dd MMM yyyy HH:mm', { locale: tr })}
+                            <tr key={log.id} className="border-b hover:bg-muted/50 transition-colors">
+                                <td className="px-6 py-4 whitespace-nowrap">
+                                    {format(new Date(log.createdAt), "dd MMM yyyy HH:mm", { locale: tr })}
                                 </td>
-                                <td className="p-4 text-slate-300 font-medium">{log.username || 'Sistem'}</td>
-                                <td className="p-4">
-                                    <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium 
-                                        ${log.action === 'CREATE' ? 'bg-green-500/10 text-green-500' :
-                                            log.action === 'DELETE' ? 'bg-red-500/10 text-red-500' :
-                                                log.action === 'UPDATE' ? 'bg-blue-500/10 text-blue-500' :
-                                                    'bg-slate-500/10 text-slate-500'}`}>
-                                        {log.action}
+                                <td className="px-6 py-4">
+                                    <span className={`px-2 py-1 rounded-full text-xs font-semibold ${log.severity === 'CRITICAL' ? 'bg-red-100 text-red-800' :
+                                            log.severity === 'WARNING' ? 'bg-yellow-100 text-yellow-800' :
+                                                'bg-blue-100 text-blue-800'
+                                        }`}>
+                                        {log.severity}
                                     </span>
                                 </td>
-                                <td className="p-4 text-slate-300">{log.entity} <span className="text-slate-500 text-xs">#{log.entityId}</span></td>
-                                <td className="p-4 text-slate-400 font-mono text-xs max-w-md truncate" title={log.details || ''}>
+                                <td className="px-6 py-4 font-medium">{log.action}</td>
+                                <td className="px-6 py-4">{log.entity}</td>
+                                <td className="px-6 py-4 text-muted-foreground">{log.username || '-'}</td>
+                                <td className="px-6 py-4 max-w-md truncate" title={log.details || ''}>
                                     {log.details}
                                 </td>
                             </tr>
                         ))}
-                        {logs.length === 0 && (
-                            <tr>
-                                <td colSpan={5} className="p-8 text-center text-slate-500">
-                                    Henüz kayıt bulunamadı.
-                                </td>
-                            </tr>
-                        )}
                     </tbody>
                 </table>
             </div>
+
+            <div className="mt-4 flex justify-between items-center text-sm text-muted-foreground">
+                <div>Sayfa {page} / {totalPages}</div>
+                <div className="flex gap-2">
+                    {page > 1 && (
+                        <a href={`/admin/logs?page=${page - 1}`} className="px-4 py-2 border rounded hover:bg-muted">
+                            Önceki
+                        </a>
+                    )}
+                    {page < totalPages && (
+                        <a href={`/admin/logs?page=${page + 1}`} className="px-4 py-2 border rounded hover:bg-muted">
+                            Sonraki
+                        </a>
+                    )}
+                </div>
+            </div>
         </div>
-    );
+    )
 }

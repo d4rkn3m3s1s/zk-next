@@ -5,6 +5,7 @@ import { revalidatePath } from "next/cache"
 import { Repair } from "@prisma/client"
 import { sendRepairStatusEmail } from "@/lib/email"
 import { sendTelegramMessage } from "@/lib/telegram"
+import { createLog } from "@/lib/logger"
 
 export async function getPublicRepairStatus(trackingCode: string) {
     if (!trackingCode) return null
@@ -134,6 +135,9 @@ export async function createRepair(formData: FormData) {
         console.error("Failed to send telegram notification:", e)
     }
 
+    // System Log
+    await createLog('CREATE', 'Repair', `New repair received: ${device_model} - ${code}`, 'System', 'INFO', code)
+
     revalidatePath("/admin/repairs")
 }
 
@@ -199,6 +203,18 @@ export async function updateRepair(id: number, formData: FormData) {
         } catch (e) {
             console.error(e)
         }
+    }
+
+    // System Log for Status Change
+    if (data.status && currentRepair && data.status !== currentRepair.status) {
+        await createLog(
+            'STATUS_CHANGE',
+            'Repair',
+            `Repair ${currentRepair.tracking_code} status changed from ${currentRepair.status} to ${data.status}`,
+            'Admin',
+            'INFO',
+            currentRepair.tracking_code
+        )
     }
 
     revalidatePath("/admin/repairs")

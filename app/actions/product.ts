@@ -4,6 +4,7 @@ import { prisma } from "@/lib/prisma"
 import { revalidatePath } from "next/cache"
 import { redirect } from "next/navigation"
 import { sendTelegramMessage } from "@/lib/telegram"
+import { createLog } from "@/lib/logger"
 
 export async function getProducts(options?: {
     query?: string
@@ -130,7 +131,11 @@ export async function createProduct(formData: FormData) {
         )
     } catch (error) {
         console.error("Failed to send telegram notification:", error)
+        console.error("Failed to send telegram notification:", error)
     }
+
+    // System Log
+    await createLog('CREATE', 'Product', `Created product: ${name} (${price} TL)`, 'Admin', 'INFO', name)
 
     revalidatePath("/admin/products")
     redirect("/admin/products")
@@ -179,6 +184,10 @@ export async function deleteProduct(id: number) {
     await prisma.product.delete({
         where: { id }
     })
+
+    // System Log
+    await createLog('DELETE', 'Product', `Deleted product ID: ${id}`, 'Admin', 'WARNING', id.toString())
+
     revalidatePath("/admin/products")
 }
 

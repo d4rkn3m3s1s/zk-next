@@ -201,13 +201,14 @@ model DebtorTransaction {
   createdAt   DateTime @default(now())
 }
 
-model AuditLog {
+model SystemLog {
   id        Int      @id @default(autoincrement())
-  action    String // CREATE, UPDATE, DELETE, LOGIN, ETC.
-  entity    String // Product, Debtor, System
-  entityId  String? // ID of the related entity
-  details   String? // JSON string containing details
-  username  String? // Who performed the action
+  action    String   // LOGIN, CREATE, UPDATE, DELETE, ERROR
+  entity    String   // Product, Repair, Auth, System
+  entityId  String?  // ID of the related entity
+  details   String?  // JSON string or text details
+  severity  String   @default("INFO") // INFO, WARNING, CRITICAL
+  username  String?  // Who performed the action
   createdAt DateTime @default(now())
 }
 
