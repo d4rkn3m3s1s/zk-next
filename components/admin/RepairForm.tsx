@@ -95,6 +95,11 @@ export function RepairForm() {
                                 <Label htmlFor="phone">Telefon Numarası <span className="text-red-500">*</span></Label>
                                 <Input id="phone" name="phone" required placeholder="Örn: 0555 123 45 67" />
                             </div>
+                            <div className="space-y-2 md:col-span-2">
+                                <Label htmlFor="email">E-posta Adresi <span className="text-red-500">*</span></Label>
+                                <Input id="email" name="email" type="email" required placeholder="Örn: musteri@example.com" />
+                                <p className="text-xs text-muted-foreground">Durum güncellemeleri bu adrese gönderilecektir.</p>
+                            </div>
                         </CardContent>
                     </Card>
 

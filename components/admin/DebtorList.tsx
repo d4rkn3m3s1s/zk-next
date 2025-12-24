@@ -6,7 +6,7 @@ import { Search, Phone, MapPin, Wallet, ArrowUpRight, AlertCircle, Shield, Plus,
 import { Debtor, createDebtor } from "@/app/actions/debtors";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
@@ -129,6 +129,9 @@ export function DebtorList({ initialDebtors }: DebtorListProps) {
                     <DialogContent className="bg-[#0a0a0a] border-white/10 text-white sm:max-w-[500px]">
                         <DialogHeader>
                             <DialogTitle className="text-2xl font-bold">Yeni Borçlu Ekle</DialogTitle>
+                            <DialogDescription>
+                                Yeni bir müşteri kaydı oluşturun ve başlangıç bakiyesini girin.
+                            </DialogDescription>
                         </DialogHeader>
                         <form onSubmit={handleAdd} className="space-y-4 mt-4">
                             <div className="grid grid-cols-2 gap-4">

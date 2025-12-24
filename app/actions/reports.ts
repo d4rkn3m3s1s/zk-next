@@ -90,6 +90,54 @@ export async function getReportStats() {
             .slice(0, 5); // Top 5 categories
 
 
+
+        const insights: { type: 'success' | 'warning' | 'info' | 'danger', title: string, message: string }[] = [];
+
+        // Profit Margin Analysis
+        if (profitMargin < 15) {
+            insights.push({
+                type: 'warning',
+                title: 'DÜŞÜK KÂRLILIK UYARISI',
+                message: `Mevcut kâr marjı %${profitMargin.toFixed(1)} seviyesinde. Hedeflenen %20'nin altında.`
+            });
+        } else if (profitMargin > 30) {
+            insights.push({
+                type: 'success',
+                title: 'KÂRLILIK HEDEFİ AŞILDI',
+                message: `Tebrikler! %${profitMargin.toFixed(1)} kâr marjı ile hedeflerin üzerindesiniz.`
+            });
+        } else {
+            insights.push({
+                type: 'info',
+                title: 'SİSTEM DURUMU: NORMAL',
+                message: `Kâr marjı %${profitMargin.toFixed(1)} ile beklenen aralıkta seyrediyor.`
+            });
+        }
+
+        // Sales Trend Analysis (Comparison with previous period - simplified)
+        // Ideally needs previous 30 days data
+        if (totalRevenue < 5000) { // Arbitrary threshold for example
+            insights.push({
+                type: 'info',
+                title: 'SATIŞ HACMİ ANALİZİ',
+                message: 'Henüz yeterli satış verisi oluşmadı. Kampanya oluşturmayı deneyin.'
+            });
+        }
+
+        // Stock Analysis (Simulated for now, real implementation would query Product model)
+        // In a real scenario, we would count products with stock < 5
+        const lowStockCount = await prisma.product.count({
+            where: { stock: { lte: 3 } }
+        });
+
+        if (lowStockCount > 0) {
+            insights.push({
+                type: 'danger',
+                title: 'KRİTİK STOK SEVİYESİ',
+                message: `${lowStockCount} adet ürünün stoğu tükenmek üzere. Acil tedarik planlaması önerilir.`
+            });
+        }
+
         return {
             success: true,
             totalRevenue,
@@ -99,7 +147,8 @@ export async function getReportStats() {
             profitMargin,
             topProducts,
             chartData,
-            categoryData
+            categoryData,
+            insights // Return the generated insights
         };
 
     } catch (error) {

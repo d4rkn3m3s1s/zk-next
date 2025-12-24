@@ -163,26 +163,28 @@ export default function ReportsPage() {
                                 AI ASİSTAN
                             </CardTitle>
                         </CardHeader>
-                        <CardContent className="flex-1 flex flex-col gap-4 font-mono text-sm text-slate-300">
-                            <div className="p-4 bg-white/5 rounded-lg border-l-2 border-green-500">
-                                <h4 className="text-green-400 font-bold mb-1">SİSTEM DURUMU: NORMAL</h4>
-                                <p>Tüm finansal metrikler beklenen aralıkta seyrediyor. Kârlılık marjı %{data.profitMargin.toFixed(1)} seviyesinde stabil.</p>
-                            </div>
-
-                            <div className="p-4 bg-white/5 rounded-lg border-l-2 border-yellow-500">
-                                <h4 className="text-yellow-400 font-bold mb-1">ÖNERİ: Stok Yenileme</h4>
-                                <p>En çok satan "iPhone" kategorisinde stok devir hızı yüksek. Kritik stok seviyelerini kontrol edin.</p>
-                            </div>
-
-                            <div className="mt-auto p-4 rounded-xl bg-gradient-to-r from-purple-900/20 to-blue-900/20 border border-white/5">
-                                <div className="flex justify-between items-center mb-2">
-                                    <span className="text-xs text-slate-400">Hedef Ciro (Aylık)</span>
-                                    <span className="text-xs text-white">78%</span>
+                        <CardContent className="flex-1 flex flex-col gap-4 font-mono text-sm text-slate-300 overflow-y-auto max-h-[400px]">
+                            {data.insights && data.insights.length > 0 ? (
+                                data.insights.map((insight: any, i: number) => (
+                                    <div key={i} className={`p-4 bg-white/5 rounded-lg border-l-2 ${insight.type === 'success' ? 'border-green-500' :
+                                            insight.type === 'warning' ? 'border-yellow-500' :
+                                                insight.type === 'danger' ? 'border-red-500' :
+                                                    'border-cyan-500'
+                                        }`}>
+                                        <h4 className={`${insight.type === 'success' ? 'text-green-400' :
+                                                insight.type === 'warning' ? 'text-yellow-400' :
+                                                    insight.type === 'danger' ? 'text-red-400' :
+                                                        'text-cyan-400'
+                                            } font-bold mb-1`}>{insight.title}</h4>
+                                        <p>{insight.message}</p>
+                                    </div>
+                                ))
+                            ) : (
+                                <div className="p-4 bg-white/5 rounded-lg border-l-2 border-cyan-500">
+                                    <h4 className="text-cyan-400 font-bold mb-1">SİSTEM ANALİZİ</h4>
+                                    <p>Şu an için raporlanacak kritik bir durum bulunmuyor. Sistem stabil.</p>
                                 </div>
-                                <div className="h-2 bg-slate-800 rounded-full overflow-hidden">
-                                    <div className="h-full bg-gradient-to-r from-cyan-400 to-purple-500 w-[78%] shadow-[0_0_10px_rgba(168,85,247,0.5)]"></div>
-                                </div>
-                            </div>
+                            )}
                         </CardContent>
                     </Card>
                 </div>

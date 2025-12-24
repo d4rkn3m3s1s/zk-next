@@ -33,12 +33,6 @@ export async function createSale(formData: FormData) {
     const profit = soldPrice - costPrice;
 
     try {
-        // Debugging Sales Error
-        if (!(prisma as any).sale) {
-            console.error("PRISMA.SALE IS UNDEFINED. Keys available:", Object.keys(prisma));
-            return { success: false, error: "Veritabanı şeması güncel değil. Lütfen terminali kapatıp 'npm run dev' komutunu tekrar çalıştırın." };
-        }
-
         await prisma.sale.create({
             data: {
                 productName,

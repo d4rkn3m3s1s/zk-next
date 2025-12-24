@@ -1,9 +1,10 @@
 "use client";
 
-import { Search, Package, Wrench, CheckCircle, AlertCircle, FileText, Banknote } from "lucide-react"
+import { Search, Package, Wrench, CheckCircle, AlertCircle, FileText, Banknote, Check, X } from "lucide-react"
 import Link from "next/link"
 import dynamic from "next/dynamic"
 import { useState } from "react"
+import { approveRepairPrice } from "@/app/actions/repair"
 
 // Import Scene dynamically to avoid SSR issues with Canvas
 const Scene = dynamic(() => import("@/components/3d/Scene"), { ssr: false })
@@ -15,23 +16,79 @@ export default function RepairTrackingClient({
     initialCode?: string
     repair: any
 }) {
+    const [loadingDecision, setLoadingDecision] = useState(false)
+
+    async function handleApproval(decision: 'approved' | 'rejected') {
+        const message = decision === 'approved'
+            ? "Onarım ücretini onaylıyor musunuz? İşlem başlayacaktır."
+            : "Onarımı iptal etmek istediğinize emin misiniz? Cihaz iade edilecektir."
+
+        if (!confirm(message)) return
+
+        setLoadingDecision(true)
+        try {
+            await approveRepairPrice(repair.id, decision)
+        } catch (error) {
+            console.error("Error updating status:", error)
+            alert("İşlem sırasında bir hata oluştu.")
+        } finally {
+            setLoadingDecision(false)
+        }
+    }
+
+    // 4 Main Visual Steps
     const steps = [
-        { id: "received", label: "Cihaz Teslim Alındı", icon: Package },
+        { id: "received", label: "Teslim Alındı", icon: Package },
         { id: "diagnosing", label: "Arıza Tespiti", icon: Search },
         { id: "repairing", label: "Onarım Süreci", icon: Wrench },
         { id: "completed", label: "İşlem Tamamlandı", icon: CheckCircle },
     ]
 
-    // Determine current step index
-    let currentStepIndex = -1
+    // Determine current visual step index and specific label
+    let currentStepIndex = 0
+    let currentStatusLabel = ""
+
     if (repair) {
         switch (repair.status) {
-            case "received": currentStepIndex = 0; break;
-            case "diagnosing": currentStepIndex = 1; break;
-            case "repairing": currentStepIndex = 2; break;
-            case "completed": currentStepIndex = 3; break;
-            case "delivered": currentStepIndex = 4; break; // All completed
-            default: currentStepIndex = 0;
+            case "received":
+                currentStepIndex = 0;
+                currentStatusLabel = "Cihaz Teslim Alındı";
+                break;
+            case "diagnosing":
+                currentStepIndex = 1;
+                currentStatusLabel = "Arıza Tespiti Yapılıyor";
+                break;
+            case "price_pending":
+                currentStepIndex = 1;
+                currentStatusLabel = "Fiyat Onayı Bekliyor";
+                break;
+            case "parts_ordered":
+                currentStepIndex = 2;
+                currentStatusLabel = "Yedek Parça Bekleniyor";
+                break;
+            case "in_progress":
+                currentStepIndex = 2;
+                currentStatusLabel = "Onarım İşlemleri Sürüyor";
+                break;
+            case "testing":
+                currentStepIndex = 2;
+                currentStatusLabel = "Son Testler Yapılıyor";
+                break;
+            case "completed":
+                currentStepIndex = 3;
+                currentStatusLabel = "Cihaz Hazır / Tamamlandı";
+                break;
+            case "delivered":
+                currentStepIndex = 4; // All completed
+                currentStatusLabel = "Cihaz Teslim Edildi";
+                break;
+            case "cancelled":
+                currentStepIndex = 0;
+                currentStatusLabel = "İşlem İptal Edildi";
+                break;
+            default:
+                currentStepIndex = 0;
+                currentStatusLabel = "Durum Kontrol Ediliyor";
         }
     }
 
@@ -90,6 +147,50 @@ export default function RepairTrackingClient({
 
                 {repair && (
                     <div className="w-full max-w-4xl animate-in slide-in-from-bottom-10 fade-in duration-700">
+                        {/* PRICE APPROVAL CARD - Only shows if status is price_pending */}
+                        {repair.status === 'price_pending' && (
+                            <div className="mb-8 relative overflow-hidden rounded-3xl border-2 border-yellow-500/50 bg-yellow-500/10 backdrop-blur-xl p-8 shadow-[0_0_50px_rgba(234,179,8,0.2)] animate-pulse-slow">
+                                <div className="absolute top-0 right-0 p-32 bg-yellow-500/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2"></div>
+
+                                <div className="relative z-10 flex flex-col md:flex-row items-center justify-between gap-8">
+                                    <div className="text-center md:text-left">
+                                        <h3 className="text-2xl font-bold text-yellow-400 mb-2 flex items-center justify-center md:justify-start gap-2">
+                                            <AlertCircle className="w-6 h-6" />
+                                            Fiyat Onayı Bekliyor
+                                        </h3>
+                                        <p className="text-yellow-100/80 max-w-lg">
+                                            Teknisyenlerimiz cihazınız için arıza tespitini tamamladı. İşleme devam etmek için belirlenen tutarı onaylamanız gerekmektedir.
+                                        </p>
+                                    </div>
+
+                                    <div className="flex flex-col items-center gap-4 min-w-[200px]">
+                                        <div className="text-3xl font-black text-white text-shadow-glow">
+                                            {repair.estimated_cost ? `₺${Number(repair.estimated_cost).toLocaleString('tr-TR')}` : 'Belirlenmedi'}
+                                        </div>
+
+                                        {!loadingDecision ? (
+                                            <div className="flex gap-3 w-full">
+                                                <button
+                                                    onClick={() => handleApproval('approved')}
+                                                    className="flex-1 bg-green-500 hover:bg-green-400 text-black font-bold py-3 px-4 rounded-xl transition-all hover:scale-105 active:scale-95 flex items-center justify-center gap-2"
+                                                >
+                                                    <Check className="w-4 h-4" /> Onayla
+                                                </button>
+                                                <button
+                                                    onClick={() => handleApproval('rejected')}
+                                                    className="flex-1 bg-red-500/20 hover:bg-red-500/40 text-red-200 border border-red-500/30 font-bold py-3 px-4 rounded-xl transition-all hover:scale-105 active:scale-95 flex items-center justify-center gap-2"
+                                                >
+                                                    <X className="w-4 h-4" /> Reddet
+                                                </button>
+                                            </div>
+                                        ) : (
+                                            <div className="text-yellow-400 animate-pulse font-medium">İşlem yapılıyor...</div>
+                                        )}
+                                    </div>
+                                </div>
+                            </div>
+                        )}
+
                         {/* Status Grid */}
                         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-12">
                             {/* Device Info Card */}
@@ -174,7 +275,9 @@ export default function RepairTrackingClient({
                                                     <step.icon className={`w-6 h-6 ${isCurrent ? 'text-black animate-pulse' : ''}`} />
                                                 </div>
                                                 <div>
-                                                    <div className={`font-bold text-lg ${isCurrent ? 'text-white text-shadow-glow' : 'text-slate-300'}`}>{step.label}</div>
+                                                    <div className={`font-bold text-lg ${isCurrent ? 'text-white text-shadow-glow' : 'text-slate-300'}`}>
+                                                        {isCurrent ? currentStatusLabel : step.label}
+                                                    </div>
                                                     {isCurrent && <div className="text-xs text-cyan-400 font-medium mt-1 animate-pulse tracking-wider uppercase">Şu anki aşama</div>}
                                                 </div>
                                             </div>

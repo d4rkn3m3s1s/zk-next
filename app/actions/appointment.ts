@@ -58,3 +58,24 @@ export async function createAppointment(data: {
     })
     revalidatePath("/admin/appointments")
 }
+
+export async function createAppointmentAction(formData: FormData) {
+    const name = formData.get("name") as string
+    const phone = formData.get("phone") as string
+    const date = new Date(formData.get("date") as string)
+    const time = formData.get("time") as string
+    const description = formData.get("description") as string
+
+    await prisma.appointment.create({
+        data: {
+            name,
+            phone,
+            date,
+            time,
+            description,
+            status: 'pending'
+        }
+    })
+    revalidatePath("/admin/appointments")
+    return { success: true }
+}

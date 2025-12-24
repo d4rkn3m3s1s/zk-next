@@ -14,11 +14,11 @@ import { Badge } from "@/components/ui/badge"
 import { getRepairs } from "@/app/actions/repair"
 
 const statusConfig: Record<string, { label: string, color: "default" | "secondary" | "destructive" | "outline" }> = {
-    received: { label: "Teslim Alındı", color: "secondary" },
+    received: { label: "Cihaz Teslim Alındı", color: "secondary" },
     diagnosing: { label: "Arıza Tespiti", color: "outline" },
     pending_approval: { label: "Onay Bekliyor", color: "destructive" },
-    in_progress: { label: "İşlemde", color: "default" },
-    completed: { label: "Tamamlandı", color: "default" },
+    in_progress: { label: "Onarım Süreci", color: "default" },
+    completed: { label: "İşlem Tamamlandı", color: "default" },
     delivered: { label: "Teslim Edildi", color: "outline" }
 }
 

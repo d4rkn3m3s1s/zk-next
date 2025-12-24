@@ -6,7 +6,9 @@ const BASE_URL = "https://www.gsmarena.com";
 async function fetchHtml(url: string) {
     const response = await fetch(url, {
         headers: {
-            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36",
+            "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+            "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8",
+            "Accept-Language": "en-US,en;q=0.9",
         },
     });
     if (!response.ok) throw new Error(`Fetch failed: ${response.statusText}`);
@@ -99,18 +101,55 @@ export async function GET(
 
         // 3. /api/gsmarena/search
         if (firstPath === "search") {
-            const query = searchParams.get("s") || searchParams.get("query");
+            const query = searchParams.get("s") || searchParams.get("q") || searchParams.get("query");
             if (!query) return errorJson("Please provide a search query!", 400);
-            const url = `${BASE_URL}/res.php3?sSearch=${encodeURIComponent(query)}`;
-            const html = await fetchHtml(url);
-            const $ = cheerio.load(html);
+
+            // Use quicksearch.php3 instead of res.php3 for better reliability
+            const url = `${BASE_URL}/quicksearch.php3?sSearch=${encodeURIComponent(query)}`;
+            const responseText = await fetchHtml(url);
+
+            console.log(`[GSM Search] Query: ${query}, Response Length: ${responseText.length}`);
+
             const phones: any[] = [];
-            $(".makers ul li").each((_: number, el: any) => {
-                const slug = $(el).children("a").attr("href")?.replace(".php", "") || "";
-                const image = $(el).find("img").attr("src");
-                const phone_name = $(el).children("a").find("span").html()?.split("<br>").join(" ") || $(el).children("a").text();
-                phones.push({ phone_name, slug, image });
-            });
+
+            try {
+                // Quicksearch can return JSON or a weird format
+                const data = JSON.parse(responseText);
+                if (Array.isArray(data) && data.length > 0) {
+                    // GSMArena quicksearch usually returns [brand_phones, other_models]
+                    data.forEach((list: any) => {
+                        if (Array.isArray(list)) {
+                            list.forEach((p: any) => {
+                                phones.push({
+                                    phone_name: p.text || p.phone_name || p[0],
+                                    slug: (p.id || p.slug || p[1] || "").replace(".php", ""),
+                                    image: p.image || p[2]
+                                });
+                            });
+                        }
+                    });
+                }
+            } catch (e) {
+                // Fallback to HTML parsing if not JSON
+                const $ = cheerio.load(responseText);
+                $("li, a").each((_: number, el: any) => {
+                    const a = $(el).is("a") ? $(el) : $(el).find("a").first();
+                    if (!a.length) return;
+
+                    const href = a.attr("href") || "";
+                    if (!href.includes(".php") || href.includes("brands.php")) return;
+
+                    const slug = href.replace(".php", "");
+                    const image = $(el).find("img").attr("src");
+                    const phone_name = a.text().trim();
+
+                    if (slug && phone_name && slug.length > 3) {
+                        phones.push({ phone_name, slug, image });
+                    }
+                });
+            }
+
+            console.log(`[GSM Search] Found ${phones.length} items`);
             return successJson(phones);
         }
 

@@ -18,16 +18,18 @@ import {
 } from "@/components/ui/select"
 import { Input } from "@/components/ui/input"
 import { getRepair, updateRepair } from "@/app/actions/repair"
+import { getRepairEmailHistory } from "@/app/actions/email"
+import { EmailHistory } from "@/components/admin/EmailHistory"
 import { notFound } from "next/navigation"
 
 const statusConfig: Record<string, { label: string, color: "default" | "secondary" | "destructive" | "outline" | "success" | "warning" | "info" }> = {
-    received: { label: "Teslim Alındı", color: "secondary" },
+    received: { label: "Cihaz Teslim Alındı", color: "secondary" },
     diagnosing: { label: "Arıza Tespiti", color: "info" },
     price_pending: { label: "Fiyat Verildi / Onay Bekliyor", color: "warning" },
     parts_ordered: { label: "Parça Bekleniyor", color: "outline" },
-    in_progress: { label: "Tamir Başladı", color: "default" },
+    in_progress: { label: "Onarım Süreci", color: "default" },
     testing: { label: "Test Aşamasında", color: "info" },
-    completed: { label: "Tamamlandı / Cihaz Hazır", color: "success" },
+    completed: { label: "İşlem Tamamlandı", color: "success" },
     delivered: { label: "Teslim Edildi", color: "secondary" },
     cancelled: { label: "İptal / İade", color: "destructive" }
 }
@@ -39,6 +41,9 @@ export default async function RepairDetailPage({ params }: { params: Promise<{ i
     if (!repair) {
         notFound()
     }
+
+    // Fetch email history
+    const emailHistory = await getRepairEmailHistory(parseInt(id))
 
     const status = statusConfig[repair.status] || statusConfig.received
 
@@ -74,15 +79,32 @@ export default async function RepairDetailPage({ params }: { params: Promise<{ i
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
                 <div className="lg:col-span-2 space-y-8">
                     <div className="bg-card p-6 rounded-xl border border-border shadow-sm space-y-6">
-                        <h3 className="text-lg font-semibold">Cihaz Bilgileri</h3>
+                        <h3 className="text-lg font-semibold">Durum ve Bilgi Güncelle</h3>
                         <form action={async (formData) => {
                             "use server"
                             await updateRepair(parseInt(id), formData)
-                        }}>
-                            <div className="flex items-center gap-2">
+                        }} className="space-y-4">
+
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div className="space-y-2">
+                                    <label className="text-sm font-medium">Teslim Alan</label>
+                                    <Input name="receivedBy" defaultValue={repair.receivedBy || ""} placeholder="Personel Adı" />
+                                </div>
+                                <div className="space-y-2">
+                                    <label className="text-sm font-medium">Tahmini Teslim</label>
+                                    <Input
+                                        name="estimatedDate"
+                                        type="datetime-local"
+                                        defaultValue={repair.estimatedDate ? new Date(repair.estimatedDate).toISOString().slice(0, 16) : ""}
+                                    />
+                                </div>
+                            </div>
+
+                            <div className="space-y-2">
+                                <label className="text-sm font-medium">Güncel Durum</label>
                                 <Select name="status" defaultValue={repair.status}>
-                                    <SelectTrigger className="w-[200px] h-8">
-                                        <SelectValue />
+                                    <SelectTrigger className="w-full">
+                                        <SelectValue placeholder="Durum seçin" />
                                     </SelectTrigger>
                                     <SelectContent>
                                         {Object.entries(statusConfig).map(([key, config]) => (
@@ -92,8 +114,9 @@ export default async function RepairDetailPage({ params }: { params: Promise<{ i
                                         ))}
                                     </SelectContent>
                                 </Select>
-                                <Button size="sm" variant="ghost" type="submit">Güncelle</Button>
                             </div>
+
+                            <Button type="submit" className="w-full">Bilgileri ve Durumu Güncelle</Button>
                         </form>
                     </div>
 
@@ -209,51 +232,7 @@ export default async function RepairDetailPage({ params }: { params: Promise<{ i
                     </div>
                 </div>
 
-                <div className="bg-card p-6 rounded-xl border border-border shadow-sm space-y-6">
-                    <h3 className="text-lg font-semibold">Durum ve Bilgi Güncelle</h3>
-                    <form action={async (formData) => {
-                        "use server"
-                        await updateRepair(parseInt(id), formData)
-                    }} className="flex items-end gap-4">
-                        <div className="flex-1 space-y-4">
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                <div className="space-y-2">
-                                    <label className="text-sm font-medium">Teslim Alan</label>
-                                    <Input name="receivedBy" defaultValue={repair.receivedBy || ""} placeholder="Personel Adı" />
-                                </div>
-                                <div className="space-y-2">
-                                    <label className="text-sm font-medium">Tahmini Teslim</label>
-                                    <Input
-                                        name="estimatedDate"
-                                        type="datetime-local"
-                                        defaultValue={repair.estimatedDate ? new Date(repair.estimatedDate).toISOString().slice(0, 16) : ""}
-                                    />
-                                </div>
-                            </div>
 
-                            <div className="space-y-2">
-                                <label className="text-sm font-medium">Yeni Durum</label>
-                                <Select name="status" defaultValue={repair.status}>
-                                    <SelectTrigger>
-                                        <SelectValue placeholder="Durum seçin" />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                        <SelectItem value="received">Teslim Alındı</SelectItem>
-                                        <SelectItem value="diagnosing">Arıza Tespiti</SelectItem>
-                                        <SelectItem value="price_pending">Fiyat Onayı Bekliyor</SelectItem>
-                                        <SelectItem value="parts_ordered">Parça Bekleniyor</SelectItem>
-                                        <SelectItem value="in_progress">İşlemde</SelectItem>
-                                        <SelectItem value="testing">Test Aşamasında</SelectItem>
-                                        <SelectItem value="completed">Tamamlandı</SelectItem>
-                                        <SelectItem value="delivered">Teslim Edildi</SelectItem>
-                                        <SelectItem value="cancelled">İptal / İade</SelectItem>
-                                    </SelectContent>
-                                </Select>
-                            </div>
-                        </div>
-                        <Button type="submit">Güncelle</Button>
-                    </form>
-                </div>
             </div>
 
             <div className="space-y-8">
@@ -293,6 +272,16 @@ export default async function RepairDetailPage({ params }: { params: Promise<{ i
                     </div>
                 </div>
             </div>
+
+            {/* Email History Section */}
+            <EmailHistory
+                repairId={repair.id}
+                customerName={repair.customer_name}
+                trackingCode={repair.tracking_code}
+                deviceModel={repair.device_model}
+                estimatedCost={repair.estimated_cost ? Number(repair.estimated_cost) : undefined}
+                emails={emailHistory}
+            />
         </div>
     )
 }

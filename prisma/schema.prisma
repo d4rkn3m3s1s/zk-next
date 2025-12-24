@@ -90,23 +90,37 @@ model Appointment {
 }
 
 model Repair {
-  id             Int       @id @default(autoincrement())
-  customer_name  String
-  phone          String
-  device_model   String
-  issue          String
-  tracking_code  String    @unique
-  status         String    @default("received")
-  estimated_cost Decimal?
-  lockPassword   String? // For numeric/text passwords
-  lockPattern    String? // For pattern locks (e.g. "1-2-3-6-9")
-  images         String? // JSON string of image URLs
-  privateNotes   String? // Internal technician notes
-  receivedBy     String? // Staff who received the device
-  requestedDate  DateTime? // Customer requested delivery date
-  estimatedDate  DateTime? // Shop estimated completion date
-  createdAt      DateTime  @default(now())
-  updatedAt      DateTime  @updatedAt
+  id               Int       @id @default(autoincrement())
+  customer_name    String
+  phone            String
+  email            String?   // New field for customer email
+  device_model     String
+  issue            String    @db.Text
+  status           String    @default("received")
+  estimated_cost   Decimal?  @db.Decimal(10, 2)
+  tracking_code    String    @unique
+  images           String?   @db.Text
+  privateNotes     String?   @db.Text
+  lockPassword     String?
+  lockPattern      String?
+  receivedBy       String?
+  requestedDate    DateTime?
+  estimatedDate    DateTime?
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+  emailLogs        EmailLog[]
+}
+
+model EmailLog {
+  id          Int      @id @default(autoincrement())
+  repairId    Int
+  repair      Repair   @relation(fields: [repairId], references: [id], onDelete: Cascade)
+  recipient   String
+  subject     String
+  status      String   // 'sent', 'failed'
+  statusType  String   // repair status: 'received', 'diagnosing', etc.
+  error       String?  @db.Text
+  sentAt      DateTime @default(now())
 }
 
 model Message {

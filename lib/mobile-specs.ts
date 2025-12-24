@@ -8,7 +8,7 @@ export interface MobileDeviceConfig {
     detail?: string; // from API
 }
 
-const API_BASE_URL = 'http://localhost:4000';
+const API_BASE_URL = '/api/gsmarena';
 
 export async function searchDevices(query: string): Promise<MobileDeviceConfig[]> {
     if (!query || query.length < 2) return [];
@@ -17,18 +17,15 @@ export async function searchDevices(query: string): Promise<MobileDeviceConfig[]
         const res = await fetch(`${API_BASE_URL}/search?query=${encodeURIComponent(query)}`);
         if (!res.ok) return [];
         const data = await res.json();
-        // V2 search returns { data: { phones: [...] } } or just { phones: [...] } ?
-        // searchController returns json(res, { title, phones }) -> { success: true, data: { title, phones } } usually? 
-        // utils/response.js 'json' wrapper usually puts it in 'data'.
 
-        // Let's assume standard response wrapper from utils
-        const phones = data.data?.phones || data.phones || [];
+        // Internal scraper returns { status: true, data: [...] }
+        const phones = data.data || [];
 
         return phones.map((p: any) => ({
-            brand: p.brand,
+            brand: p.brand || "", // Internal search might not have brand directly
             phone_name: p.phone_name,
-            phone_name_slug: p.slug, // V2 uses 'slug'
-            phone_img_url: p.image, // V2 uses 'image'
+            phone_name_slug: p.slug,
+            phone_img_url: p.image,
             detail: p.detail
         }));
     } catch (error) {
@@ -39,11 +36,10 @@ export async function searchDevices(query: string): Promise<MobileDeviceConfig[]
 
 export async function getDeviceSpecs(slug: string) {
     try {
-        // V2 route is /:slug
         const res = await fetch(`${API_BASE_URL}/${slug}`);
         if (!res.ok) return null;
         const data = await res.json();
-        return data.data;
+        return data.data; // Internal scraper returns { status: true, data: { ...Specs } }
     } catch (error) {
         console.error("Error fetching device specs:", error);
         return null;

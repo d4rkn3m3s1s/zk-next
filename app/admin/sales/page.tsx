@@ -192,7 +192,7 @@ export default function SalesPage() {
                 <CardHeader>
                     <CardTitle>Genel Bakış</CardTitle>
                 </CardHeader>
-                <CardContent className="h-[300px]">
+                <CardContent className="h-[350px] w-full min-h-[300px]">
                     {chartData.length > 0 ? (
                         <ResponsiveContainer width="100%" height="100%">
                             <LineChart data={chartData}>

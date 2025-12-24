@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Plus, Minus, Loader2, Trash2 } from "lucide-react";
@@ -69,6 +69,9 @@ export function DebtorActions({ id, currentBalance }: { id: number, currentBalan
                 <DialogContent className="bg-[#0a0a0a] border-white/10 text-white">
                     <DialogHeader>
                         <DialogTitle>Borç Ekle</DialogTitle>
+                        <DialogDescription>
+                            Müşterinin bakiyesine yeni bir borç tutarı ekleyin.
+                        </DialogDescription>
                     </DialogHeader>
                     <form onSubmit={handleAction} className="space-y-4 pt-4">
                         <div className="space-y-2">
@@ -116,6 +119,9 @@ export function DebtorActions({ id, currentBalance }: { id: number, currentBalan
                 <DialogContent className="bg-[#0a0a0a] border-white/10 text-white">
                     <DialogHeader>
                         <DialogTitle>Ödeme Al / Borç Düş</DialogTitle>
+                        <DialogDescription>
+                            Müşteriden alınan ödemeyi girerek güncel bakiyeyi azaltın.
+                        </DialogDescription>
                     </DialogHeader>
                     <form onSubmit={handleAction} className="space-y-4 pt-4">
                         <div className="space-y-2">
@@ -164,6 +170,9 @@ export function DebtorActions({ id, currentBalance }: { id: number, currentBalan
                 <DialogContent className="bg-[#0a0a0a] border-white/10 text-white">
                     <DialogHeader>
                         <DialogTitle>Müşteri Kaydını Sil</DialogTitle>
+                        <DialogDescription>
+                            Bu işlem müşteriyi ve tüm geçmişini kalıcı olarak siler.
+                        </DialogDescription>
                     </DialogHeader>
                     <div className="space-y-4 pt-4">
                         <p className="text-slate-400">
