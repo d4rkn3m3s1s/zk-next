@@ -2,7 +2,7 @@
 
 import { prisma } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
-import { logAction } from "@/lib/logger";
+import { createLog } from "@/lib/logger";
 
 export interface Debtor {
     id: number;
@@ -95,7 +95,7 @@ export async function createDebtor(data: {
             }
         });
 
-        await logAction("CREATE", "Debtor", debtor.id, { name: debtor.name, balance: debtor.balance });
+        await createLog('CREATE', 'Debtor', `Created debtor: ${debtor.name} (Balance: ${debtor.balance} TL)`, 'Admin', 'INFO', debtor.id.toString());
 
         revalidatePath('/admin/debtors');
         return { success: true };
@@ -128,7 +128,7 @@ export async function processPayment(id: number, amount: number, description?: s
             })
         ]);
 
-        await logAction("PAYMENT", "Debtor", id, { amount, description: description || "Ödeme Alındı", newBalance });
+        await createLog('UPDATE', 'Debtor', `Payment received: ${amount} TL - ${description || 'Ödeme Alındı'} (New Balance: ${newBalance} TL)`, 'Admin', 'INFO', id.toString());
 
         revalidatePath(`/admin/debtors/${id}`);
         revalidatePath('/admin/debtors');
@@ -160,7 +160,7 @@ export async function addDebt(id: number, amount: number, description?: string) 
             })
         ]);
 
-        await logAction("ADD_DEBT", "Debtor", id, { amount, description: description || "Borç Eklendi", newBalance });
+        await createLog('UPDATE', 'Debtor', `Debt added: ${amount} TL - ${description || 'Borç Eklendi'} (New Balance: ${newBalance} TL)`, 'Admin', 'INFO', id.toString());
 
         revalidatePath(`/admin/debtors/${id}`);
         revalidatePath('/admin/debtors');
@@ -173,7 +173,7 @@ export async function addDebt(id: number, amount: number, description?: string) 
 export async function deleteDebtor(id: number) {
     try {
         await prisma.debtor.delete({ where: { id } });
-        await logAction("DELETE", "Debtor", id, "Deleted debtor");
+        await createLog('DELETE', 'Debtor', `Deleted debtor ID: ${id}`, 'Admin', 'WARNING', id.toString());
         revalidatePath('/admin/debtors');
         return { success: true };
     } catch (error: any) {
