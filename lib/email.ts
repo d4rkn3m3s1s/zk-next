@@ -27,12 +27,13 @@ interface RepairEmailData {
 }
 
 export async function sendRepairStatusEmail(repair: RepairEmailData) {
+    const settings = await prisma.settings.findFirst();
     const statusInfo = statusMessages[repair.status] || statusMessages.received
 
     const trackingUrl = `${process.env.NEXTAUTH_URL}/repair-tracking?code=${repair.trackingCode}`
     const subject = `${statusInfo.subject} - ${repair.trackingCode}`
 
-    const htmlContent = generateEmailHTML(repair, statusInfo, trackingUrl)
+    const htmlContent = generateEmailHTML(repair, statusInfo, trackingUrl, settings)
 
     try {
         await transporter.sendMail({

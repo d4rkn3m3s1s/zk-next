@@ -224,3 +224,260 @@ export async function sendDailyReport(targetChatId?: string) {
         return { success: false, error: "Rapor gönderilemedi." };
     }
 }
+
+export async function sendMonthlyReport(targetChatId?: string) {
+    try {
+        const today = startOfDay(new Date());
+        const monthStart = startOfMonth(today);
+
+        // Monthly Sales
+        const monthlySales = await prisma.sale.findMany({
+            where: {
+                soldAt: { gte: monthStart }
+            }
+        });
+        const monthlyRevenue = monthlySales.reduce((acc, curr) => acc + Number(curr.soldPrice), 0);
+        const monthlyProfit = monthlySales.reduce((acc, curr) => acc + Number(curr.profit || 0), 0);
+        const profitMargin = monthlyRevenue > 0 ? (monthlyProfit / monthlyRevenue) * 100 : 0;
+
+        // Monthly Repairs
+        const monthlyRepairs = await prisma.repair.findMany({
+            where: {
+                createdAt: { gte: monthStart }
+            }
+        });
+        const completedMonthlyRepairs = monthlyRepairs.filter(r => r.status === 'completed');
+        const repairRevenue = completedMonthlyRepairs.reduce((acc, curr) => acc + Number(curr.estimated_cost || 0), 0);
+
+        // Debtor Changes
+        const monthlyDebtTransactions = await prisma.debtorTransaction.findMany({
+            where: {
+                createdAt: { gte: monthStart }
+            }
+        });
+        const newDebts = monthlyDebtTransactions.filter(t => t.type === 'DEBT').reduce((acc, curr) => acc + Number(curr.amount), 0);
+        const payments = monthlyDebtTransactions.filter(t => t.type === 'PAYMENT').reduce((acc, curr) => acc + Number(curr.amount), 0);
+        const netDebtChange = newDebts - payments;
+
+        const message =
+            `📊 <b>AYLIK FİNANSAL RAPOR</b>\n` +
+            `📅 <b>Dönem:</b> ${format(monthStart, 'dd MMMM yyyy', { locale: tr })} - ${format(today, 'dd MMMM yyyy', { locale: tr })}\n\n` +
+            `💰 <b>SATIŞLAR</b>\n` +
+            `├─ Toplam Adet: ${monthlySales.length}\n` +
+            `├─ Toplam Ciro: ₺${monthlyRevenue.toFixed(2)}\n` +
+            `├─ Toplam Kâr: ₺${monthlyProfit.toFixed(2)}\n` +
+            `└─ Kâr Marjı: %${profitMargin.toFixed(1)}\n\n` +
+            `🔧 <b>TAMİR & SERVİS</b>\n` +
+            `├─ Toplam Kayıt: ${monthlyRepairs.length}\n` +
+            `├─ Tamamlanan: ${completedMonthlyRepairs.length}\n` +
+            `└─ Servis Geliri: ₺${repairRevenue.toFixed(2)}\n\n` +
+            `📒 <b>ALACAK DEFTERİ</b>\n` +
+            `├─ Yeni Borçlar: ₺${newDebts.toFixed(2)}\n` +
+            `├─ Tahsilatlar: ₺${payments.toFixed(2)}\n` +
+            `└─ Net Değişim: ${netDebtChange >= 0 ? '+' : ''}₺${netDebtChange.toFixed(2)}\n\n` +
+            `💵 <b>TOPLAM AYLIK KÂR: ₺${(monthlyProfit + repairRevenue * 0.6).toFixed(2)}</b>`;
+
+        await sendTelegramMessage(message, targetChatId);
+        return { success: true };
+
+    } catch (e) {
+        console.error("Failed to send monthly report:", e);
+        return { success: false, error: "Aylık rapor gönderilemedi." };
+    }
+}
+
+export async function sendDebtorsReport(targetChatId?: string) {
+    try {
+        const debtors = await prisma.debtor.findMany({
+            orderBy: { balance: 'desc' }
+        });
+
+        const totalBalance = debtors.reduce((acc, curr) => acc + Number(curr.balance), 0);
+        const debtorCount = debtors.filter(d => Number(d.balance) > 0).length;
+        const topDebtors = debtors.filter(d => Number(d.balance) > 0).slice(0, 10);
+
+        let debtorList = '';
+        topDebtors.forEach((debtor, index) => {
+            const balance = Number(debtor.balance);
+            debtorList += `${index + 1}. ${debtor.name}\n   ├─ Bakiye: ₺${balance.toFixed(2)}\n   └─ Tel: ${debtor.phone || 'Yok'}\n\n`;
+        });
+
+        const message =
+            `📒 <b>ALACAK DEFTERİ RAPORU</b>\n` +
+            `📅 <b>Tarih:</b> ${format(new Date(), 'dd MMMM yyyy', { locale: tr })}\n\n` +
+            `💰 <b>GENEL DURUM</b>\n` +
+            `├─ Toplam Alacak: ₺${totalBalance.toFixed(2)}\n` +
+            `├─ Borçlu Müşteri: ${debtorCount} kişi\n` +
+            `└─ Toplam Kayıt: ${debtors.length}\n\n` +
+            `👥 <b>EN YÜKSEK 10 BORÇLU</b>\n\n` +
+            (debtorList || '• Borçlu müşteri bulunmuyor.\n\n') +
+            `💡 <b>Not:</b> Detaylı bilgi için admin panelini ziyaret edin.`;
+
+        await sendTelegramMessage(message, targetChatId);
+        return { success: true };
+
+    } catch (e) {
+        console.error("Failed to send debtors report:", e);
+        return { success: false, error: "Alacak defteri raporu gönderilemedi." };
+    }
+}
+
+export async function sendStockReport(targetChatId?: string) {
+    try {
+        const outOfStock = await prisma.product.findMany({
+            where: { stock: 0 }
+        });
+
+        const criticalStock = await prisma.product.findMany({
+            where: {
+                stock: { gte: 1, lte: 3 }
+            }
+        });
+
+        const lowStock = await prisma.product.findMany({
+            where: {
+                stock: { gte: 4, lte: 5 }
+            }
+        });
+
+        let outOfStockList = '';
+        outOfStock.slice(0, 5).forEach((product, index) => {
+            outOfStockList += `${index + 1}. ${product.name}\n`;
+        });
+
+        let criticalList = '';
+        criticalStock.slice(0, 5).forEach((product, index) => {
+            criticalList += `${index + 1}. ${product.name} (${product.stock} adet)\n`;
+        });
+
+        let lowStockList = '';
+        lowStock.slice(0, 5).forEach((product, index) => {
+            lowStockList += `${index + 1}. ${product.name} (${product.stock} adet)\n`;
+        });
+
+        const message =
+            `📦 <b>STOK DURUMU RAPORU</b>\n` +
+            `📅 <b>Tarih:</b> ${format(new Date(), 'dd MMMM yyyy', { locale: tr })}\n\n` +
+            `🚨 <b>TÜKENEN ÜRÜNLER (${outOfStock.length})</b>\n` +
+            (outOfStockList || '• Tükenen ürün yok.\n') +
+            (outOfStock.length > 5 ? `\n...ve ${outOfStock.length - 5} ürün daha\n` : '') +
+            `\n⚠️ <b>KRİTİK STOK (1-3 Adet) (${criticalStock.length})</b>\n` +
+            (criticalList || '• Kritik stokta ürün yok.\n') +
+            (criticalStock.length > 5 ? `\n...ve ${criticalStock.length - 5} ürün daha\n` : '') +
+            `\n📉 <b>DÜŞÜK STOK (4-5 Adet) (${lowStock.length})</b>\n` +
+            (lowStockList || '• Düşük stokta ürün yok.\n') +
+            (lowStock.length > 5 ? `\n...ve ${lowStock.length - 5} ürün daha\n` : '') +
+            `\n💡 <b>Öneri:</b> Kritik ve tükenen ürünler için acil tedarik planlaması yapın.`;
+
+        await sendTelegramMessage(message, targetChatId);
+        return { success: true };
+
+    } catch (e) {
+        console.error("Failed to send stock report:", e);
+        return { success: false, error: "Stok raporu gönderilemedi." };
+    }
+}
+
+export async function sendRepairsReport(targetChatId?: string) {
+    try {
+        const today = startOfDay(new Date());
+
+        const pendingRepairs = await prisma.repair.findMany({
+            where: { status: 'received' },
+            orderBy: { createdAt: 'desc' }
+        });
+
+        const inProgressRepairs = await prisma.repair.findMany({
+            where: {
+                status: { in: ['diagnosing', 'repairing', 'waiting_parts'] }
+            },
+            orderBy: { createdAt: 'desc' }
+        });
+
+        const completedToday = await prisma.repair.findMany({
+            where: {
+                updatedAt: { gte: today },
+                status: 'completed'
+            }
+        });
+
+        let pendingList = '';
+        pendingRepairs.slice(0, 5).forEach((repair, index) => {
+            pendingList += `${index + 1}. ${repair.device_model}\n   ├─ Müşteri: ${repair.customer_name}\n   ├─ Sorun: ${repair.issue.substring(0, 30)}...\n   └─ Kod: ${repair.tracking_code}\n\n`;
+        });
+
+        let inProgressList = '';
+        inProgressRepairs.slice(0, 5).forEach((repair, index) => {
+            const statusText = repair.status === 'diagnosing' ? 'Teşhis' :
+                repair.status === 'repairing' ? 'Tamir' : 'Parça Bekliyor';
+            inProgressList += `${index + 1}. ${repair.device_model} (${statusText})\n   └─ ${repair.customer_name}\n\n`;
+        });
+
+        let completedList = '';
+        completedToday.slice(0, 5).forEach((repair, index) => {
+            completedList += `${index + 1}. ${repair.device_model}\n   └─ ${repair.customer_name}\n\n`;
+        });
+
+        const message =
+            `🔧 <b>TAMİR DURUMU RAPORU</b>\n` +
+            `📅 <b>Tarih:</b> ${format(new Date(), 'dd MMMM yyyy', { locale: tr })}\n\n` +
+            `⏳ <b>BEKLEYEN TAMİRLER (${pendingRepairs.length})</b>\n\n` +
+            (pendingList || '• Bekleyen tamir yok.\n\n') +
+            (pendingRepairs.length > 5 ? `...ve ${pendingRepairs.length - 5} tamir daha\n\n` : '') +
+            `🔨 <b>DEVAM EDEN TAMİRLER (${inProgressRepairs.length})</b>\n\n` +
+            (inProgressList || '• Devam eden tamir yok.\n\n') +
+            (inProgressRepairs.length > 5 ? `...ve ${inProgressRepairs.length - 5} tamir daha\n\n` : '') +
+            `✅ <b>BUGÜN TAMAMLANAN (${completedToday.length})</b>\n\n` +
+            (completedList || '• Bugün tamamlanan tamir yok.\n\n') +
+            `💡 <b>Toplam Aktif Tamir:</b> ${pendingRepairs.length + inProgressRepairs.length}`;
+
+        await sendTelegramMessage(message, targetChatId);
+        return { success: true };
+
+    } catch (e) {
+        console.error("Failed to send repairs report:", e);
+        return { success: false, error: "Tamir raporu gönderilemedi." };
+    }
+}
+
+export async function sendSalesReport(targetChatId?: string) {
+    try {
+        const today = startOfDay(new Date());
+
+        const salesToday = await prisma.sale.findMany({
+            where: {
+                soldAt: { gte: today }
+            },
+            orderBy: { soldAt: 'desc' }
+        });
+
+        const totalRevenue = salesToday.reduce((acc, curr) => acc + Number(curr.soldPrice), 0);
+        const totalProfit = salesToday.reduce((acc, curr) => acc + Number(curr.profit || 0), 0);
+        const avgSaleValue = salesToday.length > 0 ? totalRevenue / salesToday.length : 0;
+
+        let salesList = '';
+        salesToday.forEach((sale, index) => {
+            const time = format(new Date(sale.soldAt), 'HH:mm');
+            salesList += `${index + 1}. ${sale.productName}\n   ├─ Fiyat: ₺${Number(sale.soldPrice).toFixed(2)}\n   ├─ Kâr: ₺${Number(sale.profit || 0).toFixed(2)}\n   └─ Saat: ${time}\n\n`;
+        });
+
+        const message =
+            `💰 <b>GÜNLÜK SATIŞ RAPORU</b>\n` +
+            `📅 <b>Tarih:</b> ${format(new Date(), 'dd MMMM yyyy', { locale: tr })}\n\n` +
+            `📊 <b>ÖZET</b>\n` +
+            `├─ Toplam Satış: ${salesToday.length} adet\n` +
+            `├─ Toplam Ciro: ₺${totalRevenue.toFixed(2)}\n` +
+            `├─ Toplam Kâr: ₺${totalProfit.toFixed(2)}\n` +
+            `└─ Ortalama Satış: ₺${avgSaleValue.toFixed(2)}\n\n` +
+            `🛍️ <b>SATIŞ DETAYLARI</b>\n\n` +
+            (salesList || '• Bugün henüz satış yapılmadı.\n\n') +
+            `💡 <b>Performans:</b> ${salesToday.length >= 10 ? 'Mükemmel! 🎉' : salesToday.length >= 5 ? 'İyi gidiyor! 👍' : 'Daha fazla satış için çaba gösterin! 💪'}`;
+
+        await sendTelegramMessage(message, targetChatId);
+        return { success: true };
+
+    } catch (e) {
+        console.error("Failed to send sales report:", e);
+        return { success: false, error: "Satış raporu gönderilemedi." };
+    }
+}

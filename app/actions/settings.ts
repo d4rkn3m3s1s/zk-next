@@ -9,12 +9,13 @@ export async function getSettings() {
 
         if (!settings) {
             // Create default settings if not exists
-            const newSettings = await prisma.settings.create({
+            const newSettings = await (prisma.settings as any).create({
                 data: {
                     siteName: "AdminOS",
                     currency: "TRY",
                     taxRate: 20,
-                    maintenanceMode: false
+                    maintenanceMode: false,
+                    brands: "[]"
                 }
             });
             return {
@@ -29,7 +30,7 @@ export async function getSettings() {
             taxRate: Number(settings.taxRate)
         };
     } catch (error) {
-        console.error("Failed to fetch settings:", error);
+        console.error("CRITICAL: Failed to fetch settings:", error);
         // Fallback object to prevent UI crash
         return {
             siteName: "AdminOS",
@@ -39,14 +40,14 @@ export async function getSettings() {
             phone: "",
             address: "",
             email: "",
-            // Footer Fallbacks
             facebook: "",
             instagram: "",
             twitter: "",
             youtube: "",
             linkedin: "",
             googleMaps: "",
-            description: ""
+            description: "Zahmetsiz Çözüm Kusursuz Hizmet...",
+            brands: "[]"
         };
     }
 }
@@ -73,47 +74,65 @@ export async function updateSettings(formData: FormData) {
         // Try to find existing first
         const existing = await prisma.settings.findFirst();
 
+        // New fields
+        const aboutText = formData.get("aboutText") as string;
+        const vision = formData.get("vision") as string;
+        const mission = formData.get("mission") as string;
+        const brands = formData.get("brands") as string;
+        const careerLink = formData.get("careerLink") as string;
+        const blogLink = formData.get("blogLink") as string;
+
+        // Email settings
+        const emailLogo = formData.get("emailLogo") as string;
+        const emailFooter = formData.get("emailFooter") as string;
+        const emailSignature = formData.get("emailSignature") as string;
+
+        // Process brands string to JSON array
+        let processedBrands = "[]";
+        if (brands) {
+            const brandArray = brands.split(',').map(b => b.trim().toUpperCase()).filter(b => b !== "");
+            processedBrands = JSON.stringify(brandArray);
+        }
+
+        const data: any = {
+            siteName,
+            currency,
+            taxRate,
+            maintenanceMode,
+            phone,
+            address,
+            email,
+            facebook,
+            instagram,
+            twitter,
+            youtube,
+            linkedin,
+            googleMaps,
+            description,
+            aboutText,
+            vision,
+            mission,
+            brands: processedBrands,
+            careerLink,
+            blogLink,
+            emailLogo,
+            emailFooter,
+            emailSignature
+        };
+
         if (existing) {
-            await prisma.settings.update({
+            await (prisma.settings as any).update({
                 where: { id: existing.id },
-                data: {
-                    siteName,
-                    currency,
-                    taxRate,
-                    maintenanceMode,
-                    phone,
-                    address,
-                    email,
-                    facebook,
-                    instagram,
-                    twitter,
-                    youtube,
-                    linkedin,
-                    googleMaps,
-                    description
-                }
+                data
             });
         } else {
-            await prisma.settings.create({
-                data: {
-                    siteName,
-                    currency,
-                    taxRate,
-                    maintenanceMode,
-                    phone,
-                    address,
-                    email,
-                    facebook,
-                    instagram,
-                    twitter,
-                    youtube,
-                    linkedin,
-                    googleMaps,
-                    description
-                }
+            await (prisma.settings as any).create({
+                data
             });
         }
 
+        console.log("Settings updated successfully:", data.siteName);
+        revalidatePath("/");
         revalidatePath("/admin/settings");
         return { success: true };
     } catch (error) {

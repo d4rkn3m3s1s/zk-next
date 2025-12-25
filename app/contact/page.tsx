@@ -1,12 +1,14 @@
+import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
-import { Mail, MapPin, Phone, Send, Github, Twitter, Instagram } from "lucide-react"
+import { Mail, MapPin, Phone, Send, Github, Twitter, Instagram, Facebook, Youtube } from "lucide-react"
 
 import { getSettings } from "@/app/actions/settings"
 
 export default async function ContactPage() {
-    const settings = await getSettings()
+    const rawSettings = await getSettings()
+    const settings = rawSettings as any
 
     return (
         <div className="min-h-screen pt-24 pb-12 relative overflow-hidden bg-[#020204]">
@@ -127,13 +129,20 @@ export default async function ContactPage() {
                         {/* Social Links */}
                         <div className="flex gap-4">
                             {[
-                                { icon: Github, color: "hover:text-white" },
-                                { icon: Twitter, color: "hover:text-cyan-400" },
-                                { icon: Instagram, color: "hover:text-pink-400" }
-                            ].map((social, i) => (
-                                <button key={i} className={`h-14 w-14 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center text-slate-400 transition-all hover:scale-110 hover:bg-white/10 ${social.color}`}>
+                                { icon: Instagram, href: settings?.instagram, color: "hover:text-pink-400" },
+                                { icon: Twitter, href: settings?.twitter, color: "hover:text-cyan-400" },
+                                { icon: Facebook, href: settings?.facebook, color: "hover:text-blue-500" },
+                                { icon: Youtube, href: settings?.youtube, color: "hover:text-red-500" },
+                                { icon: Github, href: "https://github.com", color: "hover:text-white" } // Keep github as default or add to settings
+                            ].filter(s => s.href || s.icon === Github).map((social, i) => (
+                                <Link
+                                    key={i}
+                                    href={social.href || "#"}
+                                    target="_blank"
+                                    className={`h-14 w-14 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center text-slate-400 transition-all hover:scale-110 hover:bg-white/10 ${social.color}`}
+                                >
                                     <social.icon className="h-6 w-6" />
-                                </button>
+                                </Link>
                             ))}
                         </div>
                     </div>

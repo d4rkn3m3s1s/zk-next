@@ -75,7 +75,7 @@ export default async function Home() {
               className="lg:row-span-3 lg:col-span-1"
               icon={<Zap className="h-full w-full" />}
               description="Anakart seviyesinde mikroskobik onarım işlemleri. Veri kaybı olmadan hayata döndürme."
-              href="#"
+              href="/services"
               cta="Detayları İncele"
               background={<div className="absolute top-0 opacity-20 w-full h-full bg-[url('https://grainy-gradients.vercel.app/noise.svg')] bg-cover mix-blend-overlay" />}
             />
@@ -84,7 +84,7 @@ export default async function Home() {
               className="lg:col-span-2 lg:row-span-1"
               icon={<ShieldCheck className="h-full w-full" />}
               description="Apple, Samsung ve Xiaomi logolu orijinal servis parçaları ile değişim."
-              href="#"
+              href="/services"
               cta="Garanti Şartları"
               background={<div className="absolute right-0 top-0 h-full w-1/3 bg-gradient-to-l from-purple-500/10 to-transparent" />}
             />
@@ -93,7 +93,7 @@ export default async function Home() {
               className="lg:col-span-1 lg:row-span-1"
               icon={<Smartphone className="h-full w-full" />}
               description="30 Dakikada fabrika standartlarında ekran değişimi."
-              href="#"
+              href="/appointments"
               cta="Randevu Al"
               background={<div className="absolute inset-0 bg-gradient-to-tr from-blue-500/10 via-transparent to-transparent" />}
             />
@@ -102,7 +102,7 @@ export default async function Home() {
               className="lg:col-span-1 lg:row-span-1"
               icon={<RefreshCw className="h-full w-full" />}
               description="Eski cihazınız hak ettiği değerde alınır, yeni cihaza anında geçersiniz."
-              href="#"
+              href="/contact"
               cta="Değer Hesapla"
               background={<div className="absolute bottom-0 w-full h-1/2 bg-gradient-to-t from-green-500/10 to-transparent" />}
             />
@@ -111,7 +111,7 @@ export default async function Home() {
               className="lg:col-span-2 lg:row-span-1"
               icon={<Building2 className="h-full w-full" />}
               description="Şirketiniz için özel fiyatlar ve yerinde servis imkanı."
-              href="#"
+              href="/contact"
               cta="Teklif İste"
               background={<div className="absolute inset-0 bg-gradient-to-r from-purple-900/10 to-transparent" />}
             />

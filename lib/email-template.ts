@@ -14,67 +14,92 @@ interface RepairEmailData {
 export function generateEmailHTML(
     repair: RepairEmailData,
     statusInfo: typeof statusMessages[string],
-    trackingUrl: string
+    trackingUrl: string,
+    settings?: any
 ) {
+    const year = new Date().getFullYear();
+    const primaryColor = statusInfo.color || '#06b6d4';
+    const siteName = settings?.siteName || 'ZK İletişim';
+    const logoUrl = settings?.emailLogo || 'https://zkiletisim.com/logo.png';
+
     return `
 <!DOCTYPE html>
-<html>
+<html lang="tr">
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>${statusInfo.subject}</title>
+    <!--[if mso]>
+    <style type="text/css">
+        body, table, td, p, h1, h2, h3 { font-family: Arial, sans-serif !important; }
+    </style>
+    <![endif]-->
 </head>
-<body style="margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; background-color: #f3f4f6;">
-    <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #f3f4f6; padding: 40px 20px;">
+<body style="margin: 0; padding: 0; font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; background-color: #020204; color: #ffffff;">
+    <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #020204; padding: 40px 10px;">
         <tr>
             <td align="center">
-                <!-- Main Container -->
-                <table width="600" cellpadding="0" cellspacing="0" style="background-color: #ffffff; border-radius: 16px; overflow: hidden; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);">
+                <!-- Outer Container -->
+                <table width="600" cellpadding="0" cellspacing="0" style="max-width: 600px; width: 100%; position: relative;">
                     
-                    <!-- Header -->
+                    <!-- Decorative Background Glow -->
                     <tr>
-                        <td style="background: linear-gradient(135deg, ${statusInfo.color} 0%, #1e293b 100%); padding: 40px 30px; text-align: center;">
-                            <h1 style="margin: 0; color: #ffffff; font-size: 28px; font-weight: bold;">ZK İletişim</h1>
-                            <p style="margin: 10px 0 0 0; color: #e2e8f0; font-size: 14px;">Teknik Servis & Onarım</p>
+                        <td align="center" style="padding-bottom: 30px;">
+                            <img src="${logoUrl}" alt="${siteName}" style="height: 60px; width: auto; display: block; filter: drop-shadow(0 0 10px ${primaryColor}50);">
                         </td>
                     </tr>
 
-                    <!-- Status Badge -->
+                    <!-- Main Card -->
                     <tr>
-                        <td style="padding: 30px 30px 20px 30px; text-align: center;">
-                            <div style="display: inline-block; background-color: ${statusInfo.color}20; color: ${statusInfo.color}; padding: 12px 24px; border-radius: 50px; font-weight: bold; font-size: 18px;">
-                                ${statusInfo.title}
-                            </div>
-                        </td>
-                    </tr>
-
-                    <!-- Content -->
-                    <tr>
-                        <td style="padding: 0 30px 30px 30px;">
-                            <p style="color: #1f2937; font-size: 16px; line-height: 1.6; margin: 0 0 20px 0;">
-                                Merhaba <strong>${repair.customerName}</strong>,
-                            </p>
-                            <p style="color: #4b5563; font-size: 15px; line-height: 1.6; margin: 0 0 20px 0;">
-                                ${statusInfo.message}
-                            </p>
-
-                            <!-- Repair Details Box -->
-                            <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #f9fafb; border-radius: 12px; margin: 20px 0;">
+                        <td style="background-color: #0a0a0c; border: 1px solid #1e293b; border-radius: 32px; padding: 40px; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);">
+                            
+                            <!-- Header Info -->
+                            <table width="100%" cellpadding="0" cellspacing="0">
                                 <tr>
-                                    <td style="padding: 20px;">
-                                        <table width="100%" cellpadding="8" cellspacing="0">
+                                    <td align="center" style="padding-bottom: 30px;">
+                                        <div style="display: inline-block; padding: 8px 16px; border-radius: 100px; background-color: ${primaryColor}15; border: 1px solid ${primaryColor}30;">
+                                            <span style="color: ${primaryColor}; font-family: monospace; font-size: 12px; font-weight: bold; letter-spacing: 2px; text-transform: uppercase;">REPAIR_STATUS_UPDATE</span>
+                                        </div>
+                                        <h1 style="margin: 20px 0 10px 0; color: #ffffff; font-size: 32px; font-weight: 900; tracking-tighter; letter-spacing: -0.5px;">${statusInfo.title}</h1>
+                                        <p style="margin: 0; color: #94a3b8; font-size: 16px; font-weight: 300;">Merhaba ${repair.customerName}, cihazınız için yeni bir gelişme var.</p>
+                                    </td>
+                                </tr>
+                            </table>
+
+                            <!-- Message Body -->
+                            <table width="100%" cellpadding="0" cellspacing="0" style="margin-bottom: 30px;">
+                                <tr>
+                                    <td style="background-color: #111114; border: 1px solid #1e293b; border-radius: 20px; padding: 25px; text-align: center;">
+                                        <p style="margin: 0; color: #e2e8f0; font-size: 16px; line-height: 1.6;">
+                                            ${statusInfo.message}
+                                        </p>
+                                    </td>
+                                </tr>
+                            </table>
+
+                            <!-- Details Table -->
+                            <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #020204; border: 1px solid #1e293b; border-radius: 20px; margin-bottom: 40px; overflow: hidden;">
+                                <tr>
+                                    <td style="padding: 24px;">
+                                        <table width="100%" cellpadding="0" cellspacing="0">
                                             <tr>
-                                                <td style="color: #6b7280; font-size: 14px; width: 40%;">Takip Kodu:</td>
-                                                <td style="color: #1f2937; font-size: 14px; font-weight: bold; font-family: monospace;">${repair.trackingCode}</td>
+                                                <td style="padding: 8px 0; border-bottom: 1px solid #1e293b;">
+                                                    <span style="color: #64748b; font-size: 13px; text-transform: uppercase; font-weight: bold;">Takip Kodu</span><br/>
+                                                    <span style="color: #ffffff; font-size: 18px; font-weight: 900; font-family: monospace;">${repair.trackingCode}</span>
+                                                </td>
                                             </tr>
                                             <tr>
-                                                <td style="color: #6b7280; font-size: 14px;">Cihaz:</td>
-                                                <td style="color: #1f2937; font-size: 14px; font-weight: 600;">${repair.deviceModel}</td>
+                                                <td style="padding: 16px 0; border-bottom: 1px solid #1e293b;">
+                                                    <span style="color: #64748b; font-size: 13px; text-transform: uppercase; font-weight: bold;">Cihaz Modeli</span><br/>
+                                                    <span style="color: #ffffff; font-size: 16px; font-weight: 500;">${repair.deviceModel}</span>
+                                                </td>
                                             </tr>
                                             ${repair.estimatedCost ? `
                                             <tr>
-                                                <td style="color: #6b7280; font-size: 14px;">Tahmini Ücret:</td>
-                                                <td style="color: #059669; font-size: 16px; font-weight: bold;">₺${repair.estimatedCost.toLocaleString('tr-TR')}</td>
+                                                <td style="padding: 16px 0;">
+                                                    <span style="color: #64748b; font-size: 13px; text-transform: uppercase; font-weight: bold;">Tahmini Ücret</span><br/>
+                                                    <span style="color: ${primaryColor}; font-size: 24px; font-weight: 900;">₺${repair.estimatedCost.toLocaleString('tr-TR')}</span>
+                                                </td>
                                             </tr>
                                             ` : ''}
                                         </table>
@@ -83,125 +108,62 @@ export function generateEmailHTML(
                             </table>
 
                             <!-- CTA Button -->
-                            <table width="100%" cellpadding="0" cellspacing="0" style="margin: 30px 0;">
+                            <table width="100%" cellpadding="0" cellspacing="0">
                                 <tr>
                                     <td align="center">
-                                        <a href="${trackingUrl}" style="display: inline-block; background-color: ${statusInfo.color}; color: #ffffff; text-decoration: none; padding: 14px 32px; border-radius: 8px; font-weight: bold; font-size: 16px;">
-                                            Durumu Takip Et
+                                        <a href="${trackingUrl}" style="display: inline-block; width: 100%; border-radius: 16px; background: linear-gradient(135deg, ${primaryColor} 0%, #3b82f6 100%); color: #ffffff; text-decoration: none; padding: 20px 0; font-size: 18px; font-weight: 900; text-transform: uppercase; letter-spacing: 1px; box-shadow: 0 10px 20px -5px ${primaryColor}50;">
+                                            ONARIM DURUMUNU GÖRÜNTÜLE
                                         </a>
+                                    </td>
+                                </tr>
+                            </table>
+
+                        </td>
+                    </tr>
+
+                    <!-- 3D Inspired Contact Section -->
+                    <tr>
+                        <td style="padding: 40px 20px;">
+                            <table width="100%" cellpadding="0" cellspacing="0">
+                                <tr>
+                                    <td width="50%" style="padding-right: 10px;">
+                                        <div style="background-color: #0a0a0c; border: 1px solid #1e293b; border-radius: 20px; padding: 20px;">
+                                            <span style="color: #64748b; font-size: 11px; text-transform: uppercase; letter-spacing: 1px; display: block; margin-bottom: 5px;">Müşteri Destek</span>
+                                            <a href="tel:${settings?.phone || ''}" style="color: #ffffff; text-decoration: none; font-size: 16px; font-weight: bold;">${settings?.phone || '0541 571 38 50'}</a>
+                                        </div>
+                                    </td>
+                                    <td width="50%" style="padding-left: 10px;">
+                                        <div style="background-color: #0a0a0c; border: 1px solid #1e293b; border-radius: 20px; padding: 20px;">
+                                            <span style="color: #64748b; font-size: 11px; text-transform: uppercase; letter-spacing: 1px; display: block; margin-bottom: 5px;">Email Adresi</span>
+                                            <a href="mailto:${settings?.email || ''}" style="color: #ffffff; text-decoration: none; font-size: 14px; font-weight: bold; overflow-wrap: break-word;">${settings?.email || 'info@zkiletisim.com'}</a>
+                                        </div>
                                     </td>
                                 </tr>
                             </table>
                         </td>
                     </tr>
 
-                    <!-- Premium Footer -->
+                    <!-- Footer Info -->
                     <tr>
-                        <td style="background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%); padding: 50px 30px; text-align: center;">
-                            
-                            <!-- Company Name -->
-                            <h2 style="margin: 0 0 10px 0; color: #ffffff; font-size: 24px; font-weight: bold; letter-spacing: 1px;">
-                                ZK İletişim
-                            </h2>
-                            <p style="margin: 0 0 30px 0; color: #94a3b8; font-size: 14px; font-style: italic;">
-                                Teknik Servis & Onarım Merkezi
+                        <td align="center" style="padding: 0 40px 40px 40px;">
+                            <p style="color: #475569; font-size: 14px; line-height: 1.6; margin-bottom: 20px;">
+                                ${settings?.address || 'Sahabiye, Sivas Blv. No:15 D:E, Kocasinan, Kayseri'}
                             </p>
-
-                            <!-- Contact Cards Container -->
-                            <table width="100%" cellpadding="0" cellspacing="0" style="margin: 0 0 30px 0;">
-                                <tr>
-                                    <td>
-                                        <table width="100%" cellpadding="0" cellspacing="0">
-                                            <tr>
-                                                <!-- Phone Card -->
-                                                <td style="padding: 10px;" width="33.33%">
-                                                    <table width="100%" cellpadding="0" cellspacing="0" style="background-color: rgba(255,255,255,0.1); border-radius: 12px; padding: 20px;">
-                                                        <tr>
-                                                            <td style="text-align: center;">
-                                                                <div style="background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%); width: 48px; height: 48px; border-radius: 50%; margin: 0 auto 12px; display: flex; align-items: center; justify-content: center;">
-                                                                    <span style="color: white; font-size: 24px;">📞</span>
-                                                                </div>
-                                                                <p style="margin: 0 0 8px 0; color: #cbd5e1; font-size: 12px; text-transform: uppercase; letter-spacing: 1px;">Telefon</p>
-                                                                <a href="tel:+905415713850" style="color: #ffffff; text-decoration: none; font-size: 16px; font-weight: bold; display: block;">
-                                                                    0541 571 38 50
-                                                                </a>
-                                                            </td>
-                                                        </tr>
-                                                    </table>
-                                                </td>
-
-                                                <!-- Email Card -->
-                                                <td style="padding: 10px;" width="33.33%">
-                                                    <table width="100%" cellpadding="0" cellspacing="0" style="background-color: rgba(255,255,255,0.1); border-radius: 12px; padding: 20px;">
-                                                        <tr>
-                                                            <td style="text-align: center;">
-                                                                <div style="background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%); width: 48px; height: 48px; border-radius: 50%; margin: 0 auto 12px;">
-                                                                    <span style="color: white; font-size: 24px; line-height: 48px;">📧</span>
-                                                                </div>
-                                                                <p style="margin: 0 0 8px 0; color: #cbd5e1; font-size: 12px; text-transform: uppercase; letter-spacing: 1px;">E-posta</p>
-                                                                <a href="mailto:${process.env.FROM_EMAIL || 'info@zkiletisim.com'}" style="color: #ffffff; text-decoration: none; font-size: 14px; font-weight: bold; display: block; word-break: break-all;">
-                                                                    ${process.env.FROM_EMAIL || 'info@zkiletisim.com'}
-                                                                </a>
-                                                            </td>
-                                                        </tr>
-                                                    </table>
-                                                </td>
-
-                                                <!-- Location Card -->
-                                                <td style="padding: 10px;" width="33.33%">
-                                                    <table width="100%" cellpadding="0" cellspacing="0" style="background-color: rgba(255,255,255,0.1); border-radius: 12px; padding: 20px;">
-                                                        <tr>
-                                                            <td style="text-align: center;">
-                                                                <div style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); width: 48px; height: 48px; border-radius: 50%; margin: 0 auto 12px;">
-                                                                    <span style="color: white; font-size: 24px; line-height: 48px;">📍</span>
-                                                                </div>
-                                                                <p style="margin: 0 0 8px 0; color: #cbd5e1; font-size: 12px; text-transform: uppercase; letter-spacing: 1px;">Adres</p>
-                                                                <a href="https://maps.google.com/?q=Sahabiye,+Sivas+Blv.+No:15+D:E,+38010+Kocasinan/Kayseri" target="_blank" style="color: #ffffff; text-decoration: none; font-size: 13px; font-weight: 500; display: block; line-height: 1.4;">
-                                                                    Sahabiye, Sivas Blv.<br/>No:15 D:E, Kocasinan<br/>Kayseri
-                                                                </a>
-                                                            </td>
-                                                        </tr>
-                                                    </table>
-                                                </td>
-                                            </tr>
-                                        </table>
-                                    </td>
-                                </tr>
-                            </table>
-
-                            <!-- Working Hours -->
-                            <div style="background-color: rgba(59, 130, 246, 0.1); border-left: 4px solid #3b82f6; padding: 16px; border-radius: 8px; margin: 0 0 30px 0;">
-                                <p style="margin: 0; color: #e2e8f0; font-size: 14px;">
-                                    <strong style="color: #60a5fa;">⏰ Çalışma Saatleri:</strong> Pazartesi - Cumartesi | 09:00 - 19:00
-                                </p>
+                            
+                            <!-- Socials -->
+                            <div style="margin-bottom: 30px;">
+                                ${settings?.instagram ? `<a href="${settings.instagram}" style="display: inline-block; margin: 0 10px; color: #94a3b8; text-decoration: none; font-size: 12px; font-weight: bold;">INSTAGRAM</a>` : ''}
+                                ${settings?.facebook ? `<a href="${settings.facebook}" style="display: inline-block; margin: 0 10px; color: #94a3b8; text-decoration: none; font-size: 12px; font-weight: bold;">FACEBOOK</a>` : ''}
+                                ${settings?.twitter ? `<a href="${settings.twitter}" style="display: inline-block; margin: 0 10px; color: #94a3b8; text-decoration: none; font-size: 12px; font-weight: bold;">TWITTER</a>` : ''}
                             </div>
 
-                            <!-- Social Media & Links -->
-                            <table width="100%" cellpadding="0" cellspacing="0" style="margin: 0 0 20px 0;">
-                                <tr>
-                                    <td style="text-align: center;">
-                                        <a href="https://maps.google.com/?q=Sahabiye,+Sivas+Blv.+No:15+D:E,+38010+Kocasinan/Kayseri" target="_blank" style="display: inline-block; margin: 0 8px; padding: 10px 20px; background-color: rgba(59, 130, 246, 0.2); color: #60a5fa; text-decoration: none; border-radius: 6px; font-size: 13px; font-weight: 600; border: 1px solid rgba(59, 130, 246, 0.3);">
-                                            🗺️ Haritada Gör
-                                        </a>
-                                        <a href="tel:+905415713850" style="display: inline-block; margin: 0 8px; padding: 10px 20px; background-color: rgba(16, 185, 129, 0.2); color: #34d399; text-decoration: none; border-radius: 6px; font-size: 13px; font-weight: 600; border: 1px solid rgba(16, 185, 129, 0.3);">
-                                            📞 Hemen Ara
-                                        </a>
-                                    </td>
-                                </tr>
-                            </table>
+                            <div style="height: 1px; background: linear-gradient(90deg, transparent, #1e293b, transparent); margin-bottom: 30px;"></div>
 
-                            <!-- Divider -->
-                            <div style="height: 1px; background: linear-gradient(90deg, transparent 0%, rgba(148, 163, 184, 0.3) 50%, transparent 100%); margin: 30px 0;"></div>
-
-                            <!-- Footer Note -->
-                            <p style="margin: 0; color: #64748b; font-size: 12px; line-height: 1.6;">
-                                Bu email otomatik olarak gönderilmiştir.<br/>
-                                Cihazınızın durumu hakkında güncel bilgi almak için takip kodunuzu kullanabilirsiniz.
+                            <p style="color: #64748b; font-size: 12px; margin-bottom: 10px;">
+                                ${settings?.emailSignature || 'Onarım süreciniz boyunca size destek olmaktan mutluluk duyuyoruz.'}
                             </p>
-                            
-                            <!-- Copyright -->
-                            <p style="margin: 15px 0 0 0; color: #475569; font-size: 11px;">
-                                © ${new Date().getFullYear()} ZK İletişim. Tüm hakları saklıdır.
+                            <p style="color: #475569; font-size: 11px;">
+                                ${settings?.emailFooter || `© ${year} ${siteName}. Tüm hakları saklıdır.`}
                             </p>
                         </td>
                     </tr>
@@ -212,5 +174,5 @@ export function generateEmailHTML(
     </table>
 </body>
 </html>
-    `
+    `;
 }

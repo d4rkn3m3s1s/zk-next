@@ -57,6 +57,20 @@ export async function createAppointment(data: {
             status: 'pending'
         }
     })
+
+    // Telegram Notification
+    try {
+        await sendTelegramMessage(
+            `📅 <b>Yeni Randevu Talebi!</b>\n\n` +
+            `👤 <b>İsim:</b> ${data.name}\n` +
+            `📞 <b>Telefon:</b> ${data.phone}\n` +
+            `🗓️ <b>Tarih:</b> ${data.date.toLocaleDateString('tr-TR')} ${data.time}\n` +
+            `📝 <b>Not:</b> ${data.description || 'Yok'}`
+        )
+    } catch (e) {
+        console.error("Telegram notification failed:", e)
+    }
+
     revalidatePath("/admin/appointments")
 }
 

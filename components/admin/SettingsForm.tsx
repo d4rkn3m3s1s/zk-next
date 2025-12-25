@@ -18,13 +18,15 @@ import {
     DialogTrigger,
     DialogFooter
 } from "@/components/ui/dialog";
-import { Save, Settings, DollarSign, Phone, Activity, Database, RefreshCw, Zap, Users, Trash2, Plus, Shield } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { Save, Settings, DollarSign, Phone, Activity, Database, RefreshCw, Zap, Users, Trash2, Plus, Shield, Info, Layout, Mail } from "lucide-react";
 
 export function SettingsForm({ settings }: { settings: any }) {
     return <SettingsFormReal settings={settings} users={[]} />;
 }
 
 export function SettingsFormReal({ settings, users }: { settings: any, users: any[] }) {
+    const router = useRouter();
     const [loading, setLoading] = useState(false);
     const [maintenance, setMaintenance] = useState(settings?.maintenanceMode || false);
     const [isUserDialogOpen, setIsUserDialogOpen] = useState(false);
@@ -37,6 +39,7 @@ export function SettingsFormReal({ settings, users }: { settings: any, users: an
         formData.set("maintenanceMode", maintenance ? "on" : "off");
 
         await updateSettings(formData);
+        router.refresh();
         setLoading(false);
         alert("Ayarlar başarıyla kaydedildi.");
     };
@@ -80,6 +83,15 @@ export function SettingsFormReal({ settings, users }: { settings: any, users: an
                                 </TabsTrigger>
                                 <TabsTrigger value="contact" className="w-full justify-start px-4 py-3 rounded-lg data-[state=active]:bg-purple-500/10 data-[state=active]:text-purple-400 data-[state=active]:border data-[state=active]:border-purple-500/20 transition-all">
                                     <Phone className="w-4 h-4 mr-3" /> İletişim Bilgileri
+                                </TabsTrigger>
+                                <TabsTrigger value="about" className="w-full justify-start px-4 py-3 rounded-lg data-[state=active]:bg-blue-500/10 data-[state=active]:text-blue-400 data-[state=active]:border data-[state=active]:border-blue-500/20 transition-all">
+                                    <Info className="w-4 h-4 mr-3" /> Hakkımızda & Vizyon
+                                </TabsTrigger>
+                                <TabsTrigger value="brands" className="w-full justify-start px-4 py-3 rounded-lg data-[state=active]:bg-indigo-500/10 data-[state=active]:text-indigo-400 data-[state=active]:border data-[state=active]:border-indigo-500/20 transition-all">
+                                    <Layout className="w-4 h-4 mr-3" /> Çalışılan Markalar
+                                </TabsTrigger>
+                                <TabsTrigger value="email" className="w-full justify-start px-4 py-3 rounded-lg data-[state=active]:bg-pink-500/10 data-[state=active]:text-pink-400 data-[state=active]:border data-[state=active]:border-pink-500/20 transition-all">
+                                    <Mail className="w-4 h-4 mr-3" /> Email Şablonu
                                 </TabsTrigger>
                                 <TabsTrigger value="users" className="w-full justify-start px-4 py-3 rounded-lg data-[state=active]:bg-orange-500/10 data-[state=active]:text-orange-400 data-[state=active]:border data-[state=active]:border-orange-500/20 transition-all">
                                     <Users className="w-4 h-4 mr-3" /> Ekip Yönetimi
@@ -192,6 +204,91 @@ export function SettingsFormReal({ settings, users }: { settings: any, users: an
                                         <Input name="youtube" defaultValue={settings?.youtube} placeholder="YouTube URL" className="bg-black/50 border-slate-700 text-white focus:border-purple-500" />
                                         <Input name="linkedin" defaultValue={settings?.linkedin} placeholder="LinkedIn URL" className="bg-black/50 border-slate-700 text-white focus:border-purple-500" />
                                     </div>
+                                </div>
+                            </CardContent>
+                        </Card>
+                    </TabsContent>
+
+                    <TabsContent value="about" className="mt-0">
+                        <Card className="bg-slate-900/50 border-slate-800 backdrop-blur-md">
+                            <CardHeader>
+                                <CardTitle className="text-white flex items-center gap-2">
+                                    <Info className="w-5 h-5 text-blue-400" /> Hakkımızda Sayfası Ayarları
+                                </CardTitle>
+                                <CardDescription className="text-slate-400">Vizyon, misyon ve kurumsal metinleri yönetin.</CardDescription>
+                            </CardHeader>
+                            <CardContent className="space-y-6">
+                                <div className="space-y-2">
+                                    <Label className="text-slate-300">Hakkımızda Ana Metni</Label>
+                                    <textarea name="aboutText" defaultValue={settings?.aboutText} className="w-full min-h-[120px] bg-black/50 border border-slate-700 rounded-md p-3 text-white focus:border-blue-500 transition-colors" placeholder="Hakkımızda sayfası için ana açıklama metni..." />
+                                </div>
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                    <div className="space-y-2">
+                                        <Label className="text-slate-300">Vizyonumuz</Label>
+                                        <textarea name="vision" defaultValue={settings?.vision} className="w-full min-h-[100px] bg-black/50 border border-slate-700 rounded-md p-3 text-white focus:border-blue-500 transition-colors" />
+                                    </div>
+                                    <div className="space-y-2">
+                                        <Label className="text-slate-300">Misyonumuz</Label>
+                                        <textarea name="mission" defaultValue={settings?.mission} className="w-full min-h-[100px] bg-black/50 border border-slate-700 rounded-md p-3 text-white focus:border-blue-500 transition-colors" />
+                                    </div>
+                                </div>
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-4 border-t border-slate-800">
+                                    <div className="space-y-2">
+                                        <Label className="text-slate-300">Kariyer Sayfası Linki</Label>
+                                        <Input name="careerLink" defaultValue={settings?.careerLink} className="bg-black/50 border-slate-700 text-white focus:border-blue-500" placeholder="https://..." />
+                                    </div>
+                                    <div className="space-y-2">
+                                        <Label className="text-slate-300">Blog Sayfası Linki</Label>
+                                        <Input name="blogLink" defaultValue={settings?.blogLink} className="bg-black/50 border-slate-700 text-white focus:border-blue-500" placeholder="https://..." />
+                                    </div>
+                                </div>
+                            </CardContent>
+                        </Card>
+                    </TabsContent>
+
+                    <TabsContent value="brands" className="mt-0">
+                        <Card className="bg-slate-900/50 border-slate-800 backdrop-blur-md">
+                            <CardHeader>
+                                <CardTitle className="text-white flex items-center gap-2">
+                                    <Layout className="w-5 h-5 text-indigo-400" /> Çalışılan Markalar
+                                </CardTitle>
+                                <CardDescription className="text-slate-400">Footer ve Hakkımızda kısmında görünecek markalar.</CardDescription>
+                            </CardHeader>
+                            <CardContent className="space-y-6">
+                                <div className="space-y-2">
+                                    <Label className="text-slate-300">Markalar Listesi (Virgülle ayırın)</Label>
+                                    <textarea
+                                        name="brands"
+                                        defaultValue={settings?.brands ? JSON.parse(settings.brands).join(', ') : 'APPLE, SAMSUNG, XIAOMI, HUAWEI, OPPO, DYSON'}
+                                        className="w-full min-h-[150px] bg-black/50 border border-slate-700 rounded-md p-3 text-white font-mono text-sm focus:border-indigo-500 transition-colors"
+                                        placeholder="APPLE, SAMSUNG, XIAOMI..."
+                                    />
+                                    <p className="text-xs text-slate-500">Not: Kaydedilirken otomatik olarak JSON formatına dönüştürülecektir.</p>
+                                </div>
+                            </CardContent>
+                        </Card>
+                    </TabsContent>
+
+                    <TabsContent value="email" className="mt-0">
+                        <Card className="bg-slate-900/50 border-slate-800 backdrop-blur-md">
+                            <CardHeader>
+                                <CardTitle className="text-white flex items-center gap-2">
+                                    <Mail className="w-5 h-5 text-pink-400" /> Email Şablon Ayarları
+                                </CardTitle>
+                                <CardDescription className="text-slate-400">Gönderilen e-postaların görünümünü özelleştirin.</CardDescription>
+                            </CardHeader>
+                            <CardContent className="space-y-6">
+                                <div className="space-y-2">
+                                    <Label className="text-slate-300">Email Logo URL</Label>
+                                    <Input name="emailLogo" defaultValue={settings?.emailLogo} className="bg-black/50 border-slate-700 text-white focus:border-pink-500" placeholder="https://..." />
+                                </div>
+                                <div className="space-y-2">
+                                    <Label className="text-slate-300">Email Footer Metni</Label>
+                                    <textarea name="emailFooter" defaultValue={settings?.emailFooter} className="w-full min-h-[100px] bg-black/50 border border-slate-700 rounded-md p-3 text-white focus:border-pink-500 transition-colors" placeholder="© 2025 ZK İletişim. Tüm hakları saklıdır." />
+                                </div>
+                                <div className="space-y-2">
+                                    <Label className="text-slate-300">Email İmzası (Signature)</Label>
+                                    <textarea name="emailSignature" defaultValue={settings?.emailSignature} className="w-full min-h-[100px] bg-black/50 border border-slate-700 rounded-md p-3 text-white focus:border-pink-500 transition-colors" placeholder="ZK İletişim Destek Ekibi" />
                                 </div>
                             </CardContent>
                         </Card>

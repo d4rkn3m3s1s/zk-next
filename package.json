@@ -5,7 +5,7 @@
   "scripts": {
     "dev": "concurrently \"next dev\" \"npm run api\"",
     "dev:next": "next dev",
-    "api": "cd mobile-specs-server && npm start",
+    "api": "if [ -d \"mobile-specs-server\" ]; then cd mobile-specs-server && npm start; else echo 'API server not found, skipping...'; fi",
     "build": "next build",
     "start": "concurrently \"next start\" \"npm run api\"",
     "lint": "eslint",

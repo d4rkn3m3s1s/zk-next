@@ -32,7 +32,6 @@ export function Sidebar({ className }: { className?: string }) {
         { icon: LayoutDashboard, label: "Panel", href: "/admin/dashboard" },
         { icon: BarChart3, label: "Raporlar", href: "/admin/reports" }, // Added
         { icon: DollarSign, label: "Kârlılık Defteri", href: "/admin/sales" },
-        { icon: Smartphone, label: "Cihaz Karşılaştırma", href: "/compare" },
         { icon: Calendar, label: "Randevular", href: "/admin/appointments" },
         { icon: Package, label: "Ürünler", href: "/admin/products" },
         { icon: Smartphone, label: "İkinci El Girişi", href: "/admin/products/new-second-hand" },

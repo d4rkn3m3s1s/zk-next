@@ -240,7 +240,20 @@ model Settings {
   youtube         String?
   linkedin        String?
   googleMaps      String? // For embedding map
-  description     String? // Footer text
+  description     String? @db.Text // Footer text
+  // About Section
+  aboutText       String? @db.Text
+  vision          String? @db.Text
+  mission         String? @db.Text
+  // Brands (JSON array)
+  brands          String? @db.Text
+  // Footer Links
+  careerLink      String?
+  blogLink        String?
+  // Email Template
+  emailLogo       String?
+  emailFooter     String? @db.Text
+  emailSignature  String? @db.Text
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
 }

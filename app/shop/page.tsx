@@ -64,8 +64,9 @@ export default async function ShopPage({ searchParams }: {
         const sort = formData.get("sort") as string
         if (sort) params.set("sort", sort)
 
-        const isSecondHand = formData.get("isSecondHand") as string
-        if (isSecondHand) params.set("isSecondHand", isSecondHand)
+        const isSecondHand = formData.get("isSecondHand") === "true"
+        if (isSecondHand) params.set("isSecondHand", "true")
+        else params.delete("isSecondHand")
 
         redirect(`/shop?${params.toString()}`)
     }
@@ -124,8 +125,8 @@ export default async function ShopPage({ searchParams }: {
                                 {/* Brand Filter */}
                                 <div className="mb-6">
                                     <h4 className="text-sm font-semibold text-foreground mb-3">Marka</h4>
-                                    <div className="space-y-2">
-                                        {['Apple', 'Samsung', 'Xiaomi'].map((b) => (
+                                    <div className="space-y-2 max-h-64 overflow-y-auto pr-2">
+                                        {['Apple', 'Samsung', 'Xiaomi', 'Huawei', 'Oppo', 'Dyson', 'Sony', 'LG', 'Asus', 'HP', 'Dell', 'Lenovo', 'Realme', 'OnePlus', 'Google'].map((b) => (
                                             <div key={b} className="flex items-center space-x-2">
                                                 <Checkbox id={b} name="brand" value={b} defaultChecked={brand === b} />
                                                 <Label htmlFor={b} className="text-sm font-normal text-muted-foreground hover:text-foreground cursor-pointer flex-1">

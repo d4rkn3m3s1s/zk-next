@@ -47,6 +47,7 @@ export function RepairForm() {
 
         try {
             await createRepair(formData)
+            alert("Tamir kaydı başarıyla oluşturuldu.")
             router.push("/admin/repairs")
             router.refresh()
         } catch (error) {

@@ -119,6 +119,11 @@ function HeroScene() {
                     </p>
 
                     <div className="flex flex-col sm:flex-row gap-6 items-center justify-center">
+                        <Button asChild className="pointer-events-auto bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-mono rounded-full h-14 px-10 tracking-tight text-lg shadow-[0_0_20px_rgba(168,85,247,0.4)] hover:shadow-[0_0_35px_rgba(236,72,153,0.6)] transition-all">
+                            <Link href="/appointments">
+                                RANDEVU AL
+                            </Link>
+                        </Button>
                         <Button asChild className="pointer-events-auto bg-white hover:bg-slate-200 text-black font-mono rounded-full h-14 px-10 tracking-tight text-lg shadow-[0_0_20px_rgba(255,255,255,0.3)] hover:shadow-[0_0_35px_rgba(255,255,255,0.5)] transition-all">
                             <Link href="/shop">
                                 MAĞAZAYI KEŞFET

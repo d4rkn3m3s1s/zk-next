@@ -45,11 +45,11 @@ export function Header({ settings }: { settings?: any }) {
                         <div className="relative size-10 flex items-center justify-center bg-transparent border border-white/10 rounded-xl overflow-hidden group-hover:border-cyan-500/50 transition-colors duration-300">
                             <div className="absolute inset-0 bg-gradient-to-br from-cyan-500/20 to-purple-600/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                             <span className="font-display font-bold text-xl text-white tracking-tighter">
-                                {settings?.site_name?.substring(0, 2).toLowerCase() || "zk"}
+                                {settings?.siteName?.substring(0, 2).toLowerCase() || "zk"}
                             </span>
                         </div>
                         <span className="hidden sm:block font-display font-bold text-xl tracking-tight text-white/90 group-hover:text-white transition-colors">
-                            {settings?.site_name || "ZK İletişim"}
+                            {settings?.siteName || "ZK İletişim"}
                         </span>
                     </Link>
 
@@ -69,13 +69,15 @@ export function Header({ settings }: { settings?: any }) {
 
                     {/* Actions */}
                     <div className="flex items-center gap-3">
-                        <Button
-                            variant="ghost"
-                            size="icon"
-                            className="text-slate-400 hover:text-white hover:bg-white/10 rounded-full w-10 h-10 transition-all duration-300"
-                        >
-                            <Search className="w-5 h-5" />
-                        </Button>
+                        <Link href="/shop">
+                            <Button
+                                variant="ghost"
+                                size="icon"
+                                className="text-slate-400 hover:text-white hover:bg-white/10 rounded-full w-10 h-10 transition-all duration-300"
+                            >
+                                <Search className="w-5 h-5" />
+                            </Button>
+                        </Link>
                         <Link href="/auth/login">
                             <Button
                                 variant="ghost"
@@ -85,14 +87,16 @@ export function Header({ settings }: { settings?: any }) {
                                 <User className="w-5 h-5" />
                             </Button>
                         </Link>
-                        <Button
-                            variant="ghost"
-                            size="icon"
-                            className="text-slate-400 hover:text-white hover:bg-white/10 rounded-full w-10 h-10 transition-all duration-300 relative group"
-                        >
-                            <ShoppingBag className="w-5 h-5" />
-                            <span className="absolute top-2 right-2 w-2 h-2 bg-cyan-500 rounded-full group-hover:animate-pulse"></span>
-                        </Button>
+                        <Link href="/cart">
+                            <Button
+                                variant="ghost"
+                                size="icon"
+                                className="text-slate-400 hover:text-white hover:bg-white/10 rounded-full w-10 h-10 transition-all duration-300 relative group"
+                            >
+                                <ShoppingBag className="w-5 h-5" />
+                                <span className="absolute top-2 right-2 w-2 h-2 bg-cyan-500 rounded-full group-hover:animate-pulse"></span>
+                            </Button>
+                        </Link>
 
                         <Button
                             variant="ghost"
