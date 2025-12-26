@@ -61,11 +61,14 @@ export async function createMessage(formData: FormData) {
     // Telegram Notification
     try {
         await sendTelegramMessage(
-            `📩 <b>New Contact Message!</b>\n\n` +
-            `👤 <b>Name:</b> ${name}\n` +
-            `📧 <b>Email:</b> ${email}\n` +
-            `📝 <b>Subject:</b> ${subject}\n` +
-            `💬 <b>Message:</b> ${message}`
+            `📩 <b>Yeni İletişim Mesajı!</b>\n\n` +
+            `👤 <b>İsim:</b> ${name}\n` +
+            `📧 <b>E-posta:</b> ${email}\n` +
+            `📝 <b>Konu:</b> ${subject}\n` +
+            `💬 <b>Mesaj:</b> ${message}`,
+            undefined,
+            false,
+            'system'
         )
     } catch (e) {
         console.error("Telegram notification failed:", e)

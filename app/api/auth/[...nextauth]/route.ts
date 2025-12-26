@@ -36,8 +36,8 @@ const handler = NextAuth({
                     await createLog(
                         'LOGIN',
                         'Auth',
-                        `User ${user.username} logged in successfully`,
-                        user.username || 'Unknown',
+                        `${user.username} adlı kullanıcı başarıyla giriş yaptı`,
+                        user.username || 'Bilinmeyen',
                         'WARNING' // Warning level to track admin logins visibly
                     )
                 } catch (e) {

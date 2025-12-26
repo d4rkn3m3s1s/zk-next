@@ -28,11 +28,14 @@ export async function createLog(
 
         // 2. Alert via Telegram (ALL LOGS)
         await sendTelegramMessage(
-            `🚨 <b>SYSTEM LOG: ${severity}</b>\n\n` +
-            `⚡ <b>Action:</b> ${action}\n` +
-            `📦 <b>Entity:</b> ${entity}\n` +
-            `👤 <b>User:</b> ${username}\n` +
-            `📝 <b>Details:</b> ${details}`
+            `🚨 <b>SİSTEM LOGU: ${severity}</b>\n\n` +
+            `⚡ <b>İşlem:</b> ${action}\n` +
+            `📦 <b>Varlık:</b> ${entity}\n` +
+            `👤 <b>Kullanıcı:</b> ${username}\n` +
+            `📝 <b>Detaylar:</b> ${details}`,
+            undefined,
+            false,
+            entity === 'Auth' ? 'auth' : 'system'
         );
 
     } catch (error) {

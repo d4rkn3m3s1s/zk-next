@@ -94,6 +94,14 @@ export async function updateSettings(formData: FormData) {
             processedBrands = JSON.stringify(brandArray);
         }
 
+        // Telegram settings
+        const telegramNotificationsEnabled = formData.get("telegramNotificationsEnabled") === "on";
+        const notifyOnSale = formData.get("notifyOnSale") === "on";
+        const notifyOnRepair = formData.get("notifyOnRepair") === "on";
+        const notifyOnDebt = formData.get("notifyOnDebt") === "on";
+        const notifyOnSystemLog = formData.get("notifyOnSystemLog") === "on";
+        const notifyOnAuth = formData.get("notifyOnAuth") === "on";
+
         const data: any = {
             siteName,
             currency,
@@ -117,7 +125,13 @@ export async function updateSettings(formData: FormData) {
             blogLink,
             emailLogo,
             emailFooter,
-            emailSignature
+            emailSignature,
+            telegramNotificationsEnabled,
+            notifyOnSale,
+            notifyOnRepair,
+            notifyOnDebt,
+            notifyOnSystemLog,
+            notifyOnAuth
         };
 
         if (existing) {

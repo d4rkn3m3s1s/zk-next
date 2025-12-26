@@ -31,33 +31,64 @@ export async function createSale(formData: FormData) {
     const productName = formData.get("productName") as string;
     const soldPrice = parseFloat(formData.get("soldPrice") as string);
     const costPrice = parseFloat(formData.get("costPrice") as string);
-    const profit = soldPrice - costPrice;
+    const productIdStr = formData.get("productId") as string;
+    const quantityStr = formData.get("quantity") as string;
+
+    const productId = productIdStr ? parseInt(productIdStr) : null;
+    const quantity = quantityStr ? parseInt(quantityStr) : 1;
+    const profit = soldPrice - (costPrice || 0);
 
     try {
-        await prisma.sale.create({
-            data: {
-                productName,
-                soldPrice,
-                costPrice,
-                profit
+        await prisma.$transaction(async (tx) => {
+            // Create the sale
+            await tx.sale.create({
+                data: {
+                    productId,
+                    productName,
+                    soldPrice,
+                    costPrice,
+                    profit,
+                    quantity
+                }
+            });
+
+            // Decrement stock if productId is provided
+            if (productId) {
+                const product = await tx.product.findUnique({
+                    where: { id: productId }
+                });
+
+                if (product) {
+                    await tx.product.update({
+                        where: { id: productId },
+                        data: {
+                            stock: {
+                                decrement: quantity
+                            }
+                        }
+                    });
+                }
             }
         });
 
-
-
-        // Telegram Notification
+        // Telegram Notification (we'll update this later to respect settings)
         try {
             await sendTelegramMessage(
-                `💰 <b>New Sale Recorded!</b>\n\n` +
-                `🛍️ <b>Product:</b> ${productName}\n` +
-                `💵 <b>Price:</b> ${soldPrice} TL\n` +
-                `📈 <b>Profit:</b> ${profit} TL`
+                `💰 <b>Yeni Satış!</b>\n\n` +
+                `🛍️ <b>Ürün:</b> ${productName}\n` +
+                `💵 <b>Fiyat:</b> ${soldPrice} TL\n` +
+                `📈 <b>Kar:</b> ${profit} TL\n` +
+                `📦 <b>Adet:</b> ${quantity}`,
+                undefined,
+                false,
+                'sale'
             );
         } catch (e) {
             console.error("Telegram notification failed:", e);
         }
 
         revalidatePath("/admin/sales");
+        revalidatePath("/admin/products");
         return { success: true };
     } catch (error: any) {
         console.error("Failed to create sale:", error);

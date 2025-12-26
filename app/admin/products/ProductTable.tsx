@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
 import {
@@ -14,7 +14,17 @@ import {
 import { Button } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
 import { Badge } from "@/components/ui/badge"
-import { Pencil, Trash2, MoreHorizontal, Download, ChevronDown } from "lucide-react"
+import { deleteProduct, bulkDeleteProducts, bulkUpdateProductStatus } from "@/app/actions/product"
+import { createSale } from "@/app/actions/sales"
+import {
+    Dialog,
+    DialogContent,
+    DialogDescription,
+    DialogFooter,
+    DialogHeader,
+    DialogTitle,
+    DialogTrigger,
+} from "@/components/ui/dialog"
 import {
     DropdownMenu,
     DropdownMenuContent,
@@ -23,7 +33,10 @@ import {
     DropdownMenuSeparator,
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import { deleteProduct, bulkDeleteProducts, bulkUpdateProductStatus } from "@/app/actions/product"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import { ShoppingCart, ChevronDown, Download, Pencil, Trash2 } from "lucide-react"
+import { toast } from "sonner"
 // import { toast } from "sonner" 
 // If no toast lib installed, we'll just use simple alert or console for now, or install one.
 // The project uses shadcn, usually comes with sonner or toast. I'll rely on revalidatePath for feedback visually.
@@ -33,6 +46,7 @@ interface Product {
     name: string
     category: string | null
     price: any // Decimal
+    cost: number | null
     stock: number
     status: string
     images: string | null
@@ -41,6 +55,8 @@ interface Product {
 export function ProductTable({ products }: { products: Product[] }) {
     const router = useRouter()
     const [selectedIds, setSelectedIds] = useState<number[]>([])
+    const [sellingProduct, setSellingProduct] = useState<Product | null>(null)
+    const [isSellDialogOpen, setIsSellDialogOpen] = useState(false)
 
     const toggleSelectAll = () => {
         if (selectedIds.length === products.length) {
@@ -98,6 +114,16 @@ export function ProductTable({ products }: { products: Product[] }) {
 
     return (
         <div className="space-y-4">
+            <SellDialog
+                product={sellingProduct}
+                open={isSellDialogOpen}
+                onOpenChange={setIsSellDialogOpen}
+                onSuccess={() => {
+                    setIsSellDialogOpen(false)
+                    setSellingProduct(null)
+                    router.refresh()
+                }}
+            />
             <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
                     <span className="text-sm text-muted-foreground">{products.length} ürün listeleniyor</span>
@@ -199,6 +225,18 @@ export function ProductTable({ products }: { products: Product[] }) {
                                     </TableCell>
                                     <TableCell className="text-right">
                                         <div className="flex justify-end gap-2">
+                                            <Button
+                                                variant="outline"
+                                                size="sm"
+                                                className="h-8 gap-1 text-primary border-primary hover:bg-primary hover:text-primary-foreground"
+                                                onClick={() => {
+                                                    setSellingProduct(product)
+                                                    setIsSellDialogOpen(true)
+                                                }}
+                                                disabled={product.stock <= 0}
+                                            >
+                                                <ShoppingCart className="h-3.5 w-3.5" /> Satış
+                                            </Button>
                                             <Link href={`/admin/products/${product.id}`}>
                                                 <Button variant="ghost" size="icon" className="h-8 w-8">
                                                     <Pencil className="h-4 w-4" />
@@ -226,5 +264,113 @@ export function ProductTable({ products }: { products: Product[] }) {
                 </Table>
             </div>
         </div>
+    )
+}
+
+function SellDialog({
+    product,
+    open,
+    onOpenChange,
+    onSuccess
+}: {
+    product: Product | null,
+    open: boolean,
+    onOpenChange: (open: boolean) => void,
+    onSuccess: () => void
+}) {
+    const [loading, setLoading] = useState(false)
+    const [soldPrice, setSoldPrice] = useState("")
+    const [quantity, setQuantity] = useState("1")
+
+    // Update soldPrice when product changes
+    useEffect(() => {
+        if (product) {
+            setSoldPrice(Number(product.price).toString())
+            setQuantity("1")
+        }
+    }, [product])
+
+    if (!product) return null
+
+    const cost = product.cost || 0
+    const currentPrice = parseFloat(soldPrice) || 0
+    const profit = (currentPrice - cost) * parseInt(quantity || "0")
+
+    const handleSell = async () => {
+        if (!soldPrice || parseFloat(soldPrice) <= 0) {
+            alert("Lütfen geçerli bir satış fiyatı girin.")
+            return
+        }
+
+        setLoading(true)
+        const formData = new FormData()
+        formData.append("productId", product.id.toString())
+        formData.append("productName", product.name)
+        formData.append("soldPrice", soldPrice)
+        formData.append("costPrice", cost.toString())
+        formData.append("quantity", quantity)
+
+        const result = await createSale(formData)
+        setLoading(false)
+
+        if (result.success) {
+            toast.success("Satış başarıyla kaydedildi")
+            onSuccess()
+        } else {
+            alert(result.error || "Satış kaydedilirken bir hata oluştu")
+        }
+    }
+
+    return (
+        <Dialog open={open} onOpenChange={onOpenChange}>
+            <DialogContent className="sm:max-w-[425px]">
+                <DialogHeader>
+                    <DialogTitle>Ürün Satışı: {product.name}</DialogTitle>
+                    <DialogDescription>
+                        Lütfen satış detaylarını onaylayın. Bu işlem stok miktarını düşürür.
+                    </DialogDescription>
+                </DialogHeader>
+                <div className="grid gap-4 py-4">
+                    <div className="grid grid-cols-4 items-center gap-4">
+                        <Label htmlFor="cost" className="text-right">Maliyet</Label>
+                        <Input id="cost" value={`₺${cost}`} disabled className="col-span-3 bg-muted" />
+                    </div>
+                    <div className="grid grid-cols-4 items-center gap-4">
+                        <Label htmlFor="price" className="text-right">Satış Fiyatı</Label>
+                        <Input
+                            id="price"
+                            type="number"
+                            value={soldPrice || product.price}
+                            onChange={(e) => setSoldPrice(e.target.value)}
+                            className="col-span-3"
+                        />
+                    </div>
+                    <div className="grid grid-cols-4 items-center gap-4">
+                        <Label htmlFor="quantity" className="text-right">Adet</Label>
+                        <Input
+                            id="quantity"
+                            type="number"
+                            min="1"
+                            max={product.stock}
+                            value={quantity}
+                            onChange={(e) => setQuantity(e.target.value)}
+                            className="col-span-3"
+                        />
+                    </div>
+                    <div className="grid grid-cols-4 items-center gap-4">
+                        <Label className="text-right">Toplam Kar</Label>
+                        <div className={`col-span-3 font-bold ${profit >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                            ₺{profit.toFixed(2)}
+                        </div>
+                    </div>
+                </div>
+                <DialogFooter>
+                    <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>İptal</Button>
+                    <Button type="button" onClick={handleSell} disabled={loading}>
+                        {loading ? "Kaydediliyor..." : "Satışı Tamamla"}
+                    </Button>
+                </DialogFooter>
+            </DialogContent>
+        </Dialog>
     )
 }

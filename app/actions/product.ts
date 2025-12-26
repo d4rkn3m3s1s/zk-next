@@ -124,18 +124,20 @@ export async function createProduct(formData: FormData) {
     // Send Telegram Notification
     try {
         await sendTelegramMessage(
-            `📦 <b>New Product Added!</b>\n\n` +
-            `📌 <b>Name:</b> ${name}\n` +
-            `💰 <b>Price:</b> ${price} TL\n` +
-            `📊 <b>Stock:</b> ${stock}`
+            `📦 <b>Yeni Ürün Eklendi!</b>\n\n` +
+            `📌 <b>İsim:</b> ${name}\n` +
+            `💰 <b>Fiyat:</b> ${price} TL\n` +
+            `📊 <b>Stok:</b> ${stock}`,
+            undefined,
+            false,
+            'system'
         )
     } catch (error) {
-        console.error("Failed to send telegram notification:", error)
         console.error("Failed to send telegram notification:", error)
     }
 
     // System Log
-    await createLog('CREATE', 'Product', `Created product: ${name} (${price} TL)`, 'Admin', 'INFO', name)
+    await createLog('CREATE', 'Product', `Ürün oluşturuldu: ${name} (${price} TL)`, 'Admin', 'INFO', name)
 
     revalidatePath("/admin/products")
     redirect("/admin/products")
@@ -186,7 +188,7 @@ export async function deleteProduct(id: number) {
     })
 
     // System Log
-    await createLog('DELETE', 'Product', `Deleted product ID: ${id}`, 'Admin', 'WARNING', id.toString())
+    await createLog('DELETE', 'Product', `Ürün silindi (ID: ${id})`, 'Admin', 'WARNING', id.toString())
 
     revalidatePath("/admin/products")
 }

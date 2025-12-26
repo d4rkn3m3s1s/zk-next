@@ -125,18 +125,21 @@ export async function createRepair(formData: FormData) {
     // Telegram Notification
     try {
         await sendTelegramMessage(
-            `🔧 <b>New Repair Received</b>\n\n` +
-            `🎫 <b>Code:</b> ${code}\n` +
-            `📱 <b>Device:</b> ${device_model}\n` +
-            `👤 <b>Customer:</b> ${customer_name}\n` +
-            `📝 <b>Issue:</b> ${issue}`
+            `🔧 <b>Yeni Tamir Kaydı</b>\n\n` +
+            `🎫 <b>Takip Kodu:</b> ${code}\n` +
+            `📱 <b>Cihaz:</b> ${device_model}\n` +
+            `👤 <b>Müşteri:</b> ${customer_name}\n` +
+            `📝 <b>Sorun:</b> ${issue}`,
+            undefined,
+            false,
+            'repair'
         )
     } catch (e) {
         console.error("Failed to send telegram notification:", e)
     }
 
     // System Log
-    await createLog('CREATE', 'Repair', `New repair received: ${device_model} - ${code}`, 'System', 'INFO', code)
+    await createLog('CREATE', 'Repair', `Yeni tamir kaydı oluşturuldu: ${device_model} - ${code}`, 'Sistem', 'INFO', code)
 
     revalidatePath("/admin/repairs")
 }
@@ -195,10 +198,13 @@ export async function updateRepair(id: number, formData: FormData) {
         // Telegram Notification for Status Change
         try {
             await sendTelegramMessage(
-                `🔄 <b>Repair Status Updated</b>\n\n` +
-                `🎫 <b>Code:</b> ${currentRepair.tracking_code}\n` +
-                `📱 <b>Device:</b> ${currentRepair.device_model}\n` +
-                `🆕 <b>Status:</b> ${data.status}`
+                `🔄 <b>Tamir Durumu Güncellendi</b>\n\n` +
+                `🎫 <b>Takip Kodu:</b> ${currentRepair.tracking_code}\n` +
+                `📱 <b>Cihaz:</b> ${currentRepair.device_model}\n` +
+                `🆕 <b>Yeni Durum:</b> ${data.status}`,
+                undefined,
+                false,
+                'repair'
             )
         } catch (e) {
             console.error(e)
@@ -210,7 +216,7 @@ export async function updateRepair(id: number, formData: FormData) {
         await createLog(
             'STATUS_CHANGE',
             'Repair',
-            `Repair ${currentRepair.tracking_code} status changed from ${currentRepair.status} to ${data.status}`,
+            `Tamir ${currentRepair.tracking_code} durumu ${currentRepair.status} -> ${data.status} olarak değiştirildi`,
             'Admin',
             'INFO',
             currentRepair.tracking_code

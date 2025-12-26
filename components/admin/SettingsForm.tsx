@@ -19,7 +19,7 @@ import {
     DialogFooter
 } from "@/components/ui/dialog";
 import { useRouter } from "next/navigation";
-import { Save, Settings, DollarSign, Phone, Activity, Database, RefreshCw, Zap, Users, Trash2, Plus, Shield, Info, Layout, Mail } from "lucide-react";
+import { Save, Settings, DollarSign, Phone, Activity, Database, RefreshCw, Zap, Users, Trash2, Plus, Shield, Info, Layout, Mail, Send } from "lucide-react";
 
 export function SettingsForm({ settings }: { settings: any }) {
     return <SettingsFormReal settings={settings} users={[]} />;
@@ -29,6 +29,12 @@ export function SettingsFormReal({ settings, users }: { settings: any, users: an
     const router = useRouter();
     const [loading, setLoading] = useState(false);
     const [maintenance, setMaintenance] = useState(settings?.maintenanceMode || false);
+    const [telegramEnabled, setTelegramEnabled] = useState(settings?.telegramNotificationsEnabled !== false);
+    const [notifySale, setNotifySale] = useState(settings?.notifyOnSale !== false);
+    const [notifyRepair, setNotifyRepair] = useState(settings?.notifyOnRepair !== false);
+    const [notifyDebt, setNotifyDebt] = useState(settings?.notifyOnDebt !== false);
+    const [notifyLog, setNotifyLog] = useState(settings?.notifyOnSystemLog !== false);
+    const [notifyAuth, setNotifyAuth] = useState(settings?.notifyOnAuth !== false);
     const [isUserDialogOpen, setIsUserDialogOpen] = useState(false);
     const [newUser, setNewUser] = useState({ username: "", email: "", password: "", role: "user" });
 
@@ -37,6 +43,12 @@ export function SettingsFormReal({ settings, users }: { settings: any, users: an
         setLoading(true);
         const formData = new FormData(e.currentTarget);
         formData.set("maintenanceMode", maintenance ? "on" : "off");
+        formData.set("telegramNotificationsEnabled", telegramEnabled ? "on" : "off");
+        formData.set("notifyOnSale", notifySale ? "on" : "off");
+        formData.set("notifyOnRepair", notifyRepair ? "on" : "off");
+        formData.set("notifyOnDebt", notifyDebt ? "on" : "off");
+        formData.set("notifyOnSystemLog", notifyLog ? "on" : "off");
+        formData.set("notifyOnAuth", notifyAuth ? "on" : "off");
 
         await updateSettings(formData);
         router.refresh();
@@ -95,6 +107,9 @@ export function SettingsFormReal({ settings, users }: { settings: any, users: an
                                 </TabsTrigger>
                                 <TabsTrigger value="users" className="w-full justify-start px-4 py-3 rounded-lg data-[state=active]:bg-orange-500/10 data-[state=active]:text-orange-400 data-[state=active]:border data-[state=active]:border-orange-500/20 transition-all">
                                     <Users className="w-4 h-4 mr-3" /> Ekip Yönetimi
+                                </TabsTrigger>
+                                <TabsTrigger value="telegram" className="w-full justify-start px-4 py-3 rounded-lg data-[state=active]:bg-sky-500/10 data-[state=active]:text-sky-400 data-[state=active]:border data-[state=active]:border-sky-500/20 transition-all">
+                                    <Send className="w-4 h-4 mr-3" /> Telegram Bot
                                 </TabsTrigger>
                                 <TabsTrigger value="system" className="w-full justify-start px-4 py-3 rounded-lg data-[state=active]:bg-red-500/10 data-[state=active]:text-red-400 data-[state=active]:border data-[state=active]:border-red-500/20 transition-all">
                                     <Activity className="w-4 h-4 mr-3" /> Sistem Durumu
@@ -362,6 +377,107 @@ export function SettingsFormReal({ settings, users }: { settings: any, users: an
                                     ) : (
                                         <div className="text-center text-slate-500 py-8">Henüz hiç kullanıcı yok.</div>
                                     )}
+                                </div>
+                            </CardContent>
+                        </Card>
+                    </TabsContent>
+
+                    <TabsContent value="telegram" className="mt-0">
+                        <Card className="bg-slate-900/50 border-slate-800 backdrop-blur-md">
+                            <CardHeader>
+                                <CardTitle className="text-white flex items-center gap-2">
+                                    <Send className="w-5 h-5 text-sky-400" /> Telegram Bildirim Detayları
+                                </CardTitle>
+                                <CardDescription className="text-slate-400">Hangi olayların bildirim olarak gönderileceğini seçin.</CardDescription>
+                            </CardHeader>
+                            <CardContent className="space-y-6">
+                                <div className="p-4 rounded-xl bg-sky-500/5 border border-sky-500/10 flex items-center justify-between">
+                                    <div>
+                                        <Label className="text-sky-400 font-bold">Global Bildirim Anahtarı</Label>
+                                        <p className="text-xs text-slate-400 mt-1">Tüm otomatik bot mesajlarını tamamen açar veya kapatır.</p>
+                                    </div>
+                                    <Switch checked={telegramEnabled} onCheckedChange={setTelegramEnabled} className="data-[state=checked]:bg-sky-500" />
+                                </div>
+
+                                <div className={`grid grid-cols-1 md:grid-cols-2 gap-4 transition-opacity ${telegramEnabled ? 'opacity-100' : 'opacity-40 pointer-events-none'}`}>
+                                    <div className="p-4 rounded-xl bg-white/5 border border-white/10 flex items-center justify-between">
+                                        <div className="flex items-center gap-3">
+                                            <div className="w-8 h-8 rounded-lg bg-green-500/20 flex items-center justify-center text-green-400">
+                                                <DollarSign className="w-4 h-4" />
+                                            </div>
+                                            <div>
+                                                <Label className="text-white text-sm">Satış Bildirimleri</Label>
+                                                <p className="text-[10px] text-slate-500">Yeni satış yapıldığında</p>
+                                            </div>
+                                        </div>
+                                        <Switch checked={notifySale} onCheckedChange={setNotifySale} />
+                                    </div>
+
+                                    <div className="p-4 rounded-xl bg-white/5 border border-white/10 flex items-center justify-between">
+                                        <div className="flex items-center gap-3">
+                                            <div className="w-8 h-8 rounded-lg bg-blue-500/20 flex items-center justify-center text-blue-400">
+                                                <RefreshCw className="w-4 h-4" />
+                                            </div>
+                                            <div>
+                                                <Label className="text-white text-sm">Tamir Bildirimleri</Label>
+                                                <p className="text-[10px] text-slate-500">Tamir durumu değiştiğinde</p>
+                                            </div>
+                                        </div>
+                                        <Switch checked={notifyRepair} onCheckedChange={setNotifyRepair} />
+                                    </div>
+
+                                    <div className="p-4 rounded-xl bg-white/5 border border-white/10 flex items-center justify-between">
+                                        <div className="flex items-center gap-3">
+                                            <div className="w-8 h-8 rounded-lg bg-orange-500/20 flex items-center justify-center text-orange-400">
+                                                <Users className="w-4 h-4" />
+                                            </div>
+                                            <div>
+                                                <Label className="text-white text-sm">Borç/Tahsilat</Label>
+                                                <p className="text-[10px] text-slate-500">Yeni borç veya ödeme</p>
+                                            </div>
+                                        </div>
+                                        <Switch checked={notifyDebt} onCheckedChange={setNotifyDebt} />
+                                    </div>
+
+                                    <div className="p-4 rounded-xl bg-white/5 border border-white/10 flex items-center justify-between">
+                                        <div className="flex items-center gap-3">
+                                            <div className="w-8 h-8 rounded-lg bg-red-500/20 flex items-center justify-center text-red-400">
+                                                <Zap className="w-4 h-4" />
+                                            </div>
+                                            <div>
+                                                <Label className="text-white text-sm">Kritik Hatalar</Label>
+                                                <p className="text-[10px] text-slate-500">Sistem hataları oluştuğunda</p>
+                                            </div>
+                                        </div>
+                                        <div className="flex items-center gap-2">
+                                            <Switch checked={notifyLog} onCheckedChange={setNotifyLog} />
+                                        </div>
+                                    </div>
+
+                                    <div className="p-4 rounded-xl bg-white/5 border border-white/10 flex items-center justify-between">
+                                        <div className="flex items-center gap-3">
+                                            <div className="w-8 h-8 rounded-lg bg-pink-500/20 flex items-center justify-center text-pink-400">
+                                                <Shield className="w-4 h-4" />
+                                            </div>
+                                            <div>
+                                                <Label className="text-white text-sm">Giriş/Yetki Bildirimleri</Label>
+                                                <p className="text-[10px] text-slate-500">Panele giriş yapıldığında</p>
+                                            </div>
+                                        </div>
+                                        <Switch checked={notifyAuth} onCheckedChange={setNotifyAuth} />
+                                    </div>
+                                </div>
+
+                                <div className="p-4 rounded-xl bg-slate-800/30 border border-slate-700/50">
+                                    <div className="flex items-center gap-2 mb-2">
+                                        <Shield className="w-4 h-4 text-cyan-400" />
+                                        <Label className="text-cyan-400 text-xs font-bold uppercase tracking-wider">Super Admin Bilgisi</Label>
+                                    </div>
+                                    <div className="flex items-center justify-between">
+                                        <span className="text-slate-400 text-sm">Sabit Admin:</span>
+                                        <span className="text-white font-mono bg-black/50 px-3 py-1 rounded border border-white/10">@{settings?.telegramAdminUsername || "d4rkn3m3s1s"}</span>
+                                    </div>
+                                    <p className="text-[10px] text-slate-500 mt-2 italic">* Güvenlik gereği super-admin kullanıcı adı panelden değiştirilemez.</p>
                                 </div>
                             </CardContent>
                         </Card>

@@ -95,7 +95,7 @@ export async function createDebtor(data: {
             }
         });
 
-        await createLog('CREATE', 'Debtor', `Created debtor: ${debtor.name} (Balance: ${debtor.balance} TL)`, 'Admin', 'INFO', debtor.id.toString());
+        await createLog('CREATE', 'Debtor', `Cari oluşturuldu: ${debtor.name} (Bakiye: ${debtor.balance} TL)`, 'Admin', 'INFO', debtor.id.toString());
 
         revalidatePath('/admin/debtors');
         return { success: true };
@@ -128,7 +128,7 @@ export async function processPayment(id: number, amount: number, description?: s
             })
         ]);
 
-        await createLog('UPDATE', 'Debtor', `Payment received: ${amount} TL - ${description || 'Ödeme Alındı'} (New Balance: ${newBalance} TL)`, 'Admin', 'INFO', id.toString());
+        await createLog('UPDATE', 'Debtor', `Tahsilat alındı: ${amount} TL - ${description || 'Ödeme Alındı'} (Yeni Bakiye: ${newBalance} TL)`, 'Admin', 'INFO', id.toString());
 
         revalidatePath(`/admin/debtors/${id}`);
         revalidatePath('/admin/debtors');
@@ -160,7 +160,7 @@ export async function addDebt(id: number, amount: number, description?: string) 
             })
         ]);
 
-        await createLog('UPDATE', 'Debtor', `Debt added: ${amount} TL - ${description || 'Borç Eklendi'} (New Balance: ${newBalance} TL)`, 'Admin', 'INFO', id.toString());
+        await createLog('UPDATE', 'Debtor', `Borç eklendi: ${amount} TL - ${description || 'Borç Eklendi'} (Yeni Bakiye: ${newBalance} TL)`, 'Admin', 'INFO', id.toString());
 
         revalidatePath(`/admin/debtors/${id}`);
         revalidatePath('/admin/debtors');
@@ -173,7 +173,7 @@ export async function addDebt(id: number, amount: number, description?: string) 
 export async function deleteDebtor(id: number) {
     try {
         await prisma.debtor.delete({ where: { id } });
-        await createLog('DELETE', 'Debtor', `Deleted debtor ID: ${id}`, 'Admin', 'WARNING', id.toString());
+        await createLog('DELETE', 'Debtor', `Cari kaydı silindi (ID: ${id})`, 'Admin', 'WARNING', id.toString());
         revalidatePath('/admin/debtors');
         return { success: true };
     } catch (error: any) {

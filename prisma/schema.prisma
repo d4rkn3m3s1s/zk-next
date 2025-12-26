@@ -251,9 +251,20 @@ model Settings {
   careerLink      String?
   blogLink        String?
   // Email Template
+  // Email Template
   emailLogo       String?
   emailFooter     String? @db.Text
   emailSignature  String? @db.Text
+
+  // Telegram Settings
+  telegramNotificationsEnabled Boolean @default(true)
+  telegramAdminUsername        String  @default("d4rkn3m3s1s")
+  notifyOnSale                 Boolean @default(true)
+  notifyOnRepair               Boolean @default(true)
+  notifyOnDebt                 Boolean @default(true)
+  notifyOnSystemLog            Boolean @default(true)
+  notifyOnAuth                 Boolean @default(true)
+
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
 }
