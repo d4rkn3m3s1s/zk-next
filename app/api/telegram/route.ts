@@ -112,6 +112,7 @@ export async function POST(request: Request) {
                     "/susturmaac - Tüm bildirimleri aç\n" +
                     "/aktifet @kullanici - Kullanıcıyı aktifleştir\n" +
                     "/pasifet @kullanici - Kullanıcıyı sustur\n" +
+                    "/kullanicisil @kullanici - Kullanıcıyı tamamen sil\n" +
                     "/bakim ac - Bakım modunu aç\n" +
                     "/bakim kapat - Bakım modunu kapat\n" +
                     "/duyuru [MESAJ] - Tüm abonelere duyuru\n" +
@@ -146,6 +147,7 @@ export async function POST(request: Request) {
                     "/sustur /susturmaac - Global bildirim anahtarı\n" +
                     "/aktifet @kullanici - Kullanıcı bildirimini aç\n" +
                     "/pasifet @kullanici - Kullanıcı bildirimini kapat\n" +
+                    "/kullanicisil @kullanici - Kullanıcıyı tamamen sil\n" +
                     "/bakim ac/kapat - Bakım modu\n" +
                     "/duyuru [MESAJ] - Toplu mesaj\n" +
                     "/stokum [ID] [ADET] - Hızlı stok";
