@@ -45,23 +45,36 @@ export async function sendTelegramMessage(
             targets = subscribers.map(s => s.chatId)
         }
 
-        if (targets.length === 0) return
+        if (targets.length === 0) {
+            console.log("No active subscribers found for Telegram notification.");
+            return;
+        }
 
-        const promises = targets.map(chatId =>
-            fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`, {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({
-                    chat_id: chatId,
-                    text: text,
-                    parse_mode: "HTML"
-                })
-            })
-        )
+        console.log(`Sending Telegram message to ${targets.length} targets.`);
 
-        await Promise.all(promises)
+        const promises = targets.map(async (chatId) => {
+            try {
+                const response = await fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        chat_id: chatId,
+                        text: text,
+                        parse_mode: "HTML"
+                    })
+                });
+                if (!response.ok) {
+                    const err = await response.json();
+                    console.error(`Failed to send to ${chatId}:`, err);
+                }
+            } catch (e) {
+                console.error(`Fetch error for ${chatId}:`, e);
+            }
+        });
+
+        await Promise.all(promises);
     } catch (error) {
-        console.error("Failed to send telegram message:", error)
+        console.error("Critical failure in sendTelegramMessage:", error)
     }
 }
 

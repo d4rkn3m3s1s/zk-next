@@ -3,9 +3,12 @@ import { NextResponse } from "next/server"
 
 const TELEGRAM_ADMIN_SECRET = process.env.TELEGRAM_ADMIN_SECRET
 
+export const dynamic = "force-dynamic";
+
 export async function POST(request: Request) {
     try {
         const update = await request.json()
+        console.log("📥 Telegram Update Received:", JSON.stringify(update));
 
         // Handle Callback Queries (from inline buttons)
         if (update.callback_query) {
@@ -283,13 +286,28 @@ export async function POST(request: Request) {
 }
 
 async function sendMessage(chatId: string, text: string) {
-    await fetch(`https://api.telegram.org/bot${process.env.TELEGRAM_BOT_TOKEN}/sendMessage`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-            chat_id: chatId,
-            text,
-            parse_mode: "HTML"
+    const token = process.env.TELEGRAM_BOT_TOKEN;
+    if (!token) {
+        console.error("❌ sendMessage: TELEGRAM_BOT_TOKEN is missing!");
+        return;
+    }
+
+    try {
+        const response = await fetch(`https://api.telegram.org/bot${token}/sendMessage`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                chat_id: chatId,
+                text,
+                parse_mode: "HTML"
+            })
         })
-    })
+
+        if (!response.ok) {
+            const errorData = await response.json();
+            console.error("❌ Telegram API sendMessage error:", errorData);
+        }
+    } catch (error) {
+        console.error("❌ fetch error in sendMessage:", error);
+    }
 }
