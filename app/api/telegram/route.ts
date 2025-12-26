@@ -108,8 +108,10 @@ export async function POST(request: Request) {
                     "/ozet - Bugünkü satış özeti\n" +
                     "/sonhatalar - Son kritik hatalar\n" +
                     "/kullanicilar - Abone listesi\n" +
-                    "/sustur - Bildirimleri kapat\n" +
-                    "/susturmaac - Bildirimleri aç\n" +
+                    "/sustur - Tüm bildirimleri kapat\n" +
+                    "/susturmaac - Tüm bildirimleri aç\n" +
+                    "/aktifet @kullanici - Kullanıcıyı aktifleştir\n" +
+                    "/pasifet @kullanici - Kullanıcıyı sustur\n" +
                     "/bakim ac - Bakım modunu aç\n" +
                     "/bakim kapat - Bakım modunu kapat\n" +
                     "/duyuru [MESAJ] - Tüm abonelere duyuru\n" +
@@ -141,7 +143,9 @@ export async function POST(request: Request) {
                     "/ozet - Finansal özet\n" +
                     "/sonhatalar - Sistem hataları\n" +
                     "/kullanicilar - Abone yönetimi\n" +
-                    "/sustur /susturmaac - Bildirim anahtarı\n" +
+                    "/sustur /susturmaac - Global bildirim anahtarı\n" +
+                    "/aktifet @kullanici - Kullanıcı bildirimini aç\n" +
+                    "/pasifet @kullanici - Kullanıcı bildirimini kapat\n" +
                     "/bakim ac/kapat - Bakım modu\n" +
                     "/duyuru [MESAJ] - Toplu mesaj\n" +
                     "/stokum [ID] [ADET] - Hızlı stok";
@@ -194,7 +198,7 @@ export async function POST(request: Request) {
         }
 
         // 3. ADMIN COMMANDS (Super Admin only)
-        const adminCommands = ["/sustur", "/susturmaac", "/stokum", "/ozet", "/sonhatalar", "/duyuru", "/bakim", "/kullanicilar", "/kullanicisil", "/panel", "/admin"]
+        const adminCommands = ["/sustur", "/susturmaac", "/aktifet", "/pasifet", "/stokum", "/ozet", "/sonhatalar", "/duyuru", "/bakim", "/kullanicilar", "/kullanicisil", "/panel", "/admin"]
         const matchedAdminCmd = adminCommands.find(cmd => text.startsWith(cmd))
 
         if (matchedAdminCmd) {
@@ -252,6 +256,23 @@ export async function POST(request: Request) {
                     await prisma.telegramSubscriber.deleteMany({ where: { username: uname } })
                     await sendMessage(chatId, `✅ @${uname} silindi.`)
                 }
+            } else if (text.startsWith("/aktifet ") || text.startsWith("/pasifet ")) {
+                const target = text.split(" ")[1]
+                const isActive = text.startsWith("/aktifet ")
+                if (target) {
+                    const uname = target.replace("@", "")
+                    const result = await prisma.telegramSubscriber.updateMany({
+                        where: { username: uname },
+                        data: { isActive }
+                    })
+                    if (result.count > 0) {
+                        await sendMessage(chatId, `✅ @${uname} için bildirimler ${isActive ? "açıldı" : "kapatıldı"}.`)
+                    } else {
+                        await sendMessage(chatId, `❌ @${uname} kullanıcısı bulunamadı.`)
+                    }
+                } else {
+                    await sendMessage(chatId, `📝 Kullanım: ${isActive ? "/aktifet" : "/pasifet"} @kullanici`)
+                }
             } else if (text === "/panel" || text === "/admin") {
                 await fetch(`https://api.telegram.org/bot${process.env.TELEGRAM_BOT_TOKEN}/sendMessage`, {
                     method: "POST",
@@ -263,7 +284,7 @@ export async function POST(request: Request) {
                         reply_markup: {
                             inline_keyboard: [
                                 [{ text: "📊 Özet", callback_data: "ozet" }, { text: "🚨 Hatalar", callback_data: "hatalar" }],
-                                [{ text: "👥 Üyeler", callback_data: "users" }, { text: "🔕 Sustur", callback_data: "sustur" }],
+                                [{ text: "👥 Üyeler", callback_data: "users" }, { text: "🔕 Global Sustur", callback_data: "sustur" }],
                                 [{ text: "🛠️ Bakım Aç", callback_data: "bakim_ac" }, { text: "✅ Kapat", callback_data: "bakim_kapat" }]
                             ]
                         }
