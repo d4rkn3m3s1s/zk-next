@@ -3,6 +3,7 @@
 import { prisma } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
 import { createLog } from "@/lib/logger";
+import { sendSMS, getDebtReminderSMSTemplate } from "@/lib/sms";
 
 export interface Debtor {
     id: number;
@@ -177,6 +178,27 @@ export async function deleteDebtor(id: number) {
         revalidatePath('/admin/debtors');
         return { success: true };
     } catch (error: any) {
+        return { success: false, error: error.message };
+    }
+}
+
+export async function sendDebtReminderSMS(id: number) {
+    try {
+        const debtor = await prisma.debtor.findUnique({ where: { id } });
+        if (!debtor) throw new Error("Debtor not found");
+        if (!debtor.phone) throw new Error("Müşterinin telefon numarası kayıtlı değil");
+
+        const message = getDebtReminderSMSTemplate(debtor.name, Number(debtor.balance));
+        const result = await sendSMS(debtor.phone, message);
+
+        if (result.success) {
+            await createLog('SMS_SENT', 'Debtor', `Borç hatırlatma SMS'i gönderildi: ${debtor.name}`, 'Admin', 'INFO', id.toString());
+            return { success: true };
+        } else {
+            return { success: false, error: result.error || "SMS gönderilirken hata oluştu" };
+        }
+    } catch (error: any) {
+        console.error("Debt reminder SMS failed:", error);
         return { success: false, error: error.message };
     }
 }

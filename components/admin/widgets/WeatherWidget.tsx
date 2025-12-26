@@ -12,10 +12,22 @@ export function WeatherWidget() {
         const fetchWeather = async () => {
             try {
                 const res = await fetch("https://api.weatherapi.com/v1/current.json?key=b5250c55361e4bd794e130652251412&q=Kayseri&lang=tr");
+                if (!res.ok) throw new Error("API Response Error");
                 const data = await res.json();
                 setWeather(data);
             } catch (error) {
-                console.error("Failed to fetch weather", error);
+                console.error("Weather fetch failed. This is usually due to API key or CORS issues.", error);
+                // Fallback state if API fails
+                setWeather({
+                    location: { name: "Kayseri", localtime: "00:00 00:00" },
+                    current: {
+                        temp_c: 0,
+                        is_day: 1,
+                        condition: { text: "Servis Yok", icon: "//cdn.weatherapi.com/weather/64x64/day/116.png" },
+                        wind_kph: 0,
+                        humidity: 0
+                    }
+                });
             } finally {
                 setLoading(false);
             }

@@ -2,10 +2,11 @@
 
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Search, Phone, MapPin, Wallet, ArrowUpRight, AlertCircle, Shield, Plus, X } from "lucide-react";
-import { Debtor, createDebtor } from "@/app/actions/debtors";
+import { Search, Phone, MapPin, Wallet, ArrowUpRight, AlertCircle, Shield, Plus, X, MessageSquare, Loader2 } from "lucide-react";
+import { Debtor, createDebtor, sendDebtReminderSMS } from "@/app/actions/debtors";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
+import { toast } from "sonner";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -21,6 +22,7 @@ export function DebtorList({ initialDebtors }: DebtorListProps) {
     const [debtors, setDebtors] = useState<Debtor[]>(initialDebtors);
     const [isAddOpen, setIsAddOpen] = useState(false);
     const [loading, setLoading] = useState(false);
+    const [sendingSms, setSendingSms] = useState<number | null>(null);
 
     // Form State
     const [formData, setFormData] = useState({
@@ -41,10 +43,26 @@ export function DebtorList({ initialDebtors }: DebtorListProps) {
     const handleAdd = async (e: React.FormEvent) => {
         e.preventDefault();
         setLoading(true);
+
+        let finalPhone = formData.phone.trim().replace(/\s/g, '');
+        if (!finalPhone.startsWith('+90')) {
+            if (finalPhone.startsWith('0')) {
+                finalPhone = '+9' + finalPhone;
+            } else if (finalPhone.startsWith('90')) {
+                finalPhone = '+' + finalPhone;
+            } else if (finalPhone.length === 10) {
+                finalPhone = '+90' + finalPhone;
+            } else {
+                toast.error("Geçersiz telefon formatı. Lütfen 05xx... veya +905xx... şeklinde giriniz.");
+                setLoading(false);
+                return;
+            }
+        }
+
         try {
             const res = await createDebtor({
                 name: formData.name,
-                phone: formData.phone,
+                phone: finalPhone,
                 balance: Number(formData.balance),
                 city: formData.city,
                 district: formData.district,
@@ -65,6 +83,28 @@ export function DebtorList({ initialDebtors }: DebtorListProps) {
             console.error(error);
         } finally {
             setLoading(false);
+        }
+    };
+
+    const handleSendSMS = async (id: number) => {
+        setSendingSms(id);
+        try {
+            const res = await sendDebtReminderSMS(id);
+            if (res.success) {
+                toast.success("SMS Gönderildi", {
+                    description: "Borç hatırlatma mesajı başarıyla iletildi."
+                });
+            } else {
+                toast.error("Hata", {
+                    description: res.error || "SMS gönderilemedi."
+                });
+            }
+        } catch (error) {
+            toast.error("Hata", {
+                description: "Beklenmedik bir hata oluştu."
+            });
+        } finally {
+            setSendingSms(null);
         }
     };
 
@@ -289,6 +329,20 @@ export function DebtorList({ initialDebtors }: DebtorListProps) {
                                     >
                                         <Phone className="size-4 mr-2" />
                                         Ara
+                                    </Button>
+                                    <Button
+                                        variant="outline"
+                                        size="sm"
+                                        className="flex-1 bg-transparent border-white/10 hover:bg-white/5 hover:text-white text-slate-400"
+                                        disabled={sendingSms === debtor.id}
+                                        onClick={() => handleSendSMS(debtor.id)}
+                                    >
+                                        {sendingSms === debtor.id ? (
+                                            <Loader2 className="size-4 animate-spin" />
+                                        ) : (
+                                            <MessageSquare className="size-4 mr-2" />
+                                        )}
+                                        Hatırlat
                                     </Button>
                                     <Button
                                         asChild

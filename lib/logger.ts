@@ -2,8 +2,8 @@ import { prisma } from "@/lib/prisma";
 import { sendTelegramMessage } from "@/lib/telegram";
 
 export type LogSeverity = 'INFO' | 'WARNING' | 'CRITICAL';
-export type LogAction = 'LOGIN' | 'CREATE' | 'UPDATE' | 'DELETE' | 'ERROR' | 'STATUS_CHANGE';
-export type LogEntity = 'Product' | 'Repair' | 'Sale' | 'Auth' | 'System' | 'Debtor' | 'Message' | 'Appointment';
+export type LogAction = 'LOGIN' | 'CREATE' | 'UPDATE' | 'DELETE' | 'ERROR' | 'STATUS_CHANGE' | 'SMS_RECEIVED' | 'SMS_SENT';
+export type LogEntity = 'Product' | 'Repair' | 'Sale' | 'Auth' | 'System' | 'Debtor' | 'Message' | 'Appointment' | 'InboundSms';
 
 export async function createLog(
     action: LogAction,

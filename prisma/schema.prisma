@@ -265,6 +265,12 @@ model Settings {
   notifyOnSystemLog            Boolean @default(true)
   notifyOnAuth                 Boolean @default(true)
 
+  // SMS Settings
+  smsGatewayUrl                String? @db.Text
+  smsGatewayApiKey             String? @db.Text
+  smsGatewayMethod             String  @default("POST")
+  notifyOnRepairSMS            Boolean @default(false)
+
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
 }
@@ -276,5 +282,15 @@ model TelegramSubscriber {
   firstName String?
   isActive  Boolean  @default(true)
   createdAt DateTime @default(now())
+}
+
+model InboundSms {
+  id          String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  sender      String
+  message     String
+  received_at DateTime?
+  raw_payload Json?
+  created_at  DateTime @default(now())
+  updated_at  DateTime @updatedAt
 }
 

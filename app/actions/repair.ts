@@ -6,6 +6,7 @@ import { Repair } from "@prisma/client"
 import { sendRepairStatusEmail } from "@/lib/email"
 import { sendTelegramMessage } from "@/lib/telegram"
 import { createLog } from "@/lib/logger"
+import { sendSMS, getStatusSMSTemplate } from "@/lib/sms"
 
 export async function getPublicRepairStatus(trackingCode: string) {
     if (!trackingCode) return null
@@ -65,12 +66,85 @@ export async function getRepair(id: number) {
 }
 
 export async function updateRepairStatus(id: number, status: string) {
+    const currentRepair = await prisma.repair.findUnique({
+        where: { id },
+        select: {
+            status: true,
+            customer_name: true,
+            phone: true,
+            email: true,
+            device_model: true,
+            tracking_code: true,
+            estimated_cost: true
+        }
+    })
+
+    if (!currentRepair) throw new Error("Repair record not found")
+    if (currentRepair.status === status) return
+
     await prisma.repair.update({
         where: { id },
         data: { status }
     })
+
+    // 1. Email Notification
+    if (currentRepair.email) {
+        try {
+            await sendRepairStatusEmail({
+                repairId: id,
+                customerName: currentRepair.customer_name,
+                customerEmail: currentRepair.email,
+                trackingCode: currentRepair.tracking_code,
+                deviceModel: currentRepair.device_model,
+                estimatedCost: currentRepair.estimated_cost ? Number(currentRepair.estimated_cost) : undefined,
+                status: status
+            })
+        } catch (e) {
+            console.error("Email failed:", e)
+        }
+    }
+
+    // 2. Telegram Notification
+    try {
+        await sendTelegramMessage(
+            `🔄 <b>Tamir Durumu Güncellendi</b>\n\n` +
+            `🎫 <b>Takip Kodu:</b> ${currentRepair.tracking_code}\n` +
+            `📱 <b>Cihaz:</b> ${currentRepair.device_model}\n` +
+            `🆕 <b>Yeni Durum:</b> ${status}`,
+            undefined,
+            false,
+            'repair'
+        )
+    } catch (e) {
+        console.error("Telegram failed:", e)
+    }
+
+    // 3. SMS Notification (Specifically for completed or cancelled)
+    if (status === 'completed' || status === 'cancelled') {
+        try {
+            const settings = await prisma.settings.findFirst()
+            if (settings?.notifyOnRepairSMS && currentRepair.phone) {
+                const smsMessage = getStatusSMSTemplate(status, currentRepair.tracking_code, currentRepair.device_model)
+                await sendSMS(currentRepair.phone, smsMessage)
+            }
+        } catch (e) {
+            console.error("SMS notification failed:", e)
+        }
+    }
+
+    // 4. System Log
+    await createLog(
+        'STATUS_CHANGE',
+        'Repair',
+        `Tamir ${currentRepair.tracking_code} durumu ${currentRepair.status} -> ${status} olarak değiştirildi`,
+        'Admin',
+        'INFO',
+        currentRepair.tracking_code
+    )
+
     revalidatePath("/admin/repairs")
     revalidatePath(`/admin/repairs/${id}`)
+    revalidatePath("/repair-tracking")
 }
 
 export async function getRepairByTrackingCode(trackingCode: string) {
@@ -86,7 +160,20 @@ export async function getRepairByTrackingCode(trackingCode: string) {
 
 export async function createRepair(formData: FormData) {
     const customer_name = formData.get("customer_name") as string
-    const phone = formData.get("phone") as string
+    let phone = formData.get("phone") as string
+
+    // Normalize phone
+    phone = phone.trim().replace(/\s/g, '');
+    if (!phone.startsWith('+90')) {
+        if (phone.startsWith('0')) {
+            phone = '+9' + phone;
+        } else if (phone.startsWith('90')) {
+            phone = '+' + phone;
+        } else if (phone.length === 10) {
+            phone = '+90' + phone;
+        }
+        // If unusual format, leave as is, validation might happen elsewhere or just try best effort
+    }
     const email = formData.get("email") as string
     const device_model = formData.get("device_model") as string
     const issue = formData.get("issue") as string
@@ -136,6 +223,17 @@ export async function createRepair(formData: FormData) {
         )
     } catch (e) {
         console.error("Failed to send telegram notification:", e)
+    }
+
+    // SMS Notification
+    try {
+        const settings = await prisma.settings.findFirst()
+        if (settings?.notifyOnRepairSMS && phone) {
+            const smsMessage = getStatusSMSTemplate("received", code, device_model)
+            await sendSMS(phone, smsMessage)
+        }
+    } catch (e) {
+        console.error("SMS notification failed:", e)
     }
 
     // System Log
@@ -208,6 +306,17 @@ export async function updateRepair(id: number, formData: FormData) {
             )
         } catch (e) {
             console.error(e)
+        }
+
+        // SMS Notification for Status Change
+        try {
+            const settings = await prisma.settings.findFirst()
+            if (settings?.notifyOnRepairSMS && currentRepair.phone) {
+                const smsMessage = getStatusSMSTemplate(data.status, currentRepair.tracking_code, currentRepair.device_model)
+                await sendSMS(currentRepair.phone, smsMessage)
+            }
+        } catch (e) {
+            console.error("SMS notification failed:", e)
         }
     }
 

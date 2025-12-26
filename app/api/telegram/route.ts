@@ -54,11 +54,11 @@ export async function POST(request: Request) {
                     await sendMessage(chatId, message)
                 } else if (data === "sustur" || data === "susturmaac") {
                     const enabled = data === "susturmaac"
-                    await prisma.settings.updateMany({ data: { telegramNotificationsEnabled: enabled } })
+                    await prisma.settings.updateMany({ data: { telegramNotificationsEnabled: enabled } } as any)
                     await sendMessage(chatId, enabled ? "🔔 Bildirimler açıldı." : "🔕 Bildirimler susturuldu.")
                 } else if (data === "bakim_ac" || data === "bakim_kapat") {
                     const mode = data === "bakim_ac"
-                    await prisma.settings.updateMany({ data: { maintenanceMode: mode } })
+                    await prisma.settings.updateMany({ data: { maintenanceMode: mode } } as any)
                     await sendMessage(chatId, mode ? "🛠️ Bakım modu aktif edildi." : "✅ Bakım modu kapatıldı.")
                 }
             }
@@ -212,7 +212,7 @@ export async function POST(request: Request) {
             // Implementation of admin commands
             if (text === "/sustur" || text === "/susturmaac") {
                 const enabled = text === "/susturmaac"
-                await prisma.settings.updateMany({ data: { telegramNotificationsEnabled: enabled } })
+                await prisma.settings.updateMany({ data: { telegramNotificationsEnabled: enabled } } as any)
                 await sendMessage(chatId, enabled ? "🔔 Bildirimler açıldı." : "🔕 Bildirimler susturuldu.")
             } else if (text.startsWith("/stokum ")) {
                 const parts = text.split(" ")
@@ -244,7 +244,7 @@ export async function POST(request: Request) {
                     await sendMessage(chatId, `✅ Duyuru ${subscribers.length} kişiye gönderildi.`)
                 }
             } else if (text.startsWith("/bakim")) {
-                const mode = text.includes("ac"); await prisma.settings.updateMany({ data: { maintenanceMode: mode } })
+                const mode = text.includes("ac"); await prisma.settings.updateMany({ data: { maintenanceMode: mode } } as any)
                 await sendMessage(chatId, mode ? "🛠️ Bakım modu aktif edildi." : "✅ Bakım modu kapatıldı.")
             } else if (text === "/kullanicilar") {
                 const subscribers = await prisma.telegramSubscriber.findMany()

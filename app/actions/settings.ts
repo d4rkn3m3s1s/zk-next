@@ -102,6 +102,12 @@ export async function updateSettings(formData: FormData) {
         const notifyOnSystemLog = formData.get("notifyOnSystemLog") === "on";
         const notifyOnAuth = formData.get("notifyOnAuth") === "on";
 
+        // SMS settings
+        const smsGatewayUrl = formData.get("smsGatewayUrl") as string;
+        const smsGatewayApiKey = formData.get("smsGatewayApiKey") as string;
+        const smsGatewayMethod = formData.get("smsGatewayMethod") as string || "POST";
+        const notifyOnRepairSMS = formData.get("notifyOnRepairSMS") === "on";
+
         const data: any = {
             siteName,
             currency,
@@ -131,7 +137,11 @@ export async function updateSettings(formData: FormData) {
             notifyOnRepair,
             notifyOnDebt,
             notifyOnSystemLog,
-            notifyOnAuth
+            notifyOnAuth,
+            smsGatewayUrl,
+            smsGatewayApiKey,
+            smsGatewayMethod,
+            notifyOnRepairSMS
         };
 
         if (existing) {

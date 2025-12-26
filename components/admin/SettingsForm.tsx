@@ -19,7 +19,7 @@ import {
     DialogFooter
 } from "@/components/ui/dialog";
 import { useRouter } from "next/navigation";
-import { Save, Settings, DollarSign, Phone, Activity, Database, RefreshCw, Zap, Users, Trash2, Plus, Shield, Info, Layout, Mail, Send } from "lucide-react";
+import { Save, Settings, DollarSign, Phone, Smartphone, Activity, Database, RefreshCw, Zap, Users, Trash2, Plus, Shield, Info, Layout, Mail, Send } from "lucide-react";
 
 export function SettingsForm({ settings }: { settings: any }) {
     return <SettingsFormReal settings={settings} users={[]} />;
@@ -35,6 +35,7 @@ export function SettingsFormReal({ settings, users }: { settings: any, users: an
     const [notifyDebt, setNotifyDebt] = useState(settings?.notifyOnDebt !== false);
     const [notifyLog, setNotifyLog] = useState(settings?.notifyOnSystemLog !== false);
     const [notifyAuth, setNotifyAuth] = useState(settings?.notifyOnAuth !== false);
+    const [notifyRepairSMS, setNotifyRepairSMS] = useState(settings?.notifyOnRepairSMS || false);
     const [isUserDialogOpen, setIsUserDialogOpen] = useState(false);
     const [newUser, setNewUser] = useState({ username: "", email: "", password: "", role: "user" });
 
@@ -49,6 +50,7 @@ export function SettingsFormReal({ settings, users }: { settings: any, users: an
         formData.set("notifyOnDebt", notifyDebt ? "on" : "off");
         formData.set("notifyOnSystemLog", notifyLog ? "on" : "off");
         formData.set("notifyOnAuth", notifyAuth ? "on" : "off");
+        formData.set("notifyOnRepairSMS", notifyRepairSMS ? "on" : "off");
 
         await updateSettings(formData);
         router.refresh();
@@ -110,6 +112,9 @@ export function SettingsFormReal({ settings, users }: { settings: any, users: an
                                 </TabsTrigger>
                                 <TabsTrigger value="telegram" className="w-full justify-start px-4 py-3 rounded-lg data-[state=active]:bg-sky-500/10 data-[state=active]:text-sky-400 data-[state=active]:border data-[state=active]:border-sky-500/20 transition-all">
                                     <Send className="w-4 h-4 mr-3" /> Telegram Bot
+                                </TabsTrigger>
+                                <TabsTrigger value="sms" className="w-full justify-start px-4 py-3 rounded-lg data-[state=active]:bg-orange-500/10 data-[state=active]:text-orange-400 data-[state=active]:border data-[state=active]:border-orange-500/20 transition-all">
+                                    <Smartphone className="w-4 h-4 mr-3" /> SMS Gateway
                                 </TabsTrigger>
                                 <TabsTrigger value="system" className="w-full justify-start px-4 py-3 rounded-lg data-[state=active]:bg-red-500/10 data-[state=active]:text-red-400 data-[state=active]:border data-[state=active]:border-red-500/20 transition-all">
                                     <Activity className="w-4 h-4 mr-3" /> Sistem Durumu
@@ -478,6 +483,57 @@ export function SettingsFormReal({ settings, users }: { settings: any, users: an
                                         <span className="text-white font-mono bg-black/50 px-3 py-1 rounded border border-white/10">@{settings?.telegramAdminUsername || "d4rkn3m3s1s"}</span>
                                     </div>
                                     <p className="text-[10px] text-slate-500 mt-2 italic">* Güvenlik gereği super-admin kullanıcı adı panelden değiştirilemez.</p>
+                                </div>
+                            </CardContent>
+                        </Card>
+                    </TabsContent>
+
+                    <TabsContent value="sms" className="mt-0">
+                        <Card className="bg-slate-900/50 border-slate-800 backdrop-blur-md">
+                            <CardHeader>
+                                <CardTitle className="text-white flex items-center gap-2">
+                                    <Smartphone className="w-5 h-5 text-orange-400" /> SMS Gateway Yapılandırması
+                                </CardTitle>
+                                <CardDescription className="text-slate-400">Android cihazınızı SMS geçidi olarak kullanmak için gereken ayarlar.</CardDescription>
+                            </CardHeader>
+                            <CardContent className="space-y-6">
+                                <div className="space-y-2">
+                                    <Label className="text-slate-300">Gateway URL (Android App Webhook)</Label>
+                                    <Input name="smsGatewayUrl" defaultValue={settings?.smsGatewayUrl} className="bg-black/50 border-slate-700 text-white focus:border-orange-500 h-12" placeholder="https://api.textbee.dev/api/v1/gateway/send-message veya özel sunucu URL" />
+                                </div>
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                    <div className="space-y-2">
+                                        <Label className="text-slate-300">API Key / Access Token</Label>
+                                        <Input name="smsGatewayApiKey" defaultValue={settings?.smsGatewayApiKey} type="password" className="bg-black/50 border-slate-700 text-white focus:border-orange-500 h-12" />
+                                    </div>
+                                    <div className="space-y-2">
+                                        <Label className="text-slate-300">HTTP Method</Label>
+                                        <select name="smsGatewayMethod" defaultValue={settings?.smsGatewayMethod || "POST"} className="w-full h-12 bg-black/50 border border-slate-700 rounded-md px-3 text-white focus:border-orange-500">
+                                            <option value="POST">POST (Önerilen)</option>
+                                            <option value="GET">GET</option>
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <div className="pt-6 border-t border-slate-800">
+                                    <div className="p-4 rounded-xl bg-orange-500/5 border border-orange-500/10 flex items-center justify-between">
+                                        <div>
+                                            <Label className="text-orange-400 font-bold">Tamir Durum SMS'leri</Label>
+                                            <p className="text-xs text-slate-400 mt-1">Müşteriye tamir durumu güncellendiğinde otomatik SMS gönderir.</p>
+                                        </div>
+                                        <Switch checked={notifyRepairSMS} onCheckedChange={setNotifyRepairSMS} className="data-[state=checked]:bg-orange-500" />
+                                    </div>
+                                </div>
+
+                                <div className="p-4 rounded-xl bg-slate-800/30 border border-slate-700/50">
+                                    <div className="flex items-center gap-2 mb-2">
+                                        <Info className="w-4 h-4 text-orange-400" />
+                                        <Label className="text-orange-400 text-xs font-bold uppercase tracking-wider">SMS Entegrasyon Bilgisi</Label>
+                                    </div>
+                                    <p className="text-xs text-slate-400 leading-relaxed">
+                                        Android telefonunuzu bir SMS sunucusuna dönüştürmek için <b>TextBee</b>, <b>httpSMS</b> veya <b>SMSGate</b> gibi uygulamaları kullanabilirsiniz.
+                                        Bu uygulamalar size bir API URL ve Key sağlar. Bu bilgileri yukarıya girerek sistemi aktif edebilirsiniz.
+                                    </p>
                                 </div>
                             </CardContent>
                         </Card>

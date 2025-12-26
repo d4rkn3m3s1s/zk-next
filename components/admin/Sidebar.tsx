@@ -38,6 +38,7 @@ export function Sidebar({ className }: { className?: string }) {
         { icon: DollarSign, label: "Alacak Defteri", href: "/admin/debtors" },
         { icon: Megaphone, label: "Kampanyalar", href: "/admin/marketing" },
         { icon: Wrench, label: "Tamirler", href: "/admin/repairs" },
+        { icon: Smartphone, label: "Gelen SMS'ler", href: "/admin/sms" },
         { icon: Users, label: "Kullanıcılar", href: "/admin/users" },
         { icon: LayoutDashboard, label: "Sistem Kayıtları", href: "/admin/logs" },
         { icon: Settings, label: "Ayarlar", href: "/admin/settings" },
