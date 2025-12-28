@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { getWhatsAppStatusAction, updateSettings, disconnectWhatsAppAction } from "@/app/actions/settings";
+import { getWhatsAppStatusAction, updateSettings, disconnectWhatsAppAction, reconnectWhatsAppAction } from "@/app/actions/settings";
 import { createUser, deleteUser } from "@/app/actions/user";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -63,6 +63,37 @@ export function SettingsFormReal({ settings, users }: { settings: any, users: an
         } catch (e) {
             console.error(e);
             setConnectionStatus("error");
+        } finally {
+            setBaileysLoading(false);
+        }
+    };
+
+    // Auto refresh status when scanning
+    useEffect(() => {
+        let interval: any;
+        if (connectionStatus === 'scanning' || connectionStatus === 'kontrol ediliyor...') {
+            interval = setInterval(() => {
+                checkBaileys();
+            }, 5000);
+        }
+        return () => {
+            if (interval) clearInterval(interval);
+        };
+    }, [connectionStatus]);
+
+    const handleReconnect = async () => {
+        setBaileysLoading(true);
+        try {
+            const res = await reconnectWhatsAppAction();
+            if (res.success) {
+                alert("Bağlantı isteği gönderildi. Statusu kontrol edin.");
+                checkBaileys();
+            } else {
+                alert("Hata: " + res.error);
+            }
+        } catch (e) {
+            console.error(e);
+            alert("Bağlantı başlatılırken hata oluştu.");
         } finally {
             setBaileysLoading(false);
         }
@@ -620,9 +651,23 @@ export function SettingsFormReal({ settings, users }: { settings: any, users: an
                                 <div className="p-4 rounded-xl bg-slate-800/30 border border-slate-700/50">
                                     <div className="flex items-center justify-between mb-4">
                                         <div className="flex items-center gap-2">
-                                            <Activity className={cn("w-4 h-4", connectionStatus === 'connected' ? "text-green-500" : connectionStatus === 'disconnected' ? "text-red-500" : "text-yellow-500")} />
-                                            <Label className={cn("text-xs font-bold uppercase tracking-wider", connectionStatus === 'connected' ? "text-green-500" : connectionStatus === 'disconnected' ? "text-red-500" : "text-yellow-500")}>
-                                                Durum: {connectionStatus === 'connected' ? '✅ BAĞLI' : connectionStatus === 'disconnected' ? '❌ BAĞLI DEĞİL' : connectionStatus === 'scanning' ? '📱 QR BEKLİYOR' : connectionStatus}
+                                            <Activity className={cn("w-4 h-4",
+                                                connectionStatus === 'connected' ? "text-green-500" :
+                                                    (connectionStatus === 'disconnected' || connectionStatus === 'error') ? "text-red-500" :
+                                                        "text-yellow-500"
+                                            )} />
+                                            <Label className={cn("text-xs font-bold uppercase tracking-wider",
+                                                connectionStatus === 'connected' ? "text-green-500" :
+                                                    (connectionStatus === 'disconnected' || connectionStatus === 'error') ? "text-red-500" :
+                                                        "text-yellow-500"
+                                            )}>
+                                                Durum: {
+                                                    connectionStatus === 'connected' ? '✅ BAĞLI' :
+                                                        connectionStatus === 'disconnected' ? '❌ BAĞLI DEĞİL' :
+                                                            connectionStatus === 'scanning' ? '📱 QR BEKLİYOR' :
+                                                                connectionStatus === 'error' ? '⚠️ BAĞLANTI HATASI' :
+                                                                    connectionStatus.toUpperCase()
+                                                }
                                             </Label>
                                         </div>
                                         <div className="flex gap-2">
@@ -637,7 +682,7 @@ export function SettingsFormReal({ settings, users }: { settings: any, users: an
                                                 {baileysLoading ? <RefreshCw className="w-3 h-3 animate-spin mr-2" /> : <RefreshCw className="w-3 h-3 mr-2" />}
                                                 Kontrol Et
                                             </Button>
-                                            {connectionStatus === 'connected' && (
+                                            {connectionStatus === 'connected' ? (
                                                 <Button
                                                     type="button"
                                                     variant="outline"
@@ -648,6 +693,18 @@ export function SettingsFormReal({ settings, users }: { settings: any, users: an
                                                 >
                                                     <LogOut className="w-3 h-3 mr-2" />
                                                     Bağlantıyı Kes
+                                                </Button>
+                                            ) : (
+                                                <Button
+                                                    type="button"
+                                                    variant="outline"
+                                                    size="sm"
+                                                    onClick={handleReconnect}
+                                                    disabled={baileysLoading}
+                                                    className="border-cyan-500/30 text-cyan-400 hover:bg-cyan-500/10"
+                                                >
+                                                    <Zap className="w-3 h-3 mr-2" />
+                                                    Bağlantıyı Başlat
                                                 </Button>
                                             )}
                                         </div>
@@ -670,8 +727,8 @@ export function SettingsFormReal({ settings, users }: { settings: any, users: an
                                         <div className="p-4 rounded-lg bg-red-500/10 border border-red-500/20 mb-4">
                                             <p className="text-red-400 text-sm font-medium mb-2">⚠️ WhatsApp servisi bağlı değil.</p>
                                             <p className="text-slate-400 text-xs">
-                                                Railway Dashboard'a gidip <b>baileys-service</b>'i <b>Restart</b> edin.
-                                                Ardından "Kontrol Et" butonuna basarak QR kodunu görüntüleyin ve taratın.
+                                                İşlemi başlatmak için <b>Bağlantıyı Başlat</b> butonuna basın.
+                                                Hala sorun yaşıyorsanız <b>baileys-service</b> sunucusunu kontrol edin.
                                             </p>
                                         </div>
                                     )}

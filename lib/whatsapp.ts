@@ -75,3 +75,15 @@ export async function disconnectWhatsApp() {
         return { success: false, error };
     }
 }
+
+export async function reconnectWhatsApp() {
+    try {
+        const response = await fetch(`${SERVICE_URL}/reconnect`, {
+            method: 'POST',
+            headers: { 'x-api-key': API_KEY }
+        });
+        return await response.json();
+    } catch (error) {
+        return { success: false, error };
+    }
+}

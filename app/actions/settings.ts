@@ -202,3 +202,14 @@ export async function disconnectWhatsAppAction() {
         return { success: false, error: "Bağlantı kesilemedi" };
     }
 }
+
+export async function reconnectWhatsAppAction() {
+    try {
+        const { reconnectWhatsApp } = await import("@/lib/whatsapp");
+        const result = await reconnectWhatsApp();
+        return { success: true, ...result };
+    } catch (error) {
+        console.error("Failed to reconnect WhatsApp:", error);
+        return { success: false, error: "Yeniden bağlanılamadı" };
+    }
+}

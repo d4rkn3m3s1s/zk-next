@@ -80,15 +80,24 @@ export function getDebtReminderSMSTemplate(name: string, balance: number) {
     return `👋 Merhaba ${name}! ZK İletişim'e olan ₺${balance.toLocaleString('tr-TR')} tutarındaki borcunuzu hatırlatmak istedik. Ödeme için bize ulaşabilirsiniz. İyi günler dileriz! 💚`
 }
 
+export async function sendWhatsAppMessage(phone: string, message: string) {
+    const { sendWhatsAppMessage: sender } = await import("@/lib/whatsapp");
+    return sender(phone, message);
+}
+
 export function getWhatsAppStatusTemplate(status: string, trackingCode: string, device: string) {
     const statusMessages: Record<string, string> = {
-        'received': `📱 *Merhaba!*\n\n${device} cihazınızı aldık ve kayıt altına aldık.\n\n🔖 *Takip Kodunuz:* ${trackingCode}\n\nEn kısa sürede sizinle iletişime geçeceğiz! 🔧\n\n_ZK İletişim_`,
-        'diagnosing': `🔍 *Merhaba!*\n\n${device} cihazınızın arıza tespiti yapılıyor.\n\n🔖 *Takip:* ${trackingCode}\n\nSonucu size bildireceğiz! 💪\n\n_ZK İletişim_`,
-        'waiting_parts': `📦 *Merhaba!*\n\n${device} cihazınız için gerekli parça siparişi verildi.\n\n🔖 *Takip:* ${trackingCode}\n\nParça gelince hemen başlıyoruz! ⏳\n\n_ZK İletişim_`,
-        'in_progress': `🛠️ *Harika haber!*\n\n${device} cihazınızın tamiri şu an yapılıyor.\n\n🔖 *Takip:* ${trackingCode}\n\nBitmesine az kaldı! 🎯\n\n_ZK İletişim_`,
-        'completed': `🎉 *Müjde!*\n\n${device} cihazınızın tamiri *tamamlandı!*\n\n🔖 *Takip:* ${trackingCode}\n\nBizi ziyaret ederek cihazınızı teslim alabilirsiniz.\n\nTeşekkürler! ✨\n\n_ZK İletişim_`,
-        'delivered': `✅ *Teslim Edildi*\n\n${device} cihazınız başarıyla teslim edildi.\n\n🔖 *Takip:* ${trackingCode}\n\nBizi tercih ettiğiniz için teşekkür ederiz!\nTekrar görüşmek üzere 👋\n\n_ZK İletişim_`,
-        'cancelled': `❌ *İptal Edildi*\n\n${device} cihazınızın tamir kaydı iptal edildi.\n\n🔖 *Takip:* ${trackingCode}\n\nSorularınız için bize ulaşabilirsiniz.\n\n_ZK İletişim_`
+        'received': `� *Merhaba!*\n\n${device} cihazınızı servisimize başarıyla kabul ettik. 🛠️\n\n🔖 *Takip Kodunuz:* \`${trackingCode}\`\n\nCihazınız uzman ekibimiz tarafından incelendikten sonra size bilgi vereceğiz. Bizi tercih ettiğiniz için teşekkürler! �✨\n\n_ZK İletişim_ 💚`,
+        'diagnosing': `🔍 *Arıza Tespiti Yapılıyor*\n\n${device} cihazınız şu an teknik masada inceleniyor. 🔬\n\n🔖 *Takip:* \`${trackingCode}\`\n\nEn kısa sürede arıza ve maliyet bilgisini sizinle paylaşacağız. Sabrınız için teşekkürler! 💪🎯\n\n_ZK İletişim_ 💚`,
+        'waiting_parts': `📦 *Parça Bekleniyor*\n\n${device} cihazınızın tamiri için gerekli parçanın siparişini verdik. ⏳\n\n🔖 *Takip:* \`${trackingCode}\`\n\nParçalar stoklarımıza girdiğinde tamir işlemine hızla devam edeceğiz. Haber bekleyiniz! 🚚💤\n\n_ZK İletişim_ 💚`,
+        'in_progress': `🛠️ *Tamir Devam Ediyor*\n\nHarika haber! ${device} cihazınızın tamir işlemi şu an yapılıyor. ⚡\n\n🔖 *Takip:* \`${trackingCode}\`\n\nBitmesine çok az kaldı, çok yakında cihazınıza kavuşacaksınız! 🎯✨\n\n_ZK İletişim_ 💚`,
+        'completed': `🎉 *Cihazınız Hazır!*\n\n${device} cihazınızın tamiri başarıyla *tamamlandı!* 🏆\n\n🔖 *Takip:* \`${trackingCode}\`\n\nCihazınızı dilediğiniz zaman gelip mağazamızdan teslim alabilirsiniz. Sizi bekliyoruz! 🏃‍♂️🏠\n\n_ZK İletişim_ 💚`,
+        'delivered': `✅ *Teslim Edildi*\n\n${device} cihazınız size başarıyla teslim edilmiştir. 🤝\n\n🔖 *Takip:* \`${trackingCode}\`\n\nZK İletişim olarak bizi tercih ettiğiniz için teşekkür ederiz. Memnun kaldıysanız bizi tavsiye etmeyi unutmayın! 👋✨\n\n_ZK İletişim_ 💚`,
+        'cancelled': `❌ *İşlem İptal Edildi*\n\n${device} cihazınızın tamir kaydı isteğiniz üzerine veya teknik nedenlerle iptal edilmiştir. 🛑\n\n🔖 *Takip:* \`${trackingCode}\`\n\nCihazınızı iade almak için mağazamıza uğrayabilirsiniz. Sorularınız için buradayız. 📞\n\n_ZK İletişim_ 💚`
     }
-    return statusMessages[status] || `📱 ${device} cihazınızın durumu güncellendi.\n\n🔖 *Takip:* ${trackingCode}\n\n_ZK İletişim_ 💚`
+    return statusMessages[status] || `📱 *Durum Güncellendi*\n\n${device} cihazınızın durumu güncellendi.\n\n🔖 *Takip:* \`${trackingCode}\`\n\nDetaylı bilgi için bize ulaşabilirsiniz. ✨\n\n_ZK İletişim_ 💚`
+}
+
+export function getWhatsAppDebtReminderTemplate(name: string, balance: number) {
+    return `👋 *Merhaba ${name}!*\n\nZK İletişim'den nazik bir hatırlatma... 😊\n\nMağazamızda bulunan güncel borç bakiyeniz: *₺${balance.toLocaleString('tr-TR')}*'dir. 💰\n\nÖdeme yapmak veya bilgi almak için mağazamıza uğrayabilir veya bu mesaj üzerinden bizimle iletişime geçebilirsiniz. 🤝✨\n\nİyi günler dileriz! 💚\n\n_ZK İletişim_`
 }
