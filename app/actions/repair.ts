@@ -137,7 +137,7 @@ export async function updateRepairStatus(id: number, status: string) {
     try {
         const settings = await prisma.settings.findFirst() as any
         if (settings?.notifyOnRepairWhatsapp && currentRepair.phone) {
-            const { getWhatsAppStatusTemplate } = await import("@/lib/sms")
+            const { getWhatsAppStatusTemplate, sendWhatsAppMessage } = await import("@/lib/sms")
             const waMessage = getWhatsAppStatusTemplate(status, currentRepair.tracking_code, currentRepair.device_model)
             await sendWhatsAppMessage(currentRepair.phone, waMessage)
         }
@@ -240,13 +240,20 @@ export async function createRepair(formData: FormData) {
 
     // SMS Notification
     try {
-        const settings = await prisma.settings.findFirst()
+        const settings = await prisma.settings.findFirst() as any
         if (settings?.notifyOnRepairSMS && phone) {
             const smsMessage = getStatusSMSTemplate("received", code, device_model)
             await sendSMS(phone, smsMessage)
         }
+
+        // WhatsApp Notification
+        if (settings?.notifyOnRepairWhatsapp && phone) {
+            const { getWhatsAppStatusTemplate, sendWhatsAppMessage } = await import("@/lib/sms")
+            const waMessage = getWhatsAppStatusTemplate("received", code, device_model)
+            await sendWhatsAppMessage(phone, waMessage)
+        }
     } catch (e) {
-        console.error("SMS notification failed:", e)
+        console.error("Notification failed:", e)
     }
 
     // System Log
@@ -321,15 +328,21 @@ export async function updateRepair(id: number, formData: FormData) {
             console.error(e)
         }
 
-        // SMS Notification for Status Change
+        // SMS & WhatsApp Notification for Status Change
         try {
-            const settings = await prisma.settings.findFirst()
+            const settings = await prisma.settings.findFirst() as any
             if (settings?.notifyOnRepairSMS && currentRepair.phone) {
                 const smsMessage = getStatusSMSTemplate(data.status, currentRepair.tracking_code, currentRepair.device_model)
                 await sendSMS(currentRepair.phone, smsMessage)
             }
+
+            if (settings?.notifyOnRepairWhatsapp && currentRepair.phone) {
+                const { getWhatsAppStatusTemplate, sendWhatsAppMessage } = await import("@/lib/sms")
+                const waMessage = getWhatsAppStatusTemplate(data.status, currentRepair.tracking_code, currentRepair.device_model)
+                await sendWhatsAppMessage(currentRepair.phone, waMessage)
+            }
         } catch (e) {
-            console.error("SMS notification failed:", e)
+            console.error("Status notification failed:", e)
         }
     }
 

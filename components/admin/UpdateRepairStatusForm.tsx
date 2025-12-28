@@ -18,7 +18,7 @@ interface UpdateRepairStatusFormProps {
 export function UpdateRepairStatusForm({ repair, statusConfig }: UpdateRepairStatusFormProps) {
     const [loading, setLoading] = useState(false)
     const [progress, setProgress] = useState(0)
-    const [statusStep, setStatusStep] = useState<"idle" | "database" | "email" | "sms" | "telegram" | "completed">("idle")
+    const [statusStep, setStatusStep] = useState<"idle" | "database" | "email" | "sms" | "whatsapp" | "telegram" | "completed">("idle")
     const [stepLogs, setStepLogs] = useState<string[]>([])
     const [open, setOpen] = useState(false)
 
@@ -60,11 +60,19 @@ export function UpdateRepairStatusForm({ repair, statusConfig }: UpdateRepairSta
                 // 3. SMS Simulation
                 setStatusStep("sms")
                 addLog("SMS ağ geçidine bağlanılıyor...")
-                await new Promise(r => setTimeout(r, 700))
+                await new Promise(r => setTimeout(r, 600))
                 addLog(`SMS iletildi: ${repair.phone}`)
-                setProgress(80)
+                setProgress(70)
 
-                // 4. Telegram Simulation
+                // 4. WhatsApp Simulation
+                setStatusStep("whatsapp")
+                addLog("WhatsApp Baileys servisi kontrol ediliyor...")
+                await new Promise(r => setTimeout(r, 700))
+                addLog(`WhatsApp mesajı gönderiliyor: ${repair.phone}`)
+                await new Promise(r => setTimeout(r, 500))
+                setProgress(85)
+
+                // 5. Telegram Simulation
                 setStatusStep("telegram")
                 addLog("Telegram bildirim servisi tetiklendi...")
                 await new Promise(r => setTimeout(r, 500))
@@ -162,11 +170,11 @@ export function UpdateRepairStatusForm({ repair, statusConfig }: UpdateRepairSta
                                 <div className={cn("absolute transition-all duration-500", statusStep === "email" ? "text-blue-400 scale-125 -translate-y-12" : "text-slate-700 -translate-y-8 scale-75")}>
                                     <Mail className="h-6 w-6" />
                                 </div>
-                                <div className={cn("absolute transition-all duration-500", statusStep === "sms" ? "text-green-400 scale-125 translate-x-10 translate-y-6" : "text-slate-700 translate-x-8 translate-y-4 scale-75")}>
-                                    <MessageSquare className="h-6 w-6" />
-                                </div>
-                                <div className={cn("absolute transition-all duration-500", statusStep === "telegram" ? "text-sky-400 scale-125 -translate-x-10 translate-y-6" : "text-slate-700 -translate-x-8 translate-y-4 scale-75")}>
+                                <div className={cn("absolute transition-all duration-500", statusStep === "telegram" ? "text-sky-400 scale-125 -translate-x-12 translate-y-4" : "text-slate-700 -translate-x-10 translate-y-2 scale-75")}>
                                     <Send className="h-6 w-6" />
+                                </div>
+                                <div className={cn("absolute transition-all duration-500", statusStep === "whatsapp" ? "text-green-500 scale-125 translate-x-12 translate-y-4" : "text-slate-700 translate-x-10 translate-y-2 scale-75")}>
+                                    <MessageSquare className="h-6 w-6" />
                                 </div>
                             </div>
                         </div>
