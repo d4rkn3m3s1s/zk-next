@@ -56,97 +56,81 @@ export async function getSettings() {
 
 export async function updateSettings(formData: FormData) {
     try {
-        const siteName = formData.get("siteName") as string;
-        const currency = formData.get("currency") as string;
-        const taxRate = parseFloat(formData.get("taxRate") as string) || 20;
-        const maintenanceMode = formData.get("maintenanceMode") === "on";
-        const phone = formData.get("phone") as string;
-        const address = formData.get("address") as string;
-        const email = formData.get("email") as string;
-
-        // Footer & Socials
-        const facebook = formData.get("facebook") as string;
-        const instagram = formData.get("instagram") as string;
-        const twitter = formData.get("twitter") as string;
-        const youtube = formData.get("youtube") as string;
-        const linkedin = formData.get("linkedin") as string;
-        const googleMaps = formData.get("googleMaps") as string;
-        const description = formData.get("description") as string;
-
-        // Try to find existing first
+        // Check if existing first
         const existing = await prisma.settings.findFirst();
 
-        // New fields
-        const aboutText = formData.get("aboutText") as string;
-        const vision = formData.get("vision") as string;
-        const mission = formData.get("mission") as string;
-        const brands = formData.get("brands") as string;
-        const careerLink = formData.get("careerLink") as string;
-        const blogLink = formData.get("blogLink") as string;
+        const data: any = {};
 
-        // Email settings
-        const emailLogo = formData.get("emailLogo") as string;
-        const emailFooter = formData.get("emailFooter") as string;
-        const emailSignature = formData.get("emailSignature") as string;
+        // Helper to safely get and set string fields
+        const setString = (key: string) => {
+            const val = formData.get(key);
+            if (val !== null) data[key] = val as string;
+        };
 
-        // Process brands string to JSON array
-        let processedBrands = "[]";
-        if (brands) {
-            const brandArray = brands.split(',').map(b => b.trim().toUpperCase()).filter(b => b !== "");
-            processedBrands = JSON.stringify(brandArray);
+        // Helper to safely get and set boolean fields (switches)
+        const setBool = (key: string) => {
+            const val = formData.get(key);
+            if (val !== null) data[key] = val === "on";
+        };
+
+        // Basic Info
+        setString("siteName");
+        setString("currency");
+        if (formData.has("taxRate")) data.taxRate = parseFloat(formData.get("taxRate") as string) || 20;
+        setBool("maintenanceMode");
+        setString("phone");
+        setString("address");
+        setString("email");
+
+        // Footer & Socials
+        setString("facebook");
+        setString("instagram");
+        setString("twitter");
+        setString("youtube");
+        setString("linkedin");
+        setString("googleMaps");
+        setString("description");
+
+        // About Section
+        setString("aboutText");
+        setString("vision");
+        setString("mission");
+        setString("careerLink");
+        setString("blogLink");
+
+        // Brands
+        if (formData.has("brands")) {
+            const brandsStr = formData.get("brands") as string;
+            let processedBrands = "[]";
+            if (brandsStr) {
+                const brandArray = brandsStr.split(',').map(b => b.trim().toUpperCase()).filter(b => b !== "");
+                processedBrands = JSON.stringify(brandArray);
+            }
+            data.brands = processedBrands;
         }
 
+        // Email settings
+        setString("emailLogo");
+        setString("emailFooter");
+        setString("emailSignature");
+
         // Telegram settings
-        const telegramNotificationsEnabled = formData.get("telegramNotificationsEnabled") === "on";
-        const notifyOnSale = formData.get("notifyOnSale") === "on";
-        const notifyOnRepair = formData.get("notifyOnRepair") === "on";
-        const notifyOnDebt = formData.get("notifyOnDebt") === "on";
-        const notifyOnSystemLog = formData.get("notifyOnSystemLog") === "on";
-        const notifyOnAuth = formData.get("notifyOnAuth") === "on";
+        setBool("telegramNotificationsEnabled");
+        setBool("notifyOnSale");
+        setBool("notifyOnRepair");
+        setBool("notifyOnDebt");
+        setBool("notifyOnSystemLog");
+        setBool("notifyOnAuth");
 
         // SMS settings
-        const smsGatewayUrl = formData.get("smsGatewayUrl") as string;
-        const smsGatewayApiKey = formData.get("smsGatewayApiKey") as string;
-        const smsGatewayMethod = formData.get("smsGatewayMethod") as string || "POST";
-        const notifyOnRepairSMS = formData.get("notifyOnRepairSMS") === "on";
+        setString("smsGatewayUrl");
+        setString("smsGatewayApiKey");
+        setString("smsGatewayMethod");
+        setBool("notifyOnRepairSMS");
 
-        const data: any = {
-            siteName,
-            currency,
-            taxRate,
-            maintenanceMode,
-            phone,
-            address,
-            email,
-            facebook,
-            instagram,
-            twitter,
-            youtube,
-            linkedin,
-            googleMaps,
-            description,
-            aboutText,
-            vision,
-            mission,
-            brands: processedBrands,
-            careerLink,
-            blogLink,
-            emailLogo,
-            emailFooter,
-            emailSignature,
-            telegramNotificationsEnabled,
-            notifyOnSale,
-            notifyOnRepair,
-            notifyOnDebt,
-            notifyOnSystemLog,
-            notifyOnAuth,
-            smsGatewayUrl,
-            smsGatewayApiKey,
-            smsGatewayMethod,
-            notifyOnRepairSMS,
-            notifyOnRepairWhatsapp: formData.get("notifyOnRepairWhatsapp") === "on",
-            notifyOnDebtWhatsapp: formData.get("notifyOnDebtWhatsapp") === "on"
-        };
+        // WhatsApp settings
+        setBool("notifyOnRepairWhatsapp");
+        setBool("notifyOnDebtWhatsapp");
 
         if (existing) {
             await (prisma.settings as any).update({
@@ -162,7 +146,7 @@ export async function updateSettings(formData: FormData) {
         console.log("Settings updated successfully:", data.siteName);
         revalidatePath("/");
         revalidatePath("/admin/settings");
-        return { success: true };
+        return { success: true, error: null };
     } catch (error: any) {
         console.error("Failed to update settings:", error);
         return { success: false, error: error.message };

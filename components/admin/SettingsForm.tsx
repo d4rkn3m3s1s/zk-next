@@ -216,7 +216,7 @@ export function SettingsFormReal({ settings, users }: { settings: any, users: an
                 </div>
 
                 <div className="lg:col-span-3 space-y-6">
-                    <TabsContent value="general" className="mt-0">
+                    <TabsContent value="general" forceMount className="mt-0 data-[state=inactive]:hidden">
                         <Card className="bg-slate-900/50 border-slate-800 backdrop-blur-md">
                             <CardHeader>
                                 <CardTitle className="text-white flex items-center gap-2">
@@ -240,7 +240,7 @@ export function SettingsFormReal({ settings, users }: { settings: any, users: an
                         </Card>
                     </TabsContent>
 
-                    <TabsContent value="finance" className="mt-0">
+                    <TabsContent value="finance" forceMount className="mt-0 data-[state=inactive]:hidden">
                         <Card className="bg-slate-900/50 border-slate-800 backdrop-blur-md">
                             <CardHeader>
                                 <CardTitle className="text-white flex items-center gap-2">
@@ -266,7 +266,7 @@ export function SettingsFormReal({ settings, users }: { settings: any, users: an
                         </Card>
                     </TabsContent>
 
-                    <TabsContent value="contact" className="mt-0">
+                    <TabsContent value="contact" forceMount className="mt-0 data-[state=inactive]:hidden">
                         <Card className="bg-slate-900/50 border-slate-800 backdrop-blur-md">
                             <CardHeader>
                                 <CardTitle className="text-white flex items-center gap-2">
@@ -311,7 +311,7 @@ export function SettingsFormReal({ settings, users }: { settings: any, users: an
                         </Card>
                     </TabsContent>
 
-                    <TabsContent value="about" className="mt-0">
+                    <TabsContent value="about" forceMount className="mt-0 data-[state=inactive]:hidden">
                         <Card className="bg-slate-900/50 border-slate-800 backdrop-blur-md">
                             <CardHeader>
                                 <CardTitle className="text-white flex items-center gap-2">
@@ -348,7 +348,7 @@ export function SettingsFormReal({ settings, users }: { settings: any, users: an
                         </Card>
                     </TabsContent>
 
-                    <TabsContent value="brands" className="mt-0">
+                    <TabsContent value="brands" forceMount className="mt-0 data-[state=inactive]:hidden">
                         <Card className="bg-slate-900/50 border-slate-800 backdrop-blur-md">
                             <CardHeader>
                                 <CardTitle className="text-white flex items-center gap-2">
@@ -371,7 +371,7 @@ export function SettingsFormReal({ settings, users }: { settings: any, users: an
                         </Card>
                     </TabsContent>
 
-                    <TabsContent value="email" className="mt-0">
+                    <TabsContent value="email" forceMount className="mt-0 data-[state=inactive]:hidden">
                         <Card className="bg-slate-900/50 border-slate-800 backdrop-blur-md">
                             <CardHeader>
                                 <CardTitle className="text-white flex items-center gap-2">
@@ -396,7 +396,7 @@ export function SettingsFormReal({ settings, users }: { settings: any, users: an
                         </Card>
                     </TabsContent>
 
-                    <TabsContent value="users" className="mt-0">
+                    <TabsContent value="users" forceMount className="mt-0 data-[state=inactive]:hidden">
                         <Card className="bg-slate-900/50 border-slate-800 backdrop-blur-md">
                             <CardHeader className="flex flex-row items-center justify-between pb-2">
                                 <div>
@@ -469,7 +469,7 @@ export function SettingsFormReal({ settings, users }: { settings: any, users: an
                         </Card>
                     </TabsContent>
 
-                    <TabsContent value="telegram" className="mt-0">
+                    <TabsContent value="telegram" forceMount className="mt-0 data-[state=inactive]:hidden">
                         <Card className="bg-slate-900/50 border-slate-800 backdrop-blur-md">
                             <CardHeader>
                                 <CardTitle className="text-white flex items-center gap-2">
@@ -570,7 +570,7 @@ export function SettingsFormReal({ settings, users }: { settings: any, users: an
                         </Card>
                     </TabsContent>
 
-                    <TabsContent value="sms" className="mt-0">
+                    <TabsContent value="sms" forceMount className="mt-0 data-[state=inactive]:hidden">
                         <Card className="bg-slate-900/50 border-slate-800 backdrop-blur-md">
                             <CardHeader>
                                 <CardTitle className="text-white flex items-center gap-2">
@@ -619,7 +619,7 @@ export function SettingsFormReal({ settings, users }: { settings: any, users: an
                         </Card>
                     </TabsContent>
 
-                    <TabsContent value="whatsapp" className="mt-0">
+                    <TabsContent value="whatsapp" forceMount className="mt-0 data-[state=inactive]:hidden">
                         <Card className="bg-slate-900/50 border-slate-800 backdrop-blur-md">
                             <CardHeader>
                                 <CardTitle className="text-white flex items-center gap-2">
@@ -741,7 +741,7 @@ export function SettingsFormReal({ settings, users }: { settings: any, users: an
                         </Card>
                     </TabsContent>
 
-                    <TabsContent value="system" className="mt-0">
+                    <TabsContent value="system" forceMount className="mt-0 data-[state=inactive]:hidden">
                         <Card className="bg-slate-900/50 border-slate-800 backdrop-blur-md">
                             <CardHeader>
                                 <CardTitle className="text-white flex items-center gap-2">
