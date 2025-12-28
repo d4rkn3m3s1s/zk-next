@@ -3,11 +3,12 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "concurrently \"next dev\" \"npm run api\"",
+    "dev": "concurrently \"next dev\" \"npm run api\" \"npm run whatsapp\"",
     "dev:next": "next dev",
-    "api": "if [ -d \"mobile-specs-server\" ]; then cd mobile-specs-server && npm start; else echo 'API server not found, skipping...'; fi",
+    "api": "if [ -d \"mobile-specs-server\" ]; then (cd mobile-specs-server && npm start); else echo 'API server not found, skipping...'; fi",
+    "whatsapp": "if [ -d \"baileys-service\" ]; then (cd baileys-service && npm run dev); else echo 'WhatsApp service not found, skipping...'; fi",
     "build": "prisma generate && prisma db push && next build",
-    "start": "concurrently \"next start\" \"npm run api\"",
+    "start": "concurrently \"next start\" \"npm run api\" \"npm run whatsapp\"",
     "lint": "eslint",
     "postinstall": "prisma generate"
   },

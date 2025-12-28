@@ -68,13 +68,13 @@ export function SettingsFormReal({ settings, users }: { settings: any, users: an
         }
     };
 
-    // Auto refresh status when scanning
+    // Auto refresh status when scanning or initializing
     useEffect(() => {
         let interval: any;
-        if (connectionStatus === 'scanning' || connectionStatus === 'kontrol ediliyor...') {
+        if (connectionStatus === 'scanning' || connectionStatus === 'kontrol ediliyor...' || connectionStatus === 'initializing') {
             interval = setInterval(() => {
                 checkBaileys();
-            }, 5000);
+            }, 3000); // Poll every 3 seconds for better responsiveness
         }
         return () => {
             if (interval) clearInterval(interval);
@@ -83,16 +83,18 @@ export function SettingsFormReal({ settings, users }: { settings: any, users: an
 
     const handleReconnect = async () => {
         setBaileysLoading(true);
+        setConnectionStatus("initializing");
         try {
             const res = await reconnectWhatsAppAction();
             if (res.success) {
-                alert("Bağlantı isteği gönderildi. Statusu kontrol edin.");
-                checkBaileys();
+                // Polling will take care of the rest
             } else {
+                setConnectionStatus("error");
                 alert("Hata: " + res.error);
             }
         } catch (e) {
             console.error(e);
+            setConnectionStatus("error");
             alert("Bağlantı başlatılırken hata oluştu.");
         } finally {
             setBaileysLoading(false);
@@ -665,8 +667,9 @@ export function SettingsFormReal({ settings, users }: { settings: any, users: an
                                                     connectionStatus === 'connected' ? '✅ BAĞLI' :
                                                         connectionStatus === 'disconnected' ? '❌ BAĞLI DEĞİL' :
                                                             connectionStatus === 'scanning' ? '📱 QR BEKLİYOR' :
-                                                                connectionStatus === 'error' ? '⚠️ BAĞLANTI HATASI' :
-                                                                    connectionStatus.toUpperCase()
+                                                                connectionStatus === 'initializing' ? '⏳ BAŞLATILIYOR...' :
+                                                                    connectionStatus === 'error' ? '⚠️ BAĞLANTI HATASI' :
+                                                                        connectionStatus.toUpperCase()
                                                 }
                                             </Label>
                                         </div>

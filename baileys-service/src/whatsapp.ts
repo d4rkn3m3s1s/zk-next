@@ -13,9 +13,30 @@ import fs from 'fs';
 export let sock: any = null;
 export let qrCode: string | null = null;
 export let connectionStatus: string = 'disconnected';
+let isConnecting = false;
 
 export async function connectToWhatsApp() {
+    if (isConnecting) {
+        console.log('Already attempting to connect, skipping...');
+        return;
+    }
+
     try {
+        isConnecting = true;
+
+        // Close existing socket if any
+        if (sock) {
+            console.log('Closing existing socket...');
+            try {
+                sock.ev.removeAllListeners('connection.update');
+                sock.ev.removeAllListeners('creds.update');
+                sock.end(undefined);
+            } catch (e) {
+                console.error('Error closing socket:', e);
+            }
+            sock = null;
+        }
+
         const { version, isLatest } = await fetchLatestBaileysVersion();
         console.log(`using WA v${version.join('.')}, isLatest: ${isLatest}`);
 
@@ -27,6 +48,8 @@ export async function connectToWhatsApp() {
         }
 
         const { state, saveCreds } = await useMultiFileAuthState(authPath);
+
+        connectionStatus = 'initializing';
 
         sock = makeWASocket({
             version,
@@ -52,29 +75,38 @@ export async function connectToWhatsApp() {
             }
 
             if (connection === 'close') {
-                const shouldReconnect = (lastDisconnect?.error as Boom)?.output?.statusCode !== DisconnectReason.loggedOut;
+                const statusCode = (lastDisconnect?.error as Boom)?.output?.statusCode;
+                const shouldReconnect = statusCode !== DisconnectReason.loggedOut;
+
                 console.log('Connection closed due to ', lastDisconnect?.error, ', reconnecting ', shouldReconnect);
+
                 qrCode = null;
                 connectionStatus = 'disconnected';
+                isConnecting = false;
 
                 if (shouldReconnect) {
-                    connectToWhatsApp();
+                    setTimeout(() => connectToWhatsApp(), 5000);
                 }
             } else if (connection === 'open') {
                 console.log('Opened connection');
                 qrCode = null;
                 connectionStatus = 'connected';
+                isConnecting = false;
             }
         });
 
         sock.ev.on('creds.update', saveCreds);
     } catch (error) {
         console.error('Failed to connect to WhatsApp:', error);
+        isConnecting = false;
+        connectionStatus = 'error';
     }
 }
 
 export async function sendMessage(phone: string, text: string) {
-    if (!sock) throw new Error('WhatsApp service not connected');
+    if (!sock || connectionStatus !== 'connected') {
+        throw new Error('WhatsApp service not connected');
+    }
 
     // Format phone number: remove +, spaces, ensure defaults
     let cleanPhone = phone.replace(/[^0-9]/g, '');
@@ -95,24 +127,30 @@ export async function sendMessage(phone: string, text: string) {
 }
 
 export async function logoutWhatsApp() {
-    if (!sock) throw new Error('WhatsApp service not connected');
-
     try {
-        await sock.logout();
-        sock = null;
         qrCode = null;
         connectionStatus = 'disconnected';
+
+        if (sock) {
+            try {
+                await sock.logout();
+            } catch (e) {
+                console.error('Error during socket logout:', e);
+            }
+            sock = null;
+        }
 
         // Delete auth folder to completely reset
         const authPath = process.env.AUTH_PATH || './baileys_auth_new';
         if (fs.existsSync(authPath)) {
+            console.log('Removing auth folder:', authPath);
             fs.rmSync(authPath, { recursive: true, force: true });
         }
 
         // Reconnect to get new QR
         setTimeout(() => {
             connectToWhatsApp();
-        }, 2000);
+        }, 3000);
 
         return { success: true, message: 'Logged out successfully' };
     } catch (error) {
