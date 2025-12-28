@@ -6,7 +6,7 @@
     "dev": "concurrently \"next dev\" \"npm run api\"",
     "dev:next": "next dev",
     "api": "if [ -d \"mobile-specs-server\" ]; then cd mobile-specs-server && npm start; else echo 'API server not found, skipping...'; fi",
-    "build": "next build",
+    "build": "prisma generate && prisma db push && next build",
     "start": "concurrently \"next start\" \"npm run api\"",
     "lint": "eslint",
     "postinstall": "prisma generate"
