@@ -666,6 +666,16 @@ export function SettingsFormReal({ settings, users }: { settings: any, users: an
                                         </div>
                                     )}
 
+                                    {(connectionStatus === 'disconnected' || connectionStatus === 'error') && (
+                                        <div className="p-4 rounded-lg bg-red-500/10 border border-red-500/20 mb-4">
+                                            <p className="text-red-400 text-sm font-medium mb-2">⚠️ WhatsApp servisi bağlı değil.</p>
+                                            <p className="text-slate-400 text-xs">
+                                                Railway Dashboard'a gidip <b>baileys-service</b>'i <b>Restart</b> edin.
+                                                Ardından "Kontrol Et" butonuna basarak QR kodunu görüntüleyin ve taratın.
+                                            </p>
+                                        </div>
+                                    )}
+
                                     <p className="text-xs text-slate-400 leading-relaxed">
                                         WhatsApp servisinin çalışabilmesi için <b>baileys-service</b> modülünün aktif olması ve QR kodunun okutulmuş olması gerekir.
                                     </p>

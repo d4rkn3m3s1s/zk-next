@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { sendMessage, qrCode, connectionStatus, logoutWhatsApp } from './whatsapp';
+import { sendMessage, qrCode, connectionStatus, logoutWhatsApp, connectToWhatsApp } from './whatsapp';
 import QRCode from 'qrcode';
 
 const router = Router();
@@ -64,6 +64,18 @@ router.post('/logout', checkApiKey, async (req, res) => {
     } catch (error: any) {
         console.error('Logout error:', error);
         res.status(500).json({ error: error.message || 'Failed to logout' });
+    }
+});
+
+// Reconnect Endpoint - triggers new QR generation
+router.post('/reconnect', checkApiKey, async (req, res) => {
+    try {
+        console.log('Reconnect requested...');
+        await connectToWhatsApp();
+        res.json({ success: true, message: 'Reconnection initiated, check /qr for new QR code' });
+    } catch (error: any) {
+        console.error('Reconnect error:', error);
+        res.status(500).json({ error: error.message || 'Failed to reconnect' });
     }
 });
 
