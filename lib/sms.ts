@@ -64,19 +64,31 @@ export async function sendSMS(phone: string, message: string) {
 }
 
 export function getStatusSMSTemplate(status: string, trackingCode: string, device: string) {
-    const statusMap: Record<string, string> = {
-        'received': 'Alındı',
-        'diagnosing': 'Arıza Tespiti Yapılıyor',
-        'waiting_parts': 'Parça Bekleniyor',
-        'in_progress': 'Tamir Ediliyor',
-        'completed': 'İşlem Tamamlandı',
-        'delivered': 'Teslim Edildi',
-        'cancelled': 'İptal Edildi'
+    const statusMessages: Record<string, string> = {
+        'received': `📱 Merhaba! ${device} cihazınızı aldık ve kayıt altına aldık. Takip kodunuz: ${trackingCode}. En kısa sürede sizinle iletişime geçeceğiz! 🔧`,
+        'diagnosing': `🔍 Merhaba! ${device} cihazınızın arıza tespiti yapılıyor. Takip: ${trackingCode}. Sonucu size bildireceğiz! 💪`,
+        'waiting_parts': `📦 Merhaba! ${device} cihazınız için gerekli parça siparişi verildi. Takip: ${trackingCode}. Parça gelince hemen başlıyoruz! ⏳`,
+        'in_progress': `🛠️ Harika haber! ${device} cihazınızın tamiri şu an yapılıyor. Takip: ${trackingCode}. Bitmesine az kaldı! 🎯`,
+        'completed': `🎉 Müjde! ${device} cihazınızın tamiri tamamlandı! Takip: ${trackingCode}. Bizi ziyaret ederek cihazınızı teslim alabilirsiniz. Teşekkürler! ✨`,
+        'delivered': `✅ ${device} cihazınız teslim edildi. Takip: ${trackingCode}. Bizi tercih ettiğiniz için teşekkür ederiz! Tekrar görüşmek üzere 👋`,
+        'cancelled': `❌ ${device} cihazınızın tamir kaydı iptal edildi. Takip: ${trackingCode}. Sorularınız için bize ulaşabilirsiniz.`
     }
-    const trStatus = statusMap[status] || status
-    return `Sayın Müşterimiz, ${trackingCode} takip kodlu ${device} cihazınızın durumu güncellendi: ${trStatus}. Detaylar için sitemizi ziyaret edebilirsiniz. ZK İletişim.`
+    return statusMessages[status] || `📱 ${device} cihazınızın durumu güncellendi. Takip: ${trackingCode}. ZK İletişim 💚`
 }
 
 export function getDebtReminderSMSTemplate(name: string, balance: number) {
-    return `Sayın ${name}, ZK İletişim'e olan ₺${balance.toLocaleString('tr-TR')} tutarındaki vadesi geçmiş borcunuzu hatırlatmak isteriz. En kısa sürede ödeme yapmanızı rica ederiz. İyi günler dileriz.`
+    return `👋 Merhaba ${name}! ZK İletişim'e olan ₺${balance.toLocaleString('tr-TR')} tutarındaki borcunuzu hatırlatmak istedik. Ödeme için bize ulaşabilirsiniz. İyi günler dileriz! 💚`
+}
+
+export function getWhatsAppStatusTemplate(status: string, trackingCode: string, device: string) {
+    const statusMessages: Record<string, string> = {
+        'received': `📱 *Merhaba!*\n\n${device} cihazınızı aldık ve kayıt altına aldık.\n\n🔖 *Takip Kodunuz:* ${trackingCode}\n\nEn kısa sürede sizinle iletişime geçeceğiz! 🔧\n\n_ZK İletişim_`,
+        'diagnosing': `🔍 *Merhaba!*\n\n${device} cihazınızın arıza tespiti yapılıyor.\n\n🔖 *Takip:* ${trackingCode}\n\nSonucu size bildireceğiz! 💪\n\n_ZK İletişim_`,
+        'waiting_parts': `📦 *Merhaba!*\n\n${device} cihazınız için gerekli parça siparişi verildi.\n\n🔖 *Takip:* ${trackingCode}\n\nParça gelince hemen başlıyoruz! ⏳\n\n_ZK İletişim_`,
+        'in_progress': `🛠️ *Harika haber!*\n\n${device} cihazınızın tamiri şu an yapılıyor.\n\n🔖 *Takip:* ${trackingCode}\n\nBitmesine az kaldı! 🎯\n\n_ZK İletişim_`,
+        'completed': `🎉 *Müjde!*\n\n${device} cihazınızın tamiri *tamamlandı!*\n\n🔖 *Takip:* ${trackingCode}\n\nBizi ziyaret ederek cihazınızı teslim alabilirsiniz.\n\nTeşekkürler! ✨\n\n_ZK İletişim_`,
+        'delivered': `✅ *Teslim Edildi*\n\n${device} cihazınız başarıyla teslim edildi.\n\n🔖 *Takip:* ${trackingCode}\n\nBizi tercih ettiğiniz için teşekkür ederiz!\nTekrar görüşmek üzere 👋\n\n_ZK İletişim_`,
+        'cancelled': `❌ *İptal Edildi*\n\n${device} cihazınızın tamir kaydı iptal edildi.\n\n🔖 *Takip:* ${trackingCode}\n\nSorularınız için bize ulaşabilirsiniz.\n\n_ZK İletişim_`
+    }
+    return statusMessages[status] || `📱 ${device} cihazınızın durumu güncellendi.\n\n🔖 *Takip:* ${trackingCode}\n\n_ZK İletişim_ 💚`
 }

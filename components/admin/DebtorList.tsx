@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Search, Phone, MapPin, Wallet, ArrowUpRight, AlertCircle, Shield, Plus, X, MessageSquare, Loader2 } from "lucide-react";
-import { Debtor, createDebtor, sendDebtReminderSMS } from "@/app/actions/debtors";
+import { Debtor, createDebtor, sendDebtReminderSMS, sendDebtReminderWhatsapp } from "@/app/actions/debtors";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
@@ -336,13 +336,33 @@ export function DebtorList({ initialDebtors }: DebtorListProps) {
                                         className="flex-1 bg-transparent border-white/10 hover:bg-white/5 hover:text-white text-slate-400"
                                         disabled={sendingSms === debtor.id}
                                         onClick={() => handleSendSMS(debtor.id)}
+                                        title="SMS Hatırlatma"
                                     >
                                         {sendingSms === debtor.id ? (
                                             <Loader2 className="size-4 animate-spin" />
                                         ) : (
                                             <MessageSquare className="size-4 mr-2" />
                                         )}
-                                        Hatırlat
+                                        SMS
+                                    </Button>
+                                    <Button
+                                        variant="outline"
+                                        size="sm"
+                                        className="flex-1 bg-transparent border-white/10 hover:bg-green-500/10 hover:text-green-400 text-slate-400"
+                                        onClick={async () => {
+                                            toast.promise(sendDebtReminderWhatsapp(debtor.id), {
+                                                loading: 'WhatsApp mesajı gönderiliyor...',
+                                                success: (res) => {
+                                                    if (res.success) return 'WhatsApp mesajı gönderildi';
+                                                    throw new Error(res.error);
+                                                },
+                                                error: (err) => err.message
+                                            });
+                                        }}
+                                        title="WhatsApp Hatırlatma"
+                                    >
+                                        <MessageSquare className="size-4 mr-2" />
+                                        WA
                                     </Button>
                                     <Button
                                         asChild

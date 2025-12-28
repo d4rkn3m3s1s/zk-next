@@ -1,5 +1,6 @@
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
+import { UpdateRepairStatusForm } from "@/components/admin/UpdateRepairStatusForm"
 import {
     ArrowLeft, Printer, Smartphone, Wrench, User, CheckCircle2,
     Calendar,
@@ -21,6 +22,7 @@ import { getRepair, updateRepair } from "@/app/actions/repair"
 import { getRepairEmailHistory } from "@/app/actions/email"
 import { EmailHistory } from "@/components/admin/EmailHistory"
 import { notFound } from "next/navigation"
+
 
 const statusConfig: Record<string, { label: string, color: "default" | "secondary" | "destructive" | "outline" | "success" | "warning" | "info" }> = {
     received: { label: "Cihaz Teslim Alındı", color: "secondary" },
@@ -80,44 +82,10 @@ export default async function RepairDetailPage({ params }: { params: Promise<{ i
                 <div className="lg:col-span-2 space-y-8">
                     <div className="bg-card p-6 rounded-xl border border-border shadow-sm space-y-6">
                         <h3 className="text-lg font-semibold">Durum ve Bilgi Güncelle</h3>
-                        <form action={async (formData) => {
-                            "use server"
-                            await updateRepair(parseInt(id), formData)
-                        }} className="space-y-4">
-
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                <div className="space-y-2">
-                                    <label className="text-sm font-medium">Teslim Alan</label>
-                                    <Input name="receivedBy" defaultValue={repair.receivedBy || ""} placeholder="Personel Adı" />
-                                </div>
-                                <div className="space-y-2">
-                                    <label className="text-sm font-medium">Tahmini Teslim</label>
-                                    <Input
-                                        name="estimatedDate"
-                                        type="datetime-local"
-                                        defaultValue={repair.estimatedDate ? new Date(repair.estimatedDate).toISOString().slice(0, 16) : ""}
-                                    />
-                                </div>
-                            </div>
-
-                            <div className="space-y-2">
-                                <label className="text-sm font-medium">Güncel Durum</label>
-                                <Select name="status" defaultValue={repair.status}>
-                                    <SelectTrigger className="w-full">
-                                        <SelectValue placeholder="Durum seçin" />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                        {Object.entries(statusConfig).map(([key, config]) => (
-                                            <SelectItem key={key} value={key}>
-                                                {config.label}
-                                            </SelectItem>
-                                        ))}
-                                    </SelectContent>
-                                </Select>
-                            </div>
-
-                            <Button type="submit" className="w-full">Bilgileri ve Durumu Güncelle</Button>
-                        </form>
+                        <UpdateRepairStatusForm
+                            repair={repair}
+                            statusConfig={statusConfig}
+                        />
                     </div>
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -282,6 +250,6 @@ export default async function RepairDetailPage({ params }: { params: Promise<{ i
                 estimatedCost={repair.estimated_cost ? Number(repair.estimated_cost) : undefined}
                 emails={emailHistory}
             />
-        </div>
+        </div >
     )
 }

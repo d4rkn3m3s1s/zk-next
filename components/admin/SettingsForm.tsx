@@ -1,7 +1,7 @@
 "use client";
 
-import { useState } from "react";
-import { updateSettings } from "@/app/actions/settings";
+import { useState, useEffect } from "react";
+import { getWhatsAppStatusAction, updateSettings, disconnectWhatsAppAction } from "@/app/actions/settings";
 import { createUser, deleteUser } from "@/app/actions/user";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -19,7 +19,8 @@ import {
     DialogFooter
 } from "@/components/ui/dialog";
 import { useRouter } from "next/navigation";
-import { Save, Settings, DollarSign, Phone, Smartphone, Activity, Database, RefreshCw, Zap, Users, Trash2, Plus, Shield, Info, Layout, Mail, Send } from "lucide-react";
+import { Save, Settings, DollarSign, Phone, Smartphone, Activity, Database, RefreshCw, Zap, Users, Trash2, Plus, Shield, Info, Layout, Mail, Send, MessageSquare, LogOut } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 export function SettingsForm({ settings }: { settings: any }) {
     return <SettingsFormReal settings={settings} users={[]} />;
@@ -36,8 +37,52 @@ export function SettingsFormReal({ settings, users }: { settings: any, users: an
     const [notifyLog, setNotifyLog] = useState(settings?.notifyOnSystemLog !== false);
     const [notifyAuth, setNotifyAuth] = useState(settings?.notifyOnAuth !== false);
     const [notifyRepairSMS, setNotifyRepairSMS] = useState(settings?.notifyOnRepairSMS || false);
+    const [notifyRepairWhatsapp, setNotifyRepairWhatsapp] = useState(settings?.notifyOnRepairWhatsapp || false);
+    const [notifyDebtWhatsapp, setNotifyDebtWhatsapp] = useState(settings?.notifyOnDebtWhatsapp || false);
     const [isUserDialogOpen, setIsUserDialogOpen] = useState(false);
     const [newUser, setNewUser] = useState({ username: "", email: "", password: "", role: "user" });
+    const [qrCode, setQrCode] = useState<string | null>(null);
+    const [connectionStatus, setConnectionStatus] = useState<string>("kontrol ediliyor...");
+    const [baileysLoading, setBaileysLoading] = useState(false);
+    const [activeTab, setActiveTab] = useState("general");
+
+    // Auto-check WhatsApp status when switching to whatsapp tab
+    useEffect(() => {
+        if (activeTab === "whatsapp") {
+            checkBaileys();
+        }
+    }, [activeTab]);
+
+    const checkBaileys = async () => {
+        setBaileysLoading(true);
+        try {
+            const res = await getWhatsAppStatusAction();
+            if (res.status) setConnectionStatus(res.status);
+            if (res.qrImage) setQrCode(res.qrImage);
+            else setQrCode(null);
+        } catch (e) {
+            console.error(e);
+            setConnectionStatus("error");
+        } finally {
+            setBaileysLoading(false);
+        }
+    };
+
+    const handleDisconnect = async () => {
+        if (!confirm("WhatsApp bağlantısını kesmek istediğinize emin misiniz?")) return;
+        setBaileysLoading(true);
+        try {
+            await disconnectWhatsAppAction();
+            setConnectionStatus("disconnected");
+            setQrCode(null);
+            alert("Bağlantı kesildi. Tekrar bağlanmak için durumu kontrol edin ve QR kodu okutun.");
+        } catch (e) {
+            console.error(e);
+            alert("Bağlantı kesilirken hata oluştu.");
+        } finally {
+            setBaileysLoading(false);
+        }
+    };
 
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
@@ -51,11 +96,17 @@ export function SettingsFormReal({ settings, users }: { settings: any, users: an
         formData.set("notifyOnSystemLog", notifyLog ? "on" : "off");
         formData.set("notifyOnAuth", notifyAuth ? "on" : "off");
         formData.set("notifyOnRepairSMS", notifyRepairSMS ? "on" : "off");
+        formData.set("notifyOnRepairWhatsapp", notifyRepairWhatsapp ? "on" : "off");
+        formData.set("notifyOnDebtWhatsapp", notifyDebtWhatsapp ? "on" : "off");
 
-        await updateSettings(formData);
-        router.refresh();
+        const res = await updateSettings(formData);
+        if (res.success) {
+            alert("Ayarlar başarıyla kaydedildi.");
+            router.refresh();
+        } else {
+            alert("Hata: " + res.error);
+        }
         setLoading(false);
-        alert("Ayarlar başarıyla kaydedildi.");
     };
 
     const handleCreateUser = async () => {
@@ -64,7 +115,7 @@ export function SettingsFormReal({ settings, users }: { settings: any, users: an
         if (res.success) {
             alert("Kullanıcı eklendi.");
             setIsUserDialogOpen(false);
-            window.location.reload(); // Refresh to show new user
+            window.location.reload();
         } else {
             alert("Hata: " + res.error);
         }
@@ -81,9 +132,8 @@ export function SettingsFormReal({ settings, users }: { settings: any, users: an
     };
 
     return (
-        <Tabs defaultValue="general" className="w-full">
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
             <form onSubmit={handleSubmit} className="grid grid-cols-1 lg:grid-cols-4 gap-8">
-                {/* Sidebar Navigation */}
                 <div className="lg:col-span-1">
                     <Card className="bg-black/40 border-slate-800 backdrop-blur-xl sticky top-8 overflow-hidden">
                         <div className="absolute inset-0 bg-gradient-to-b from-cyan-500/5 to-transparent pointer-events-none"></div>
@@ -116,6 +166,9 @@ export function SettingsFormReal({ settings, users }: { settings: any, users: an
                                 <TabsTrigger value="sms" className="w-full justify-start px-4 py-3 rounded-lg data-[state=active]:bg-orange-500/10 data-[state=active]:text-orange-400 data-[state=active]:border data-[state=active]:border-orange-500/20 transition-all">
                                     <Smartphone className="w-4 h-4 mr-3" /> SMS Gateway
                                 </TabsTrigger>
+                                <TabsTrigger value="whatsapp" className="w-full justify-start px-4 py-3 rounded-lg data-[state=active]:bg-green-500/10 data-[state=active]:text-green-400 data-[state=active]:border data-[state=active]:border-green-500/20 transition-all">
+                                    <MessageSquare className="w-4 h-4 mr-3" /> WhatsApp
+                                </TabsTrigger>
                                 <TabsTrigger value="system" className="w-full justify-start px-4 py-3 rounded-lg data-[state=active]:bg-red-500/10 data-[state=active]:text-red-400 data-[state=active]:border data-[state=active]:border-red-500/20 transition-all">
                                     <Activity className="w-4 h-4 mr-3" /> Sistem Durumu
                                 </TabsTrigger>
@@ -124,14 +177,13 @@ export function SettingsFormReal({ settings, users }: { settings: any, users: an
                             <div className="mt-8 pt-6 border-t border-white/5">
                                 <Button type="submit" disabled={loading} className="w-full bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white font-bold py-6 shadow-[0_0_20px_rgba(6,182,212,0.3)]">
                                     {loading ? <RefreshCw className="w-4 h-4 animate-spin mr-2" /> : <Save className="w-4 h-4 mr-2" />}
-                                    DEĞİŞİKLİKLERİ KAYDET
+                                    KAYDET
                                 </Button>
                             </div>
                         </CardContent>
                     </Card>
                 </div>
 
-                {/* Content Area */}
                 <div className="lg:col-span-3 space-y-6">
                     <TabsContent value="general" className="mt-0">
                         <Card className="bg-slate-900/50 border-slate-800 backdrop-blur-md">
@@ -214,7 +266,6 @@ export function SettingsFormReal({ settings, users }: { settings: any, users: an
                                     <Label className="text-slate-300">Google Maps Embed Linki</Label>
                                     <Input name="googleMaps" defaultValue={settings?.googleMaps} className="bg-black/50 border-slate-700 text-white focus:border-purple-500 h-12" placeholder="https://www.google.com/maps/embed?..." />
                                 </div>
-
                                 <div className="pt-4 border-t border-slate-800">
                                     <Label className="text-purple-400 font-bold mb-4 block">Sosyal Medya Bağlantıları</Label>
                                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -514,7 +565,6 @@ export function SettingsFormReal({ settings, users }: { settings: any, users: an
                                         </select>
                                     </div>
                                 </div>
-
                                 <div className="pt-6 border-t border-slate-800">
                                     <div className="p-4 rounded-xl bg-orange-500/5 border border-orange-500/10 flex items-center justify-between">
                                         <div>
@@ -524,7 +574,6 @@ export function SettingsFormReal({ settings, users }: { settings: any, users: an
                                         <Switch checked={notifyRepairSMS} onCheckedChange={setNotifyRepairSMS} className="data-[state=checked]:bg-orange-500" />
                                     </div>
                                 </div>
-
                                 <div className="p-4 rounded-xl bg-slate-800/30 border border-slate-700/50">
                                     <div className="flex items-center gap-2 mb-2">
                                         <Info className="w-4 h-4 text-orange-400" />
@@ -533,6 +582,92 @@ export function SettingsFormReal({ settings, users }: { settings: any, users: an
                                     <p className="text-xs text-slate-400 leading-relaxed">
                                         Android telefonunuzu bir SMS sunucusuna dönüştürmek için <b>TextBee</b>, <b>httpSMS</b> veya <b>SMSGate</b> gibi uygulamaları kullanabilirsiniz.
                                         Bu uygulamalar size bir API URL ve Key sağlar. Bu bilgileri yukarıya girerek sistemi aktif edebilirsiniz.
+                                    </p>
+                                </div>
+                            </CardContent>
+                        </Card>
+                    </TabsContent>
+
+                    <TabsContent value="whatsapp" className="mt-0">
+                        <Card className="bg-slate-900/50 border-slate-800 backdrop-blur-md">
+                            <CardHeader>
+                                <CardTitle className="text-white flex items-center gap-2">
+                                    <MessageSquare className="w-5 h-5 text-green-400" /> WhatsApp Entegrasyonu
+                                </CardTitle>
+                                <CardDescription className="text-slate-400">Baileys servisi üzerinden otomatik WhatsApp mesajları.</CardDescription>
+                            </CardHeader>
+                            <CardContent className="space-y-6">
+                                <div className="p-4 rounded-xl bg-green-500/5 border border-green-500/10 space-y-4">
+                                    <h3 className="text-green-400 font-bold">Otomatik Mesaj Ayarları</h3>
+
+                                    <div className="flex items-center justify-between p-3 rounded-lg bg-white/5 border border-white/5">
+                                        <div>
+                                            <Label className="text-white">Tamir Durum Güncellemeleri</Label>
+                                            <p className="text-xs text-slate-400">Tamir durumu değiştiğinde müşteriye WhatsApp mesajı gönder.</p>
+                                        </div>
+                                        <Switch checked={notifyRepairWhatsapp} onCheckedChange={setNotifyRepairWhatsapp} className="data-[state=checked]:bg-green-500" />
+                                    </div>
+
+                                    <div className="flex items-center justify-between p-3 rounded-lg bg-white/5 border border-white/5">
+                                        <div>
+                                            <Label className="text-white">Borç Hatırlatmaları</Label>
+                                            <p className="text-xs text-slate-400">Veresiye borçlularına otomatik hatırlatmalar için izni açar.</p>
+                                        </div>
+                                        <Switch checked={notifyDebtWhatsapp} onCheckedChange={setNotifyDebtWhatsapp} className="data-[state=checked]:bg-green-500" />
+                                    </div>
+                                </div>
+
+                                <div className="p-4 rounded-xl bg-slate-800/30 border border-slate-700/50">
+                                    <div className="flex items-center justify-between mb-4">
+                                        <div className="flex items-center gap-2">
+                                            <Activity className={cn("w-4 h-4", connectionStatus === 'connected' ? "text-green-500" : connectionStatus === 'disconnected' ? "text-red-500" : "text-yellow-500")} />
+                                            <Label className={cn("text-xs font-bold uppercase tracking-wider", connectionStatus === 'connected' ? "text-green-500" : connectionStatus === 'disconnected' ? "text-red-500" : "text-yellow-500")}>
+                                                Durum: {connectionStatus === 'connected' ? '✅ BAĞLI' : connectionStatus === 'disconnected' ? '❌ BAĞLI DEĞİL' : connectionStatus === 'scanning' ? '📱 QR BEKLİYOR' : connectionStatus}
+                                            </Label>
+                                        </div>
+                                        <div className="flex gap-2">
+                                            <Button
+                                                type="button"
+                                                variant="outline"
+                                                size="sm"
+                                                onClick={checkBaileys}
+                                                disabled={baileysLoading}
+                                                className="border-green-500/30 text-green-400 hover:bg-green-500/10"
+                                            >
+                                                {baileysLoading ? <RefreshCw className="w-3 h-3 animate-spin mr-2" /> : <RefreshCw className="w-3 h-3 mr-2" />}
+                                                Kontrol Et
+                                            </Button>
+                                            {connectionStatus === 'connected' && (
+                                                <Button
+                                                    type="button"
+                                                    variant="outline"
+                                                    size="sm"
+                                                    onClick={handleDisconnect}
+                                                    disabled={baileysLoading}
+                                                    className="border-red-500/30 text-red-400 hover:bg-red-500/10"
+                                                >
+                                                    <LogOut className="w-3 h-3 mr-2" />
+                                                    Bağlantıyı Kes
+                                                </Button>
+                                            )}
+                                        </div>
+                                    </div>
+
+                                    {connectionStatus === 'scanning' && qrCode && (
+                                        <div className="flex flex-col items-center justify-center p-6 bg-white rounded-xl mb-4">
+                                            <img src={qrCode} alt="WhatsApp QR Code" className="w-64 h-64 object-contain" />
+                                            <p className="text-black font-bold mt-4 text-center">WhatsApp &gt; Ayarlar &gt; Bağlı Cihazlar &gt; Cihaz Bağla</p>
+                                        </div>
+                                    )}
+
+                                    {connectionStatus === 'connected' && (
+                                        <div className="p-4 rounded-lg bg-green-500/10 border border-green-500/20 mb-4">
+                                            <p className="text-green-400 text-sm font-medium">🎉 WhatsApp bağlantısı aktif! Mesajlar otomatik olarak gönderilecek.</p>
+                                        </div>
+                                    )}
+
+                                    <p className="text-xs text-slate-400 leading-relaxed">
+                                        WhatsApp servisinin çalışabilmesi için <b>baileys-service</b> modülünün aktif olması ve QR kodunun okutulmuş olması gerekir.
                                     </p>
                                 </div>
                             </CardContent>

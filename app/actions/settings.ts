@@ -2,6 +2,8 @@
 
 import { prisma } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
+import { getWhatsAppStatus, getWhatsAppQR } from "@/lib/whatsapp";
+// ... existing imports ...
 
 export async function getSettings() {
     try {
@@ -141,7 +143,9 @@ export async function updateSettings(formData: FormData) {
             smsGatewayUrl,
             smsGatewayApiKey,
             smsGatewayMethod,
-            notifyOnRepairSMS
+            notifyOnRepairSMS,
+            notifyOnRepairWhatsapp: formData.get("notifyOnRepairWhatsapp") === "on",
+            notifyOnDebtWhatsapp: formData.get("notifyOnDebtWhatsapp") === "on"
         };
 
         if (existing) {
@@ -159,8 +163,42 @@ export async function updateSettings(formData: FormData) {
         revalidatePath("/");
         revalidatePath("/admin/settings");
         return { success: true };
-    } catch (error) {
+    } catch (error: any) {
         console.error("Failed to update settings:", error);
-        return { success: false, error: "Ayarlar güncellenemedi." };
+        return { success: false, error: error.message };
+    }
+}
+
+export async function getWhatsAppStatusAction() {
+    try {
+        const statusData = await getWhatsAppStatus();
+        let qrImage = null;
+
+        // If scanning, try to get QR
+        if (statusData?.status === 'scanning' || statusData?.hasQr) {
+            const qrData = await getWhatsAppQR();
+            if (qrData?.qrImage) {
+                qrImage = qrData.qrImage;
+            }
+        }
+
+        return {
+            status: statusData?.status || 'disconnected',
+            qrImage
+        };
+    } catch (error) {
+        console.error("Failed to get WhatsApp status:", error);
+        return { status: 'error', qrImage: null };
+    }
+}
+
+export async function disconnectWhatsAppAction() {
+    try {
+        const { disconnectWhatsApp } = await import("@/lib/whatsapp");
+        const result = await disconnectWhatsApp();
+        return { success: true, ...result };
+    } catch (error) {
+        console.error("Failed to disconnect WhatsApp:", error);
+        return { success: false, error: "Bağlantı kesilemedi" };
     }
 }

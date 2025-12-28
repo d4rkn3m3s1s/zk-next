@@ -44,3 +44,9 @@ next-env.d.ts
 
 # Local Netlify folder
 .netlify
+
+# Baileys Service
+baileys-service/node_modules
+baileys-service/baileys_auth_info
+baileys-service/.env
+baileys-service/dist

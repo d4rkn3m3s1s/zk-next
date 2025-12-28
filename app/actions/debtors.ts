@@ -4,6 +4,7 @@ import { prisma } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
 import { createLog } from "@/lib/logger";
 import { sendSMS, getDebtReminderSMSTemplate } from "@/lib/sms";
+import { sendWhatsAppMessage } from "@/lib/whatsapp";
 
 export interface Debtor {
     id: number;
@@ -199,6 +200,40 @@ export async function sendDebtReminderSMS(id: number) {
         }
     } catch (error: any) {
         console.error("Debt reminder SMS failed:", error);
+        return { success: false, error: error.message };
+    }
+}
+
+export async function sendDebtReminderWhatsapp(id: number) {
+    try {
+        const debtor = await prisma.debtor.findUnique({ where: { id } });
+        if (!debtor) throw new Error("Debtor not found");
+        if (!debtor.phone) throw new Error("Müşterinin telefon numarası kayıtlı değil");
+
+        const settings = await prisma.settings.findFirst();
+        if (!settings?.notifyOnDebtWhatsapp) {
+            // Maybe we should allow sending even if global setting is off if triggered manually?
+            // But following the pattern, let's just proceed or check?
+            // For manual trigger, we usually ignore the "notifyOn..." auto-trigger setting, 
+            // but since this is a specific action to send reminder, we assume the user WANTS to send it.
+            // However, checking the setting is safer to prevent abuse if disabled.
+            // Actually, if I click "Send WhatsApp Reminder", I expect it to send regardless of "Automatic" settings. 
+            // But the user said "notifyOnDebtWhatsapp" in schema.
+            // Let's assume the button invokes this.
+        }
+
+        const message = `Sayın *${debtor.name}*,\n\nCari hesabınızda *${Number(debtor.balance).toLocaleString('tr-TR')} TL* bakiye bulunmaktadır. Ödemenizi en kısa sürede yapmanızı rica ederiz.\n\nİyi günler dileriz.\n*${settings?.siteName || 'Zk İletişim'}*`;
+
+        const result = await sendWhatsAppMessage(debtor.phone, message);
+
+        if (result.success) {
+            await createLog('WA_SENT', 'Debtor', `Borç hatırlatma WhatsApp mesajı gönderildi: ${debtor.name}`, 'Admin', 'INFO', id.toString());
+            return { success: true };
+        } else {
+            return { success: false, error: result.error || "WhatsApp mesajı gönderilirken hata oluştu" };
+        }
+    } catch (error: any) {
+        console.error("Debt reminder WhatsApp failed:", error);
         return { success: false, error: error.message };
     }
 }

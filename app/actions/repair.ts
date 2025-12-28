@@ -7,6 +7,7 @@ import { sendRepairStatusEmail } from "@/lib/email"
 import { sendTelegramMessage } from "@/lib/telegram"
 import { createLog } from "@/lib/logger"
 import { sendSMS, getStatusSMSTemplate } from "@/lib/sms"
+import { sendWhatsAppMessage } from "@/lib/whatsapp"
 
 export async function getPublicRepairStatus(trackingCode: string) {
     if (!trackingCode) return null
@@ -130,6 +131,18 @@ export async function updateRepairStatus(id: number, status: string) {
         } catch (e) {
             console.error("SMS notification failed:", e)
         }
+    }
+
+    // 4. WhatsApp Notification (Baileys)
+    try {
+        const settings = await prisma.settings.findFirst() as any
+        if (settings?.notifyOnRepairWhatsapp && currentRepair.phone) {
+            const { getWhatsAppStatusTemplate } = await import("@/lib/sms")
+            const waMessage = getWhatsAppStatusTemplate(status, currentRepair.tracking_code, currentRepair.device_model)
+            await sendWhatsAppMessage(currentRepair.phone, waMessage)
+        }
+    } catch (e) {
+        console.error("WhatsApp notification failed:", e)
     }
 
     // 4. System Log
