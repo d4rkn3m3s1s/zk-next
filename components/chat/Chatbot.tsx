@@ -57,12 +57,13 @@ export function Chatbot() {
         return () => window.removeEventListener('open-chatbot', handleOpen);
     }, []);
 
-    const handleSendMessage = () => {
-        if (!inputValue.trim()) return
+    const handleSendMessage = (overrideText?: string) => {
+        const textToSend = overrideText || inputValue;
+        if (!textToSend.trim()) return
 
         const newMessage: Message = {
             id: Date.now().toString(),
-            text: inputValue,
+            text: textToSend,
             sender: "user",
             timestamp: new Date().toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' }),
             type: "text"
@@ -72,7 +73,7 @@ export function Chatbot() {
         setInputValue("")
 
         // Check if message looks like a tracking code (e.g. ZK-1234) or user asks for status
-        const trackingMatch = inputValue.match(/ZK-\d{4}/i)
+        const trackingMatch = textToSend.match(/ZK-\d{4}/i)
 
         if (trackingMatch) {
             // Call server action
@@ -152,20 +153,16 @@ export function Chatbot() {
             // Call Real AI
             setMessages(prev => [...prev, {
                 id: (Date.now() + 1).toString(),
-                text: "Analiz ediliyor...", // Temporary loading state if desired, or just wait. 
-                // Better UX: Add a typing indicator, but for now let's just wait and append.
+                text: "Analiz ediliyor...",
                 sender: "bot",
                 timestamp: new Date().toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' }),
                 type: "text"
             }])
 
-            // Remove the "Analiz ediliyor..." temporary message before adding real one? 
-            // Simplified approach: Just wait for response and append.
             import("@/app/actions/chat").then(async (mod) => {
                 try {
-                    const aiResponse = await mod.chatWithAI(inputValue)
+                    const aiResponse = await mod.chatWithAI(textToSend)
 
-                    // Filter out the "Analiz ediliyor..." message (optional, or just append)
                     setMessages(prev => {
                         const filtered = prev.filter(m => m.text !== "Analiz ediliyor...")
                         return [...filtered, {
@@ -340,13 +337,28 @@ export function Chatbot() {
                         {/* Quick Actions (only show if last message is from bot) */}
                         {messages[messages.length - 1]?.sender === "bot" && (
                             <div className="pl-11 flex flex-wrap gap-2">
-                                <Button variant="outline" size="sm" className="rounded-xl text-xs h-8 bg-background hover:bg-primary hover:text-primary-foreground border-border">
+                                <Button
+                                    variant="outline"
+                                    size="sm"
+                                    onClick={() => handleSendMessage("Tamir durumumu sorgulamak istiyorum.")}
+                                    className="rounded-xl text-xs h-8 bg-background hover:bg-primary hover:text-primary-foreground border-border"
+                                >
                                     <Wrench className="mr-1 h-3 w-3" /> Tamir Sorgula
                                 </Button>
-                                <Button variant="outline" size="sm" className="rounded-xl text-xs h-8 bg-background hover:bg-primary hover:text-primary-foreground border-border">
+                                <Button
+                                    variant="outline"
+                                    size="sm"
+                                    onClick={() => handleSendMessage("Randevu almak istiyorum.")}
+                                    className="rounded-xl text-xs h-8 bg-background hover:bg-primary hover:text-primary-foreground border-border"
+                                >
                                     <Calendar className="mr-1 h-3 w-3" /> Randevu Al
                                 </Button>
-                                <Button variant="outline" size="sm" className="rounded-xl text-xs h-8 bg-background hover:bg-primary hover:text-primary-foreground border-border">
+                                <Button
+                                    variant="outline"
+                                    size="sm"
+                                    onClick={() => handleSendMessage("Fiyat listesini görmek istiyorum.")}
+                                    className="rounded-xl text-xs h-8 bg-background hover:bg-primary hover:text-primary-foreground border-border"
+                                >
                                     <DollarSign className="mr-1 h-3 w-3" /> Fiyat Listesi
                                 </Button>
                             </div>
@@ -378,7 +390,7 @@ export function Chatbot() {
                                 <Mic className="h-5 w-5" />
                             </Button>
                             <Button
-                                onClick={handleSendMessage}
+                                onClick={() => handleSendMessage()}
                                 size="icon"
                                 className="h-10 w-10 bg-primary hover:bg-primary/90 text-primary-foreground rounded-lg shadow-sm transition-all shrink-0"
                             >

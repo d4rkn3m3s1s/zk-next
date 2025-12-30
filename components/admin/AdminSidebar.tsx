@@ -65,6 +65,11 @@ const sidebarItems = [
         icon: MessageSquare
     },
     {
+        title: "WhatsApp",
+        href: "/admin/whatsapp",
+        icon: MessageSquare
+    },
+    {
         title: "Ayarlar",
         href: "/admin/settings",
         icon: Settings

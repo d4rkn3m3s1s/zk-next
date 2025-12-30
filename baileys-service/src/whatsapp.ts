@@ -49,17 +49,16 @@ export async function connectToWhatsApp() {
 
         const { state, saveCreds } = await useMultiFileAuthState(authPath);
 
+        console.log(`WhatsApp connection request starting... (Auth: ${authPath})`);
         connectionStatus = 'initializing';
 
         sock = makeWASocket({
             version,
-            logger: pino({ level: 'silent' }) as any,
+            logger: pino({ level: 'info' }) as any, // Increased log level for debugging
             auth: state,
-            // Using Ubuntu/Chrome signature reduces 405 errors
             browser: Browsers.ubuntu('Chrome'),
-            // Fix for some connection issues
-            connectTimeoutMs: 60000,
-            defaultQueryTimeoutMs: 60000,
+            connectTimeoutMs: 120000, // Doubled timeout
+            defaultQueryTimeoutMs: 120000,
             keepAliveIntervalMs: 10000,
             emitOwnEvents: false,
             retryRequestDelayMs: 250
@@ -96,6 +95,50 @@ export async function connectToWhatsApp() {
         });
 
         sock.ev.on('creds.update', saveCreds);
+
+        // Listen for messages
+        sock.ev.on('messages.upsert', async (m: any) => {
+            if (m.type === 'notify') {
+                for (const msg of m.messages) {
+                    if (!msg.message) continue;
+
+                    const text = msg.message.conversation ||
+                        msg.message.extendedTextMessage?.text ||
+                        msg.message.imageMessage?.caption;
+
+                    if (!text) continue;
+
+                    console.log('NEW MESSAGE RECEIVED:', {
+                        from: msg.key.remoteJid,
+                        me: msg.key.fromMe,
+                        text: text
+                    });
+
+                    // Send to webhook
+                    try {
+                        const WEBHOOK_URL = process.env.WEBHOOK_URL || 'http://localhost:3000/api/whatsapp/webhook';
+                        const API_KEY = process.env.API_KEY || 'changeme';
+
+                        await fetch(WEBHOOK_URL, {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'x-api-key': API_KEY
+                            },
+                            body: JSON.stringify({
+                                remoteJid: msg.key.remoteJid,
+                                fromMe: msg.key.fromMe,
+                                text: text,
+                                senderName: msg.pushName || null,
+                                timestamp: msg.messageTimestamp
+                            })
+                        });
+                    } catch (e) {
+                        console.error('Failed to notify webhook:', e);
+                    }
+                }
+            }
+        });
     } catch (error) {
         console.error('Failed to connect to WhatsApp:', error);
         isConnecting = false;

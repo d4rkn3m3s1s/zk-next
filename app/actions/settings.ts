@@ -131,6 +131,10 @@ export async function updateSettings(formData: FormData) {
         // WhatsApp settings
         setBool("notifyOnRepairWhatsapp");
         setBool("notifyOnDebtWhatsapp");
+        setBool("telegramAdminOnly");
+
+        // Visual settings
+        setString("heroBackground");
 
         if (existing) {
             await (prisma.settings as any).update({

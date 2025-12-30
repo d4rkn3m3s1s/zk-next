@@ -35,6 +35,9 @@ export async function sendTelegramMessage(
         }
 
         let targets: string[] = []
+        const settings = await prisma.settings.findFirst()
+        const adminUsername = (settings as any)?.telegramAdminUsername || "d4rkn3m3s1s"
+        const isAdminOnly = (settings as any)?.telegramAdminOnly || false
 
         if (specificChatId) {
             targets = [specificChatId]
@@ -42,7 +45,19 @@ export async function sendTelegramMessage(
             const subscribers = await prisma.telegramSubscriber.findMany({
                 where: { isActive: true }
             })
-            targets = subscribers.map(s => s.chatId)
+
+            if (isAdminOnly) {
+                // Filter only subscribers that match the admin username
+                const adminSub = subscribers.find(s => s.username === adminUsername)
+                if (adminSub) {
+                    targets = [adminSub.chatId]
+                } else {
+                    console.log(`AdminOnly is ON, but admin (@${adminUsername}) is not an active subscriber.`)
+                    targets = []
+                }
+            } else {
+                targets = subscribers.map(s => s.chatId)
+            }
         }
 
         if (targets.length === 0) {

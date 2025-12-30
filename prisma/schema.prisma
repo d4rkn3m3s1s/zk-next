@@ -264,6 +264,7 @@ model Settings {
   notifyOnDebt                 Boolean @default(true)
   notifyOnSystemLog            Boolean @default(true)
   notifyOnAuth                 Boolean @default(true)
+  telegramAdminOnly            Boolean @default(false)
 
   // SMS Settings
   smsGatewayUrl                String? @db.Text
@@ -274,6 +275,9 @@ model Settings {
   // WhatsApp Settings (Baileys)
   notifyOnRepairWhatsapp       Boolean @default(false)
   notifyOnDebtWhatsapp         Boolean @default(false)
+
+  // Visual Settings
+  heroBackground                 String  @default("dither")
 
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
@@ -298,3 +302,12 @@ model InboundSms {
   updated_at  DateTime @updatedAt
 }
 
+model WhatsAppMessage {
+  id        Int      @id @default(autoincrement())
+  remoteJid String   // Phone number with @s.whatsapp.net
+  senderName String?  // Push name from WhatsApp
+  fromMe    Boolean  @default(false)
+  text      String   @db.Text
+  timestamp DateTime @default(now())
+  status    String   @default("received") // received, sent, delivered, read
+}

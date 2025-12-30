@@ -39,19 +39,20 @@ export function SettingsFormReal({ settings, users }: { settings: any, users: an
     const [notifyRepairSMS, setNotifyRepairSMS] = useState(settings?.notifyOnRepairSMS || false);
     const [notifyRepairWhatsapp, setNotifyRepairWhatsapp] = useState(settings?.notifyOnRepairWhatsapp || false);
     const [notifyDebtWhatsapp, setNotifyDebtWhatsapp] = useState(settings?.notifyOnDebtWhatsapp || false);
+    const [telegramAdminOnly, setTelegramAdminOnly] = useState(settings?.telegramAdminOnly || false);
     const [isUserDialogOpen, setIsUserDialogOpen] = useState(false);
     const [newUser, setNewUser] = useState({ username: "", email: "", password: "", role: "user" });
+    const [mounted, setMounted] = useState(false);
     const [qrCode, setQrCode] = useState<string | null>(null);
-    const [connectionStatus, setConnectionStatus] = useState<string>("kontrol ediliyor...");
+    const [connectionStatus, setConnectionStatus] = useState<string>("disconnected");
     const [baileysLoading, setBaileysLoading] = useState(false);
+    const [selectedBackground, setSelectedBackground] = useState(settings?.heroBackground || "dither");
     const [activeTab, setActiveTab] = useState("general");
 
-    // Auto-check WhatsApp status when switching to whatsapp tab
     useEffect(() => {
-        if (activeTab === "whatsapp") {
-            checkBaileys();
-        }
-    }, [activeTab]);
+        setMounted(true);
+        checkBaileys();
+    }, []);
 
     const checkBaileys = async () => {
         setBaileysLoading(true);
@@ -131,6 +132,8 @@ export function SettingsFormReal({ settings, users }: { settings: any, users: an
         formData.set("notifyOnRepairSMS", notifyRepairSMS ? "on" : "off");
         formData.set("notifyOnRepairWhatsapp", notifyRepairWhatsapp ? "on" : "off");
         formData.set("notifyOnDebtWhatsapp", notifyDebtWhatsapp ? "on" : "off");
+        formData.set("telegramAdminOnly", telegramAdminOnly ? "on" : "off");
+        formData.set("heroBackground", selectedBackground);
 
         const res = await updateSettings(formData);
         if (res.success) {
@@ -174,6 +177,9 @@ export function SettingsFormReal({ settings, users }: { settings: any, users: an
                             <TabsList className="flex flex-col h-auto bg-transparent gap-2 space-y-1">
                                 <TabsTrigger value="general" className="w-full justify-start px-4 py-3 rounded-lg data-[state=active]:bg-cyan-500/10 data-[state=active]:text-cyan-400 data-[state=active]:border data-[state=active]:border-cyan-500/20 transition-all">
                                     <Settings className="w-4 h-4 mr-3" /> Genel Ayarlar
+                                </TabsTrigger>
+                                <TabsTrigger value="appearance" className="w-full justify-start px-4 py-3 rounded-lg data-[state=active]:bg-pink-500/10 data-[state=active]:text-pink-400 data-[state=active]:border data-[state=active]:border-pink-500/20 transition-all">
+                                    <Layout className="w-4 h-4 mr-3" /> Görünüm & Efektler
                                 </TabsTrigger>
                                 <TabsTrigger value="finance" className="w-full justify-start px-4 py-3 rounded-lg data-[state=active]:bg-green-500/10 data-[state=active]:text-green-400 data-[state=active]:border data-[state=active]:border-green-500/20 transition-all">
                                     <DollarSign className="w-4 h-4 mr-3" /> Finans & Vergi
@@ -238,6 +244,47 @@ export function SettingsFormReal({ settings, users }: { settings: any, users: an
                                     </div>
                                     <Switch checked={maintenance} onCheckedChange={setMaintenance} className="data-[state=checked]:bg-yellow-500" />
                                 </div>
+                            </CardContent>
+                        </Card>
+                    </TabsContent>
+
+                    <TabsContent value="appearance" forceMount className="mt-0 data-[state=inactive]:hidden">
+                        <Card className="bg-slate-900/50 border-slate-800 backdrop-blur-md">
+                            <CardHeader>
+                                <CardTitle className="text-white flex items-center gap-2">
+                                    <Layout className="w-5 h-5 text-pink-400" /> Görünüm & Atmosfer
+                                </CardTitle>
+                                <CardDescription className="text-slate-400">Ana sayfa ve arka plan animasyonlarını seçin.</CardDescription>
+                            </CardHeader>
+                            <CardContent className="space-y-6">
+                                <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                                    {[
+                                        { id: "dither", name: "Orijinal Dither", desc: "Klasik retro geometrik formlar", color: "from-purple-500 to-blue-500" },
+                                        { id: "stars", name: "Gravity Stars", desc: "Etkileşimli yıldız simülasyonu", color: "from-blue-600 to-indigo-900" },
+                                        { id: "glass", name: "Glass Abstract", desc: "Modern cam ve ışık kırılması", color: "from-cyan-400 to-blue-600" }
+                                    ].map((bg) => (
+                                        <div
+                                            key={bg.id}
+                                            onClick={() => setSelectedBackground(bg.id)}
+                                            className={cn(
+                                                "relative cursor-pointer group rounded-xl border-2 transition-all overflow-hidden",
+                                                selectedBackground === bg.id ? "border-pink-500 shadow-[0_0_15px_rgba(236,72,153,0.4)]" : "border-slate-800 hover:border-slate-600"
+                                            )}
+                                        >
+                                            <div className={cn("h-24 w-full bg-gradient-to-br transition-transform group-hover:scale-110", bg.color)}></div>
+                                            <div className="p-3 bg-black/60 backdrop-blur-md absolute inset-x-0 bottom-0">
+                                                <p className="text-xs font-bold text-white">{bg.name}</p>
+                                                <p className="text-[10px] text-slate-400">{bg.desc}</p>
+                                            </div>
+                                            {selectedBackground === bg.id && (
+                                                <div className="absolute top-2 right-2 bg-pink-500 rounded-full p-1">
+                                                    <Zap className="w-3 h-3 text-white" />
+                                                </div>
+                                            )}
+                                        </div>
+                                    ))}
+                                </div>
+                                <Input type="hidden" name="heroBackground" value={selectedBackground} />
                             </CardContent>
                         </Card>
                     </TabsContent>
@@ -555,6 +602,19 @@ export function SettingsFormReal({ settings, users }: { settings: any, users: an
                                         </div>
                                         <Switch checked={notifyAuth} onCheckedChange={setNotifyAuth} />
                                     </div>
+
+                                    <div className="p-4 rounded-xl bg-purple-500/10 border border-purple-500/20 flex items-center justify-between col-span-1 md:col-span-2">
+                                        <div className="flex items-center gap-3">
+                                            <div className="w-8 h-8 rounded-lg bg-purple-500/20 flex items-center justify-center text-purple-400">
+                                                <Shield className="w-4 h-4" />
+                                            </div>
+                                            <div>
+                                                <Label className="text-white text-sm">Sadece Admin Bildirimleri</Label>
+                                                <p className="text-[10px] text-slate-500">Aktif edildiğinde bildirimler sadece super-admine (@{settings?.telegramAdminUsername || "d4rkn3m3s1s"}) gider.</p>
+                                            </div>
+                                        </div>
+                                        <Switch checked={telegramAdminOnly} onCheckedChange={setTelegramAdminOnly} className="data-[state=checked]:bg-purple-500" />
+                                    </div>
                                 </div>
 
                                 <div className="p-4 rounded-xl bg-slate-800/30 border border-slate-700/50">
@@ -659,17 +719,19 @@ export function SettingsFormReal({ settings, users }: { settings: any, users: an
                                                         "text-yellow-500"
                                             )} />
                                             <Label className={cn("text-xs font-bold uppercase tracking-wider",
-                                                connectionStatus === 'connected' ? "text-green-500" :
-                                                    (connectionStatus === 'disconnected' || connectionStatus === 'error') ? "text-red-500" :
-                                                        "text-yellow-500"
-                                            )}>
+                                                !mounted ? "text-slate-500" :
+                                                    connectionStatus === 'connected' ? "text-green-500" :
+                                                        (connectionStatus === 'disconnected' || connectionStatus === 'error') ? "text-red-500" :
+                                                            "text-yellow-500"
+                                            )} suppressHydrationWarning>
                                                 Durum: {
-                                                    connectionStatus === 'connected' ? '✅ BAĞLI' :
-                                                        connectionStatus === 'disconnected' ? '❌ BAĞLI DEĞİL' :
-                                                            connectionStatus === 'scanning' ? '📱 QR BEKLİYOR' :
-                                                                connectionStatus === 'initializing' ? '⏳ BAŞLATILIYOR...' :
-                                                                    connectionStatus === 'error' ? '⚠️ BAĞLANTI HATASI' :
-                                                                        connectionStatus.toUpperCase()
+                                                    !mounted ? 'YÜKLENİYOR...' :
+                                                        connectionStatus === 'connected' ? '✅ BAĞLI' :
+                                                            connectionStatus === 'disconnected' ? '❌ BAĞLI DEĞİL' :
+                                                                connectionStatus === 'scanning' ? '📱 QR BEKLİYOR' :
+                                                                    connectionStatus === 'initializing' ? '⏳ BAŞLATILIYOR...' :
+                                                                        connectionStatus === 'error' ? '⚠️ BAĞLANTI HATASI' :
+                                                                            connectionStatus.toUpperCase()
                                                 }
                                             </Label>
                                         </div>

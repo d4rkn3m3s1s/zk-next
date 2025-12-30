@@ -10,14 +10,17 @@ import { AiTriggerButton } from "@/components/home/AiTriggerButton";
 
 
 
+import { getSettings } from "@/app/actions/settings";
+
 export default async function Home() {
   const featuredProducts = await getProducts({ isFeatured: true, limit: 10 })
   const latestPosts = await getPosts({ status: 'published', limit: 3 })
+  const settings = await getSettings();
 
   return (
     <div className="flex flex-col min-h-screen">
       {/* Hero Section */}
-      <HeroScene />
+      <HeroScene type={settings?.heroBackground || "dither"} />
 
       {/* Infinite Marquee */}
       <div className="w-full bg-primary py-3 overflow-hidden transform -skew-y-2 border-y-4 border-slate-900 dark:border-white/10 relative z-20">

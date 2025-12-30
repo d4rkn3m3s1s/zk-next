@@ -21,6 +21,7 @@ import { Input } from "@/components/ui/input"
 import { getRepair, updateRepair } from "@/app/actions/repair"
 import { getRepairEmailHistory } from "@/app/actions/email"
 import { EmailHistory } from "@/components/admin/EmailHistory"
+import { WhatsAppChat } from "@/components/admin/WhatsAppChat"
 import { notFound } from "next/navigation"
 
 
@@ -203,7 +204,7 @@ export default async function RepairDetailPage({ params }: { params: Promise<{ i
 
             </div>
 
-            <div className="space-y-8">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
                 <div className="bg-card p-6 rounded-xl border border-border shadow-sm space-y-6">
                     <h3 className="text-lg font-semibold">Müşteri Bilgileri</h3>
 
@@ -239,6 +240,11 @@ export default async function RepairDetailPage({ params }: { params: Promise<{ i
                         </Button>
                     </div>
                 </div>
+
+                <WhatsAppChat
+                    phone={repair.phone}
+                    customerName={repair.customer_name}
+                />
             </div>
 
             {/* Email History Section */}

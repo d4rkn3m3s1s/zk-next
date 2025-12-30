@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button"
 import { ArrowLeft, Wallet, Calendar, Phone, MapPin, Plus, Minus } from "lucide-react"
 import Link from "next/link"
 import { DebtorActions } from "@/components/admin/DebtorActions"
+import { WhatsAppChat } from "@/components/admin/WhatsAppChat"
 
 // Server Component
 export default async function DebtorDetailPage({ params }: { params: Promise<{ id: string }> }) {
@@ -105,62 +106,71 @@ export default async function DebtorDetailPage({ params }: { params: Promise<{ i
                 </Card>
             </div>
 
-            {/* Transaction History */}
-            <Card className="bg-[#0a0a0a] border-white/10">
-                <CardHeader>
-                    <CardTitle className="text-lg text-slate-400 flex items-center gap-2">
-                        <Calendar className="size-4" />
-                        Hareket Geçmişi
-                    </CardTitle>
-                </CardHeader>
-                <CardContent>
-                    <div className="rounded-lg border border-white/5 overflow-hidden">
-                        <table className="w-full text-sm text-left">
-                            <thead className="text-xs text-slate-500 uppercase bg-white/5">
-                                <tr>
-                                    <th className="px-4 py-3">Tarih</th>
-                                    <th className="px-4 py-3">İşlem</th>
-                                    <th className="px-4 py-3">Açıklama</th>
-                                    <th className="px-4 py-3 text-right">Tutar</th>
-                                </tr>
-                            </thead>
-                            <tbody className="divide-y divide-white/5">
-                                {debtor.transactions.length === 0 ? (
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                {/* Transaction History */}
+                <Card className="bg-[#0a0a0a] border-white/10">
+                    <CardHeader>
+                        <CardTitle className="text-lg text-slate-400 flex items-center gap-2">
+                            <Calendar className="size-4" />
+                            Hareket Geçmişi
+                        </CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                        <div className="rounded-lg border border-white/5 overflow-hidden">
+                            <table className="w-full text-sm text-left">
+                                <thead className="text-xs text-slate-500 uppercase bg-white/5">
                                     <tr>
-                                        <td colSpan={4} className="px-4 py-8 text-center text-slate-500">
-                                            Henüz kayıtlı işlem yok.
-                                        </td>
+                                        <th className="px-4 py-3">Tarih</th>
+                                        <th className="px-4 py-3">İşlem</th>
+                                        <th className="px-4 py-3">Açıklama</th>
+                                        <th className="px-4 py-3 text-right">Tutar</th>
                                     </tr>
-                                ) : (
-                                    debtor.transactions.map((tx) => (
-                                        <tr key={tx.id} className="hover:bg-white/5 transition-colors">
-                                            <td className="px-4 py-3 font-mono text-slate-400">
-                                                {tx.createdAt.toLocaleDateString('tr-TR')} {tx.createdAt.toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' })}
-                                            </td>
-                                            <td className="px-4 py-3">
-                                                <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${tx.type === 'DEBT'
-                                                        ? 'bg-red-500/10 text-red-400'
-                                                        : 'bg-green-500/10 text-green-400'
-                                                    }`}>
-                                                    {tx.type === 'DEBT' ? 'Borç Eklendi' : 'Ödeme Alındı'}
-                                                </span>
-                                            </td>
-                                            <td className="px-4 py-3 text-slate-300">
-                                                {tx.description || "-"}
-                                            </td>
-                                            <td className={`px-4 py-3 text-right font-medium tabular-nums ${tx.type === 'DEBT' ? 'text-red-400' : 'text-green-400'
-                                                }`}>
-                                                {tx.type === 'DEBT' ? '+' : '-'}
-                                                ₺{Number(tx.amount).toLocaleString('tr-TR', { minimumFractionDigits: 2 })}
+                                </thead>
+                                <tbody className="divide-y divide-white/5">
+                                    {debtor.transactions.length === 0 ? (
+                                        <tr>
+                                            <td colSpan={4} className="px-4 py-8 text-center text-slate-500">
+                                                Henüz kayıtlı işlem yok.
                                             </td>
                                         </tr>
-                                    ))
-                                )}
-                            </tbody>
-                        </table>
-                    </div>
-                </CardContent>
-            </Card>
+                                    ) : (
+                                        debtor.transactions.map((tx) => (
+                                            <tr key={tx.id} className="hover:bg-white/5 transition-colors">
+                                                <td className="px-4 py-3 font-mono text-slate-400">
+                                                    {tx.createdAt.toLocaleDateString('tr-TR')} {tx.createdAt.toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' })}
+                                                </td>
+                                                <td className="px-4 py-3">
+                                                    <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${tx.type === 'DEBT'
+                                                        ? 'bg-red-500/10 text-red-400'
+                                                        : 'bg-green-500/10 text-green-400'
+                                                        }`}>
+                                                        {tx.type === 'DEBT' ? 'Borç Eklendi' : 'Ödeme Alındı'}
+                                                    </span>
+                                                </td>
+                                                <td className="px-4 py-3 text-slate-300">
+                                                    {tx.description || "-"}
+                                                </td>
+                                                <td className={`px-4 py-3 text-right font-medium tabular-nums ${tx.type === 'DEBT' ? 'text-red-400' : 'text-green-400'
+                                                    }`}>
+                                                    {tx.type === 'DEBT' ? '+' : '-'}
+                                                    ₺{Number(tx.amount).toLocaleString('tr-TR', { minimumFractionDigits: 2 })}
+                                                </td>
+                                            </tr>
+                                        ))
+                                    )}
+                                </tbody>
+                            </table>
+                        </div>
+                    </CardContent>
+                </Card>
+
+                {debtor.phone && (
+                    <WhatsAppChat
+                        phone={debtor.phone}
+                        customerName={debtor.name}
+                    />
+                )}
+            </div>
         </div>
     )
 }

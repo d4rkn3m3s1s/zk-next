@@ -60,6 +60,10 @@ export async function POST(request: Request) {
                     const mode = data === "bakim_ac"
                     await prisma.settings.updateMany({ data: { maintenanceMode: mode } } as any)
                     await sendMessage(chatId, mode ? "🛠️ Bakım modu aktif edildi." : "✅ Bakım modu kapatıldı.")
+                } else if (data === "admin_on" || data === "admin_off") {
+                    const mode = data === "admin_on"
+                    await prisma.settings.updateMany({ data: { telegramAdminOnly: mode } } as any)
+                    await sendMessage(chatId, mode ? "🛡️ Sadece Admin modu aktif. Diğer kullanıcılara bildirim gitmeyecek." : "🔓 Bütün abonelere bildirim gönderilecek.")
                 }
             }
 
@@ -115,6 +119,8 @@ export async function POST(request: Request) {
                     "/kullanicisil @kullanici - Kullanıcıyı tamamen sil\n" +
                     "/bakim ac - Bakım modunu aç\n" +
                     "/bakim kapat - Bakım modunu kapat\n" +
+                    "/adminon - Sadece admin bildirim alsın\n" +
+                    "/adminoff - Herkes bildirim alsın\n" +
                     "/duyuru [MESAJ] - Tüm abonelere duyuru\n" +
                     "/stokum [ID] [ADET] - Stok güncelle";
             }
@@ -149,6 +155,7 @@ export async function POST(request: Request) {
                     "/pasifet @kullanici - Kullanıcı bildirimini kapat\n" +
                     "/kullanicisil @kullanici - Kullanıcıyı tamamen sil\n" +
                     "/bakim ac/kapat - Bakım modu\n" +
+                    "/adminon /adminoff - Sadece admin/Herkes seçeneği\n" +
                     "/duyuru [MESAJ] - Toplu mesaj\n" +
                     "/stokum [ID] [ADET] - Hızlı stok";
             }
@@ -200,7 +207,7 @@ export async function POST(request: Request) {
         }
 
         // 3. ADMIN COMMANDS (Super Admin only)
-        const adminCommands = ["/sustur", "/susturmaac", "/aktifet", "/pasifet", "/stokum", "/ozet", "/sonhatalar", "/duyuru", "/bakim", "/kullanicilar", "/kullanicisil", "/panel", "/admin"]
+        const adminCommands = ["/sustur", "/susturmaac", "/aktifet", "/pasifet", "/stokum", "/ozet", "/sonhatalar", "/duyuru", "/bakim", "/kullanicilar", "/kullanicisil", "/panel", "/admin", "/adminon", "/adminoff"]
         const matchedAdminCmd = adminCommands.find(cmd => text.startsWith(cmd))
 
         if (matchedAdminCmd) {
@@ -246,6 +253,10 @@ export async function POST(request: Request) {
             } else if (text.startsWith("/bakim")) {
                 const mode = text.includes("ac"); await prisma.settings.updateMany({ data: { maintenanceMode: mode } } as any)
                 await sendMessage(chatId, mode ? "🛠️ Bakım modu aktif edildi." : "✅ Bakım modu kapatıldı.")
+            } else if (text === "/adminon" || text === "/adminoff") {
+                const mode = text === "/adminon"
+                await prisma.settings.updateMany({ data: { telegramAdminOnly: mode } } as any)
+                await sendMessage(chatId, mode ? "🛡️ Sadece Admin modu aktif. Diğer kullanıcılara bildirim gitmeyecek." : "🔓 Bütün abonelere bildirim gönderilecek.")
             } else if (text === "/kullanicilar") {
                 const subscribers = await prisma.telegramSubscriber.findMany()
                 let msg = "👥 <b>Abone Listesi:</b>\n\n"; if (subscribers.length === 0) msg += "Abone yok."
@@ -287,7 +298,8 @@ export async function POST(request: Request) {
                             inline_keyboard: [
                                 [{ text: "📊 Özet", callback_data: "ozet" }, { text: "🚨 Hatalar", callback_data: "hatalar" }],
                                 [{ text: "👥 Üyeler", callback_data: "users" }, { text: "🔕 Global Sustur", callback_data: "sustur" }],
-                                [{ text: "🛠️ Bakım Aç", callback_data: "bakim_ac" }, { text: "✅ Kapat", callback_data: "bakim_kapat" }]
+                                [{ text: "🛠️ Bakım Aç", callback_data: "bakim_ac" }, { text: "✅ Kapat", callback_data: "bakim_kapat" }],
+                                [{ text: "🛡️ Admin Only", callback_data: "admin_on" }, { text: "🔓 Herkes", callback_data: "admin_off" }]
                             ]
                         }
                     })
