@@ -12,7 +12,8 @@ import {
     Settings,
     LogOut,
     FileText,
-    DollarSign
+    DollarSign,
+    Smartphone
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
@@ -55,6 +56,11 @@ const sidebarItems = [
         icon: Users
     },
     {
+        title: "Veresiye Defteri",
+        href: "/admin/debtors",
+        icon: Users
+    },
+    {
         title: "Blog",
         href: "/admin/blog",
         icon: FileText
@@ -67,7 +73,7 @@ const sidebarItems = [
     {
         title: "WhatsApp",
         href: "/admin/whatsapp",
-        icon: MessageSquare
+        icon: Smartphone
     },
     {
         title: "Ayarlar",
