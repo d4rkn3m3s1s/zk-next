@@ -10,20 +10,32 @@ import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 
 interface Props {
+    jid?: string;
     phone: string;
     customerName?: string;
 }
 
-export function WhatsAppChat({ phone, customerName }: Props) {
+export function WhatsAppChat({ jid, phone, customerName }: Props) {
     const [messages, setMessages] = useState<any[]>([]);
     const [newMessage, setNewMessage] = useState("");
     const [loading, setLoading] = useState(false);
     const [sending, setSending] = useState(false);
     const scrollRef = useRef<HTMLDivElement>(null);
 
-    // Format phone to JID
-    const cleanPhone = phone.replace(/[^0-9]/g, "");
-    const remoteJid = `${cleanPhone.startsWith('90') ? cleanPhone : '90' + cleanPhone.replace(/^0/, '')}@s.whatsapp.net`;
+    // Prioritize passed JID, otherwise format phone to JID
+    let remoteJid = jid;
+    if (!remoteJid) {
+        let cleanPhone = phone.replace(/[^0-9]/g, "");
+
+        // TR format handling
+        if (cleanPhone.length === 10) {
+            cleanPhone = '90' + cleanPhone;
+        } else if (cleanPhone.length === 11 && cleanPhone.startsWith('0')) {
+            cleanPhone = '90' + cleanPhone.substring(1);
+        }
+
+        remoteJid = `${cleanPhone}@s.whatsapp.net`;
+    }
 
     const fetchMessages = async () => {
         setLoading(true);

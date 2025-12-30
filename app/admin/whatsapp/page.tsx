@@ -68,6 +68,7 @@ export default async function WhatsAppAdminPage({ searchParams }: { searchParams
                     {jid ? (
                         <div className="h-full">
                             <WhatsAppChat
+                                jid={jid}
                                 phone={jid.split('@')[0]}
                                 customerName={activeChat?.senderName}
                             />
