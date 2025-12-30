@@ -30,7 +30,7 @@ export default async function AdminRepairsPage({ searchParams }: { searchParams:
         <div className="space-y-8">
             <div className="flex items-center justify-between">
                 <div>
-                    <h2 className="text-3xl font-bold tracking-tight text-foreground">Tamir Takibi</h2>
+                    <h2 className="text-2xl md:text-3xl font-bold tracking-tight text-foreground">Tamir Takibi</h2>
                     <p className="text-muted-foreground">Cihaz tamir durumlarını buradan yönetebilirsiniz.</p>
                 </div>
                 <Link href="/admin/repairs/new">

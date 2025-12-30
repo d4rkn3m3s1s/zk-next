@@ -40,22 +40,6 @@ export async function sendWhatsAppReply(remoteJid: string, text: string) {
     const result = await sender(phone, text)
 
     if (result.success) {
-        // We'll trust the webhook to save the outgoing message, 
-        // but if it's slow or not triggered for fromMe by our own sender, we can save it here too.
-        // Actually, Baileys usually triggers messages.upsert for outgoing messages too if emitOwnEvents is true.
-        // But our config has emitOwnEvents: false.
-
-        // Let's manually save our reply
-        await prisma.whatsAppMessage.create({
-            data: {
-                remoteJid,
-                fromMe: true,
-                text,
-                timestamp: new Date(),
-                status: 'sent'
-            }
-        })
-
         revalidatePath("/admin/whatsapp")
     }
 

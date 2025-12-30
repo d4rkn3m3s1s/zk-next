@@ -119,6 +119,7 @@ export async function connectToWhatsApp() {
                         const WEBHOOK_URL = process.env.WEBHOOK_URL || 'http://localhost:3000/api/whatsapp/webhook';
                         const API_KEY = process.env.API_KEY || 'changeme';
 
+                        console.log(`Sending webhook to: ${WEBHOOK_URL}`);
                         await fetch(WEBHOOK_URL, {
                             method: 'POST',
                             headers: {
@@ -133,8 +134,9 @@ export async function connectToWhatsApp() {
                                 timestamp: msg.messageTimestamp
                             })
                         });
-                    } catch (e) {
-                        console.error('Failed to notify webhook:', e);
+                        console.log('Webhook sent successfully');
+                    } catch (e: any) {
+                        console.error('Failed to notify webhook:', e.message, e.cause);
                     }
                 }
             }

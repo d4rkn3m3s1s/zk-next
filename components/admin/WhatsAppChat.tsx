@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { getWhatsAppMessages, sendWhatsAppReply } from "@/app/actions/whatsapp-chat";
 import { cn } from "@/lib/utils";
+import { toast } from "sonner";
 
 interface Props {
     phone: string;
@@ -60,16 +61,20 @@ export function WhatsAppChat({ phone, customerName }: Props) {
                 // Immediate fetch
                 const updated = await getWhatsAppMessages(remoteJid);
                 setMessages(updated);
+                toast.success("Mesaj gönderildi");
+            } else {
+                toast.error("Hata: " + result.error);
             }
-        } catch (error) {
+        } catch (error: any) {
             console.error("Send error:", error);
+            toast.error("Mesaj gönderilemedi: " + error.message);
         } finally {
             setSending(false);
         }
     };
 
     return (
-        <div className="flex flex-col h-[600px] border border-border rounded-xl overflow-hidden bg-card shadow-2xl">
+        <div className="flex flex-col h-full border border-border rounded-xl overflow-hidden bg-card shadow-2xl">
             {/* Header */}
             <div className="p-4 bg-primary/5 flex items-center justify-between border-b border-border">
                 <div className="flex items-center gap-3">

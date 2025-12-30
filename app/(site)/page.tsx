@@ -64,10 +64,10 @@ export default async function Home() {
               <span className="text-xs font-bold font-mono text-purple-300 tracking-widest uppercase">SYSTEM.SERVICES_V2.0</span>
             </div>
 
-            <h2 className="text-5xl md:text-7xl font-black tracking-tight text-white drop-shadow-2xl">
+            <h2 className="text-4xl md:text-7xl font-black tracking-tight text-white drop-shadow-2xl">
               ÜST DÜZEY <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-500">ÇÖZÜMLER</span>
             </h2>
-            <p className="text-slate-400 text-xl max-w-2xl mx-auto font-light leading-relaxed">
+            <p className="text-slate-400 text-lg md:text-xl max-w-2xl mx-auto font-light leading-relaxed">
               Yapay zeka destekli analizler ve <span className="text-purple-400 font-bold">mikroskobik hassasiyette</span> onarımlar.
             </p>
           </div>

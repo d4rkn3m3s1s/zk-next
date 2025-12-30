@@ -104,7 +104,7 @@ export default function LegendaryDashboard() {
                             <div className="p-2 bg-cyan-500/10 rounded-lg border border-cyan-500/20">
                                 <Cpu className="w-6 h-6 text-cyan-400" />
                             </div>
-                            <h1 className="text-3xl font-black tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-white to-slate-400">
+                            <h1 className="text-2xl md:text-3xl font-black tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-white to-slate-400">
                                 KOMUTA MERKEZİ
                             </h1>
                         </div>
@@ -123,7 +123,7 @@ export default function LegendaryDashboard() {
                 </div>
 
                 {/* Main Stats Grid */}
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
                     {stats.map((stat, idx) => (
                         <SpotlightCard
                             key={idx}

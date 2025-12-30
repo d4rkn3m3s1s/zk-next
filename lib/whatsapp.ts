@@ -16,8 +16,6 @@ export async function sendWhatsAppMessage(phone: string, message: string): Promi
 
     // Check if enabled in settings
     const settings = await prisma.settings.findFirst();
-    // Assuming you might add a toggle for this later, for now we assume true or check a new field
-    // if (!settings?.enableWhatsapp) return { success: false, error: 'Disabled' };
 
     try {
         const response = await fetch(`${SERVICE_URL}/send`, {
@@ -34,7 +32,32 @@ export async function sendWhatsAppMessage(phone: string, message: string): Promi
             throw new Error(errorData.error || 'Failed to send message');
         }
 
-        return await response.json();
+        const result = await response.json();
+
+        if (result.success) {
+            // Log outgoing message to database so it appears in Chat UI
+            let cleanPhone = phone.replace(/[^0-9]/g, '');
+            if (cleanPhone.startsWith('90') && cleanPhone.length === 12) {
+                // already correct
+            } else if (cleanPhone.startsWith('0') && cleanPhone.length === 11) {
+                cleanPhone = '9' + cleanPhone;
+            } else if (cleanPhone.length === 10) {
+                cleanPhone = '90' + cleanPhone;
+            }
+            const remoteJid = `${cleanPhone}@s.whatsapp.net`;
+
+            await prisma.whatsAppMessage.create({
+                data: {
+                    remoteJid,
+                    fromMe: true,
+                    text: message,
+                    timestamp: new Date(),
+                    status: 'sent'
+                }
+            });
+        }
+
+        return result;
     } catch (error: any) {
         console.error('WhatsApp Service Error:', error.message);
         return { success: false, error: error.message };

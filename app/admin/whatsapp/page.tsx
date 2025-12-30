@@ -24,10 +24,10 @@ export default async function WhatsAppAdminPage({ searchParams }: { searchParams
                 </div>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-                {/* Chat List */}
-                <Card className="md:col-span-1 bg-[#0a0a0a] border-white/10 h-[700px] flex flex-col">
-                    <CardHeader className="border-b border-white/5">
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-6 h-[calc(100vh-140px)]">
+                {/* Chat List - Hidden on mobile if chat is active */}
+                <Card className={`md:col-span-1 bg-[#0a0a0a] border-white/10 h-full flex flex-col ${jid ? 'hidden md:flex' : 'flex'}`}>
+                    <CardHeader className="border-b border-white/5 p-4">
                         <div className="relative">
                             <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
                             <Input placeholder="Sohbetlerde ara..." className="pl-8 bg-white/5 border-white/10" />
@@ -63,17 +63,17 @@ export default async function WhatsAppAdminPage({ searchParams }: { searchParams
                     </div>
                 </Card>
 
-                {/* Chat Detail */}
-                <div className="md:col-span-3">
+                {/* Chat Detail - Hidden on mobile if no chat is active */}
+                <div className={`md:col-span-3 h-full ${!jid ? 'hidden md:block' : 'block'}`}>
                     {jid ? (
-                        <div className="h-[700px]">
+                        <div className="h-full">
                             <WhatsAppChat
                                 phone={jid.split('@')[0]}
                                 customerName={activeChat?.senderName}
                             />
                         </div>
                     ) : (
-                        <Card className="bg-[#0a0a0a] border-white/10 h-[700px] flex items-center justify-center">
+                        <Card className="bg-[#0a0a0a] border-white/10 h-full flex items-center justify-center">
                             <div className="text-center space-y-4">
                                 <div className="h-20 w-20 rounded-full bg-white/5 flex items-center justify-center text-slate-500 mx-auto">
                                     <MessageCircle className="size-10" />

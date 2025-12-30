@@ -174,41 +174,41 @@ export function SettingsFormReal({ settings, users }: { settings: any, users: an
                     <Card className="bg-black/40 border-slate-800 backdrop-blur-xl sticky top-8 overflow-hidden">
                         <div className="absolute inset-0 bg-gradient-to-b from-cyan-500/5 to-transparent pointer-events-none"></div>
                         <CardContent className="p-4">
-                            <TabsList className="flex flex-col h-auto bg-transparent gap-2 space-y-1">
-                                <TabsTrigger value="general" className="w-full justify-start px-4 py-3 rounded-lg data-[state=active]:bg-cyan-500/10 data-[state=active]:text-cyan-400 data-[state=active]:border data-[state=active]:border-cyan-500/20 transition-all">
+                            <TabsList className="flex flex-row md:flex-col h-auto bg-transparent gap-2 md:space-y-1 overflow-x-auto pb-2 md:pb-0 w-full md:w-auto snap-x scrollbar-hide">
+                                <TabsTrigger value="general" className="min-w-[150px] md:min-w-0 md:w-full justify-start px-4 py-3 rounded-lg data-[state=active]:bg-cyan-500/10 data-[state=active]:text-cyan-400 data-[state=active]:border data-[state=active]:border-cyan-500/20 transition-all snap-center whitespace-nowrap">
                                     <Settings className="w-4 h-4 mr-3" /> Genel Ayarlar
                                 </TabsTrigger>
-                                <TabsTrigger value="appearance" className="w-full justify-start px-4 py-3 rounded-lg data-[state=active]:bg-pink-500/10 data-[state=active]:text-pink-400 data-[state=active]:border data-[state=active]:border-pink-500/20 transition-all">
+                                <TabsTrigger value="appearance" className="min-w-[150px] md:min-w-0 md:w-full justify-start px-4 py-3 rounded-lg data-[state=active]:bg-pink-500/10 data-[state=active]:text-pink-400 data-[state=active]:border data-[state=active]:border-pink-500/20 transition-all snap-center whitespace-nowrap">
                                     <Layout className="w-4 h-4 mr-3" /> Görünüm & Efektler
                                 </TabsTrigger>
-                                <TabsTrigger value="finance" className="w-full justify-start px-4 py-3 rounded-lg data-[state=active]:bg-green-500/10 data-[state=active]:text-green-400 data-[state=active]:border data-[state=active]:border-green-500/20 transition-all">
+                                <TabsTrigger value="finance" className="min-w-[150px] md:min-w-0 md:w-full justify-start px-4 py-3 rounded-lg data-[state=active]:bg-green-500/10 data-[state=active]:text-green-400 data-[state=active]:border data-[state=active]:border-green-500/20 transition-all snap-center whitespace-nowrap">
                                     <DollarSign className="w-4 h-4 mr-3" /> Finans & Vergi
                                 </TabsTrigger>
-                                <TabsTrigger value="contact" className="w-full justify-start px-4 py-3 rounded-lg data-[state=active]:bg-purple-500/10 data-[state=active]:text-purple-400 data-[state=active]:border data-[state=active]:border-purple-500/20 transition-all">
+                                <TabsTrigger value="contact" className="min-w-[150px] md:min-w-0 md:w-full justify-start px-4 py-3 rounded-lg data-[state=active]:bg-purple-500/10 data-[state=active]:text-purple-400 data-[state=active]:border data-[state=active]:border-purple-500/20 transition-all snap-center whitespace-nowrap">
                                     <Phone className="w-4 h-4 mr-3" /> İletişim Bilgileri
                                 </TabsTrigger>
-                                <TabsTrigger value="about" className="w-full justify-start px-4 py-3 rounded-lg data-[state=active]:bg-blue-500/10 data-[state=active]:text-blue-400 data-[state=active]:border data-[state=active]:border-blue-500/20 transition-all">
+                                <TabsTrigger value="about" className="min-w-[150px] md:min-w-0 md:w-full justify-start px-4 py-3 rounded-lg data-[state=active]:bg-blue-500/10 data-[state=active]:text-blue-400 data-[state=active]:border data-[state=active]:border-blue-500/20 transition-all snap-center whitespace-nowrap">
                                     <Info className="w-4 h-4 mr-3" /> Hakkımızda & Vizyon
                                 </TabsTrigger>
-                                <TabsTrigger value="brands" className="w-full justify-start px-4 py-3 rounded-lg data-[state=active]:bg-indigo-500/10 data-[state=active]:text-indigo-400 data-[state=active]:border data-[state=active]:border-indigo-500/20 transition-all">
+                                <TabsTrigger value="brands" className="min-w-[150px] md:min-w-0 md:w-full justify-start px-4 py-3 rounded-lg data-[state=active]:bg-indigo-500/10 data-[state=active]:text-indigo-400 data-[state=active]:border data-[state=active]:border-indigo-500/20 transition-all snap-center whitespace-nowrap">
                                     <Layout className="w-4 h-4 mr-3" /> Çalışılan Markalar
                                 </TabsTrigger>
-                                <TabsTrigger value="email" className="w-full justify-start px-4 py-3 rounded-lg data-[state=active]:bg-pink-500/10 data-[state=active]:text-pink-400 data-[state=active]:border data-[state=active]:border-pink-500/20 transition-all">
+                                <TabsTrigger value="email" className="min-w-[150px] md:min-w-0 md:w-full justify-start px-4 py-3 rounded-lg data-[state=active]:bg-pink-500/10 data-[state=active]:text-pink-400 data-[state=active]:border data-[state=active]:border-pink-500/20 transition-all snap-center whitespace-nowrap">
                                     <Mail className="w-4 h-4 mr-3" /> Email Şablonu
                                 </TabsTrigger>
-                                <TabsTrigger value="users" className="w-full justify-start px-4 py-3 rounded-lg data-[state=active]:bg-orange-500/10 data-[state=active]:text-orange-400 data-[state=active]:border data-[state=active]:border-orange-500/20 transition-all">
+                                <TabsTrigger value="users" className="min-w-[150px] md:min-w-0 md:w-full justify-start px-4 py-3 rounded-lg data-[state=active]:bg-orange-500/10 data-[state=active]:text-orange-400 data-[state=active]:border data-[state=active]:border-orange-500/20 transition-all snap-center whitespace-nowrap">
                                     <Users className="w-4 h-4 mr-3" /> Ekip Yönetimi
                                 </TabsTrigger>
-                                <TabsTrigger value="telegram" className="w-full justify-start px-4 py-3 rounded-lg data-[state=active]:bg-sky-500/10 data-[state=active]:text-sky-400 data-[state=active]:border data-[state=active]:border-sky-500/20 transition-all">
+                                <TabsTrigger value="telegram" className="min-w-[150px] md:min-w-0 md:w-full justify-start px-4 py-3 rounded-lg data-[state=active]:bg-sky-500/10 data-[state=active]:text-sky-400 data-[state=active]:border data-[state=active]:border-sky-500/20 transition-all snap-center whitespace-nowrap">
                                     <Send className="w-4 h-4 mr-3" /> Telegram Bot
                                 </TabsTrigger>
-                                <TabsTrigger value="sms" className="w-full justify-start px-4 py-3 rounded-lg data-[state=active]:bg-orange-500/10 data-[state=active]:text-orange-400 data-[state=active]:border data-[state=active]:border-orange-500/20 transition-all">
+                                <TabsTrigger value="sms" className="min-w-[150px] md:min-w-0 md:w-full justify-start px-4 py-3 rounded-lg data-[state=active]:bg-orange-500/10 data-[state=active]:text-orange-400 data-[state=active]:border data-[state=active]:border-orange-500/20 transition-all snap-center whitespace-nowrap">
                                     <Smartphone className="w-4 h-4 mr-3" /> SMS Gateway
                                 </TabsTrigger>
-                                <TabsTrigger value="whatsapp" className="w-full justify-start px-4 py-3 rounded-lg data-[state=active]:bg-green-500/10 data-[state=active]:text-green-400 data-[state=active]:border data-[state=active]:border-green-500/20 transition-all">
+                                <TabsTrigger value="whatsapp" className="min-w-[150px] md:min-w-0 md:w-full justify-start px-4 py-3 rounded-lg data-[state=active]:bg-green-500/10 data-[state=active]:text-green-400 data-[state=active]:border data-[state=active]:border-green-500/20 transition-all snap-center whitespace-nowrap">
                                     <MessageSquare className="w-4 h-4 mr-3" /> WhatsApp
                                 </TabsTrigger>
-                                <TabsTrigger value="system" className="w-full justify-start px-4 py-3 rounded-lg data-[state=active]:bg-red-500/10 data-[state=active]:text-red-400 data-[state=active]:border data-[state=active]:border-red-500/20 transition-all">
+                                <TabsTrigger value="system" className="min-w-[150px] md:min-w-0 md:w-full justify-start px-4 py-3 rounded-lg data-[state=active]:bg-red-500/10 data-[state=active]:text-red-400 data-[state=active]:border data-[state=active]:border-red-500/20 transition-all snap-center whitespace-nowrap">
                                     <Activity className="w-4 h-4 mr-3" /> Sistem Durumu
                                 </TabsTrigger>
                             </TabsList>

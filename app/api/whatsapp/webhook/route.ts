@@ -14,6 +14,8 @@ export async function POST(req: NextRequest) {
         const body = await req.json();
         const { remoteJid, fromMe, text, timestamp, senderName } = body;
 
+        console.log("Webhook received:", { remoteJid, fromMe, text });
+
         if (!remoteJid || !text) {
             return NextResponse.json({ error: "Missing data" }, { status: 400 });
         }
