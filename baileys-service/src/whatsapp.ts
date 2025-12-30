@@ -41,7 +41,7 @@ export async function connectToWhatsApp() {
         console.log(`using WA v${version.join('.')}, isLatest: ${isLatest}`);
 
         // Auth folder path - MUST match the Docker volume path or local path
-        const authPath = process.env.AUTH_PATH || './baileys_auth_new';
+        const authPath = process.env.AUTH_PATH || './baileys_auth_info';
 
         if (!fs.existsSync(authPath)) {
             fs.mkdirSync(authPath, { recursive: true });
@@ -212,7 +212,7 @@ export async function logoutWhatsApp() {
         }
 
         // Delete auth folder to completely reset
-        const authPath = process.env.AUTH_PATH || './baileys_auth_new';
+        const authPath = process.env.AUTH_PATH || './baileys_auth_info';
         if (fs.existsSync(authPath)) {
             console.log('Removing auth folder:', authPath);
             fs.rmSync(authPath, { recursive: true, force: true });
