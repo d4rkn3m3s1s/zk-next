@@ -122,6 +122,14 @@ export async function connectToWhatsApp() {
                         const controller = new AbortController();
                         const timeoutId = setTimeout(() => controller.abort(), 10000); // 10s timeout
 
+                        // Baileys timestamp handling (can be absolute or Long object)
+                        let safeTimestamp = msg.messageTimestamp;
+                        if (typeof safeTimestamp === 'object' && safeTimestamp !== null && 'toNumber' in safeTimestamp) {
+                            safeTimestamp = (safeTimestamp as any).toNumber();
+                        } else if (typeof safeTimestamp === 'undefined') {
+                            safeTimestamp = Math.floor(Date.now() / 1000);
+                        }
+
                         console.log(`Sending webhook to: ${WEBHOOK_URL}`);
                         try {
                             const response = await fetch(WEBHOOK_URL, {
@@ -135,23 +143,26 @@ export async function connectToWhatsApp() {
                                     fromMe: msg.key.fromMe,
                                     text: text,
                                     senderName: msg.pushName || null,
-                                    timestamp: msg.messageTimestamp
+                                    timestamp: Number(safeTimestamp)
                                 }),
                                 signal: controller.signal
                             });
                             clearTimeout(timeoutId);
 
+                            const responseText = await response.text();
+
                             if (!response.ok) {
+                                console.error(`Webhook Error [${response.status}]: ${responseText}`);
                                 throw new Error(`Webhook failed with status: ${response.status}`);
                             }
 
-                            console.log('Webhook sent successfully');
+                            console.log('Webhook sent successfully. Response:', responseText);
                         } catch (error: any) {
                             clearTimeout(timeoutId);
                             throw error;
                         }
                     } catch (e: any) {
-                        console.error('Failed to notify webhook:', e.message, e.cause);
+                        console.error('Failed to notify webhook:', e.message);
                     }
                 }
             }
