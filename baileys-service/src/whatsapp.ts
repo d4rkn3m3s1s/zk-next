@@ -119,22 +119,37 @@ export async function connectToWhatsApp() {
                         const WEBHOOK_URL = process.env.WEBHOOK_URL || 'http://localhost:3000/api/whatsapp/webhook';
                         const API_KEY = process.env.API_KEY || 'changeme';
 
+                        const controller = new AbortController();
+                        const timeoutId = setTimeout(() => controller.abort(), 10000); // 10s timeout
+
                         console.log(`Sending webhook to: ${WEBHOOK_URL}`);
-                        await fetch(WEBHOOK_URL, {
-                            method: 'POST',
-                            headers: {
-                                'Content-Type': 'application/json',
-                                'x-api-key': API_KEY
-                            },
-                            body: JSON.stringify({
-                                remoteJid: msg.key.remoteJid,
-                                fromMe: msg.key.fromMe,
-                                text: text,
-                                senderName: msg.pushName || null,
-                                timestamp: msg.messageTimestamp
-                            })
-                        });
-                        console.log('Webhook sent successfully');
+                        try {
+                            const response = await fetch(WEBHOOK_URL, {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/json',
+                                    'x-api-key': API_KEY
+                                },
+                                body: JSON.stringify({
+                                    remoteJid: msg.key.remoteJid,
+                                    fromMe: msg.key.fromMe,
+                                    text: text,
+                                    senderName: msg.pushName || null,
+                                    timestamp: msg.messageTimestamp
+                                }),
+                                signal: controller.signal
+                            });
+                            clearTimeout(timeoutId);
+
+                            if (!response.ok) {
+                                throw new Error(`Webhook failed with status: ${response.status}`);
+                            }
+
+                            console.log('Webhook sent successfully');
+                        } catch (error: any) {
+                            clearTimeout(timeoutId);
+                            throw error;
+                        }
                     } catch (e: any) {
                         console.error('Failed to notify webhook:', e.message, e.cause);
                     }
